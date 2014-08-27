@@ -41,7 +41,7 @@ public class App {
         transaction.close();
         Undertow server = Undertow.builder()
                 .addHttpListener(8080, "localhost")
-                .setHandler(new KevoreeTransactionHttpWrapper(manager)).build();
+                .setHandler(new MainHandler(manager)).build();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 manager.close();

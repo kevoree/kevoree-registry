@@ -29,6 +29,11 @@
             <artifactId>undertow-core</artifactId>
             <version>${undertow.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.eclipsesource.minimal-json</groupId>
+            <artifactId>minimal-json</artifactId>
+            <version>${minimal.json.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
