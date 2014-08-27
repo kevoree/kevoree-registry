@@ -49,7 +49,7 @@
     </developers>
 
     <properties>
-        <kmf.version>3.2.3-SNAPSHOT</kmf.version>
+        <kmf.version>3.3.0</kmf.version>
         <undertow.version>1.0.15.Final</undertow.version>
     </properties>
 
