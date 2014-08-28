@@ -40,7 +40,7 @@ public class App {
         transaction.commit();
         transaction.close();
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
+                .addHttpListener(8080, "0.0.0.0")
                 .setHandler(new MainHandler(manager)).build();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
