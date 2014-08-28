@@ -34,11 +34,16 @@ public class MainHandler implements HttpHandler {
                 getHandler.handleRequest(httpServerExchange);
             } else {
                 if (httpServerExchange.getRequestMethod().equals(HttpString.tryFromString("POST"))) {
+
+                    System.out.println(httpServerExchange.getRelativePath());
+
+                    /*
                     if (httpServerExchange.getRelativePath().equals("/deploy")) {
                         deployHandler.handleRequest(httpServerExchange);
                     } else {
                         searchHandler.handleRequest(httpServerExchange);
                     }
+                    */
                 }
             }
 
