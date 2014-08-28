@@ -45,7 +45,6 @@ public class App {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 manager.close();
-                dataStore.sync();
             }
         });
         server.start();
