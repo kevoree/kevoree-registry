@@ -50,7 +50,7 @@
 
     <properties>
         <kmf.version>3.3.1-SNAPSHOT</kmf.version>
-        <undertow.version>1.1.0.Beta6</undertow.version>
+        <undertow.version>1.0.15.Final</undertow.version>
         <minimal.json.version>0.9.1</minimal.json.version>
     </properties>
 

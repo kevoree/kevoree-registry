@@ -73,7 +73,7 @@ public class GetHandler implements HttpHandler {
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
                 httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
             }
-            httpServerExchange.endExchange();
+            //httpServerExchange.endExchange();
         } finally {
             trans.close();
         }
