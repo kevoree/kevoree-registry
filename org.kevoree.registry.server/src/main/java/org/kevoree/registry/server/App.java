@@ -39,8 +39,14 @@ public class App {
         }
         transaction.commit();
         transaction.close();
+
+        String port = "8080";
+        if (System.getProperty("port") != null) {
+            port = System.getProperty("port");
+        }
+
         Undertow server = Undertow.builder()
-                .addHttpListener(8080, "0.0.0.0")
+                .addHttpListener(Integer.parseInt(port), "0.0.0.0")
                 .setHandler(new MainHandler(manager)).build();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
