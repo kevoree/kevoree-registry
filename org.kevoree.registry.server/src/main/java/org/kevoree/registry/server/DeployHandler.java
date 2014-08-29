@@ -39,7 +39,7 @@ public class DeployHandler implements HttpHandler {
         final String payloadRec = Helper.getStringFrom(httpServerExchange);
         httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
         httpServerExchange.getResponseSender().send("ack");
-        httpServerExchange.endExchange();
+        //httpServerExchange.endExchange();
         dispatcher.submit(new Runnable() {
             @Override
             public void run() {

@@ -28,7 +28,8 @@ public class MainHandler implements HttpHandler {
     @Override
     public void handleRequest(final HttpServerExchange httpServerExchange) throws Exception {
         if (httpServerExchange.getRequestPath().equals("/favicon.ico")) {
-            httpServerExchange.endExchange();
+            return;
+            //httpServerExchange.endExchange();
         } else {
             if (httpServerExchange.getRequestMethod().equals(HttpString.tryFromString("GET"))) {
                 getHandler.handleRequest(httpServerExchange);
