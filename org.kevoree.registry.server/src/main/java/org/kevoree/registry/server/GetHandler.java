@@ -45,7 +45,8 @@ public class GetHandler implements HttpHandler {
             List<KMFContainer> selected = trans.select(pathBuilder.toString());
             boolean jsonRequest = httpServerExchange.getQueryParameters().get("json") != null;
             boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
-            if (jsonRequest || traceRequest) {
+            boolean xmiRequest = httpServerExchange.getQueryParameters().get("xmi") != null;
+            if (jsonRequest || traceRequest || xmiRequest) {
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 if (selected.size() > 0) {
                     if (traceRequest) {
@@ -64,6 +65,21 @@ public class GetHandler implements HttpHandler {
                         TraceSequence prunedTraceSeq = pruner.prune(selected);
                         prunedTraceSeq.applyOn(prunedRoot);
                         String prunedModelSaved = tempTransaction.createJSONSerializer().serialize(prunedRoot);
+                        tempTransaction.close();
+                        tempMemoryManager.close();
+                        httpServerExchange.getResponseSender().send(prunedModelSaved);
+                    }
+                    if (xmiRequest) {
+                        MemoryDataStore tempStore = new MemoryDataStore();
+                        TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
+                        KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
+                        //Create empty Root model to collect result
+                        ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
+                        tempTransaction.root(prunedRoot);
+                        ModelPruner pruner = tempTransaction.createModelPruner();
+                        TraceSequence prunedTraceSeq = pruner.prune(selected);
+                        prunedTraceSeq.applyOn(prunedRoot);
+                        String prunedModelSaved = tempTransaction.createXMISerializer().serialize(prunedRoot);
                         tempTransaction.close();
                         tempMemoryManager.close();
                         httpServerExchange.getResponseSender().send(prunedModelSaved);
