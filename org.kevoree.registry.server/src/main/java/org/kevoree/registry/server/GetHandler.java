@@ -3,6 +3,7 @@ package org.kevoree.registry.server;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 import org.kevoree.ContainerRoot;
 import org.kevoree.factory.KevoreeTransaction;
 import org.kevoree.factory.KevoreeTransactionManager;
@@ -46,6 +47,9 @@ public class GetHandler implements HttpHandler {
             boolean jsonRequest = httpServerExchange.getQueryParameters().get("json") != null;
             boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
             boolean xmiRequest = httpServerExchange.getQueryParameters().get("xmi") != null;
+
+            httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
+
             if (jsonRequest || traceRequest || xmiRequest) {
                 httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                 if (selected.size() > 0) {
