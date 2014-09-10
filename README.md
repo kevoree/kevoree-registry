@@ -63,6 +63,6 @@ Date: Wed, 10 Sep 2014 08:48:55 GMT
 ```
 
 **Status Code:**
- - 200: Deploy succeed
+ - 201: Deploy succeed
  - 406: Content-Type is not handled (handled MIMEtypes are application/{json,vnd.xmi+xml} and text/plain)
  - 500: internal server error
