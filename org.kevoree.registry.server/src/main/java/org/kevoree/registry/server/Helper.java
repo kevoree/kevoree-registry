@@ -59,6 +59,15 @@ public class Helper {
                 }
             });
         }
+
+        if (selected.isEmpty()) {
+            buffer.append("<li class=\"list-group-item list-group-item-warning\">");
+            buffer.append("Unable to find <strong>");
+            buffer.append(relativePath);
+            buffer.append("</strong>");
+            buffer.append("</li>");
+        }
+
         buffer.append("</ul>");
         buffer.append("</div></div>");
         for (KMFContainer elem : selected) {

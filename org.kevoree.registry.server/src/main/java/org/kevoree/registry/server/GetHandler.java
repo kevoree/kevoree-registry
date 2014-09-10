@@ -2,6 +2,7 @@ package org.kevoree.registry.server;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import org.kevoree.ContainerRoot;
@@ -28,6 +29,8 @@ public class GetHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange httpServerExchange) throws Exception {
+        httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
+
         KevoreeTransaction trans = manager.createTransaction();
         try {
             String[] paths = httpServerExchange.getRequestPath().split("/");
@@ -44,56 +47,61 @@ public class GetHandler implements HttpHandler {
                 pathBuilder.append("/");
             }
             List<KMFContainer> selected = trans.select(pathBuilder.toString());
-            boolean jsonRequest = httpServerExchange.getQueryParameters().get("json") != null;
-            boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
-            boolean xmiRequest = httpServerExchange.getQueryParameters().get("xmi") != null;
+            String acceptType = httpServerExchange.getRequestHeaders().get("Accept").getFirst();
+            if (selected.size() > 0) {
+                if (acceptType.contains("application/json") || acceptType.contains("application/vnd.xmi+xml")) {
+                    MemoryDataStore tempStore = new MemoryDataStore();
+                    TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
+                    KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
+                    //Create empty Root model to collect result
+                    ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
+                    tempTransaction.root(prunedRoot);
+                    ModelPruner pruner = tempTransaction.createModelPruner();
+                    TraceSequence prunedTraceSeq = pruner.prune(selected);
+                    prunedTraceSeq.applyOn(prunedRoot);
 
-            httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
-
-            if (jsonRequest || traceRequest || xmiRequest) {
-                httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-                if (selected.size() > 0) {
-                    if (traceRequest) {
-                        ModelPruner pruner = trans.createModelPruner();
-                        TraceSequence prunedTraceSeq = pruner.prune(selected);
-                        httpServerExchange.getResponseSender().send(prunedTraceSeq.exportToString());
-                    }
-                    if (jsonRequest) {
-                        MemoryDataStore tempStore = new MemoryDataStore();
-                        TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
-                        KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
-                        //Create empty Root model to collect result
-                        ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
-                        tempTransaction.root(prunedRoot);
-                        ModelPruner pruner = tempTransaction.createModelPruner();
-                        TraceSequence prunedTraceSeq = pruner.prune(selected);
-                        prunedTraceSeq.applyOn(prunedRoot);
+                    if (acceptType.contains("application/json")) {
+                        // send JSON back
                         String prunedModelSaved = tempTransaction.createJSONSerializer().serialize(prunedRoot);
                         tempTransaction.close();
                         tempMemoryManager.close();
+
+                        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
                         httpServerExchange.getResponseSender().send(prunedModelSaved);
-                    }
-                    if (xmiRequest) {
-                        MemoryDataStore tempStore = new MemoryDataStore();
-                        TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
-                        KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
-                        //Create empty Root model to collect result
-                        ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
-                        tempTransaction.root(prunedRoot);
-                        ModelPruner pruner = tempTransaction.createModelPruner();
-                        TraceSequence prunedTraceSeq = pruner.prune(selected);
-                        prunedTraceSeq.applyOn(prunedRoot);
+
+                    } else {
+                        // send XMI back
                         String prunedModelSaved = tempTransaction.createXMISerializer().serialize(prunedRoot);
                         tempTransaction.close();
                         tempMemoryManager.close();
+
+                        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/vnd.xmi+xml");
                         httpServerExchange.getResponseSender().send(prunedModelSaved);
                     }
+
+                } else if (acceptType.contains("text/plain")) {
+                    // send TRACES back
+                    ModelPruner pruner = trans.createModelPruner();
+                    TraceSequence prunedTraceSeq = pruner.prune(selected);
+
+                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+                    httpServerExchange.getResponseSender().send(prunedTraceSeq.exportToString());
+
+                } else {
+                    // send HTML view of the model
+                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+                    httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
                 }
+
             } else {
-                httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-                httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
+                if (acceptType.contains("text/html")) {
+                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+                    httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
+                } else {
+                    httpServerExchange.setResponseCode(404);
+                    httpServerExchange.getResponseSender().close();
+                }
             }
-            //httpServerExchange.endExchange();
         } finally {
             trans.close();
         }
