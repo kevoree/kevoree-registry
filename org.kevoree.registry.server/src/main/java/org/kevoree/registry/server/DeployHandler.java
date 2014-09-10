@@ -50,7 +50,7 @@ public class DeployHandler implements HttpHandler {
             httpServerExchange.setResponseCode(201);
             httpServerExchange.getResponseSender().close();
         } else {
-            httpServerExchange.setResponseCode(500);
+            httpServerExchange.setResponseCode(406);
             httpServerExchange.getResponseSender().send("Unknown model mime type ("+contentType+")");
         }
 
