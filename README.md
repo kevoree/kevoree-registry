@@ -8,6 +8,7 @@ Registry server for Kevoree (hosting/delivering Kevoree models) available at [re
 `GET /your/package`
 
 The type of the delivered model is defined by your request `Accept` header:
+
 | Accept                  | Delivered type          |
 | ----------------------- | ----------------------- |
 | text/plain              | Traces sequence         |
@@ -41,6 +42,7 @@ Date: Wed, 10 Sep 2014 08:41:19 GMT
 `POST /deploy`
 
 The type of the model to host is defined by your request `Content-Type` header:
+
 | Content-Type            | Model type              |
 | ----------------------- | ----------------------- |
 | text/plain              | Traces sequence         |
