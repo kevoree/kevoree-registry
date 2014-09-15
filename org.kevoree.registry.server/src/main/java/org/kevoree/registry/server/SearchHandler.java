@@ -38,15 +38,17 @@ public class SearchHandler implements HttpHandler {
             for (JsonValue value : jsonArray) {
                 selected.addAll(transaction.select(value.asString()));
             }
-            boolean jsonRequest = httpServerExchange.getQueryParameters().get("json") != null;
-            boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
+            String contentType = httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE).getFirst();
+            boolean jsonRequest = contentType.contains("application/json");
+            // boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
             httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
             if (selected.size() > 0) {
+                /*
                 if (traceRequest) {
                     ModelPruner pruner = transaction.createModelPruner();
                     TraceSequence prunedTraceSeq = pruner.prune(selected);
                     httpServerExchange.getResponseSender().send(prunedTraceSeq.exportToString());
-                }
+                } */
                 if (jsonRequest) {
                     MemoryDataStore tempStore = new MemoryDataStore();
                     TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
