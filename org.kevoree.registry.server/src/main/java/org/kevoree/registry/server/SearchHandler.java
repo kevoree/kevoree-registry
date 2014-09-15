@@ -36,10 +36,7 @@ public class SearchHandler implements HttpHandler {
         try {
             List<KMFContainer> selected = new ArrayList<KMFContainer>();
             for (JsonValue value : jsonArray) {
-                KMFContainer r = transaction.lookup(value.asString());
-                if (r != null) {
-                    selected.add(r);
-                }
+                selected.addAll(transaction.select(value.asString()));
             }
             boolean jsonRequest = httpServerExchange.getQueryParameters().get("json") != null;
             boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
