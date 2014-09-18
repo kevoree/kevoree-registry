@@ -5,6 +5,7 @@ import com.eclipsesource.json.JsonValue;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 import org.kevoree.ContainerRoot;
 import org.kevoree.factory.KevoreeTransaction;
 import org.kevoree.factory.KevoreeTransactionManager;
@@ -30,6 +31,8 @@ public class SearchHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange httpServerExchange) throws Exception {
+        httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
+
         final String payloadRec = Helper.getStringFrom(httpServerExchange);
         JsonArray jsonArray = JsonArray.readFrom(payloadRec);
         KevoreeTransaction transaction = this.manager.createTransaction();
