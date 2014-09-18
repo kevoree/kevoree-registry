@@ -6,7 +6,6 @@ import io.undertow.util.Headers;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.ContainerRoot;
 import org.kevoree.factory.DefaultKevoreeFactory;
-import org.kevoree.factory.KevoreeFactory;
 import org.kevoree.factory.KevoreeTransaction;
 import org.kevoree.factory.KevoreeTransactionManager;
 import org.kevoree.modeling.api.KMFContainer;
