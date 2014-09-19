@@ -37,6 +37,8 @@ public class MainHandler implements HttpHandler {
                     } else {
                         searchHandler.handleRequest(httpServerExchange);
                     }
+                } else if (httpServerExchange.getRequestMethod().equals(HttpString.tryFromString("OPTIONS"))) {
+                    searchHandler.handleRequest(httpServerExchange);
                 }
             }
         }
