@@ -41,8 +41,6 @@ public class SearchHandler implements HttpHandler {
             for (JsonValue value : jsonArray) {
                 selected.addAll(transaction.select(value.asString()));
             }
-            String contentType = httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE).getFirst();
-            boolean jsonRequest = contentType.contains("application/json");
             // boolean traceRequest = httpServerExchange.getQueryParameters().get("trace") != null;
             httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
             if (selected.size() > 0) {
@@ -52,21 +50,19 @@ public class SearchHandler implements HttpHandler {
                     TraceSequence prunedTraceSeq = pruner.prune(selected);
                     httpServerExchange.getResponseSender().send(prunedTraceSeq.exportToString());
                 } */
-                if (jsonRequest) {
-                    MemoryDataStore tempStore = new MemoryDataStore();
-                    TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
-                    KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
-                    //Create empty Root model to collect result
-                    ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
-                    tempTransaction.root(prunedRoot);
-                    ModelPruner pruner = tempTransaction.createModelPruner();
-                    TraceSequence prunedTraceSeq = pruner.prune(selected);
-                    prunedTraceSeq.applyOn(prunedRoot);
-                    String prunedModelSaved = tempTransaction.createJSONSerializer().serialize(prunedRoot);
-                    tempTransaction.close();
-                    tempMemoryManager.close();
-                    httpServerExchange.getResponseSender().send(prunedModelSaved);
-                }
+                MemoryDataStore tempStore = new MemoryDataStore();
+                TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
+                KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
+                //Create empty Root model to collect result
+                ContainerRoot prunedRoot = tempTransaction.createContainerRoot();
+                tempTransaction.root(prunedRoot);
+                ModelPruner pruner = tempTransaction.createModelPruner();
+                TraceSequence prunedTraceSeq = pruner.prune(selected);
+                prunedTraceSeq.applyOn(prunedRoot);
+                String prunedModelSaved = tempTransaction.createJSONSerializer().serialize(prunedRoot);
+                tempTransaction.close();
+                tempMemoryManager.close();
+                httpServerExchange.getResponseSender().send(prunedModelSaved);
             }
         } finally {
             transaction.close();
