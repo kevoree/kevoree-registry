@@ -35,73 +35,71 @@ public class DeployHandler implements HttpHandler {
 
     @Override
     public void handleRequest(final HttpServerExchange httpServerExchange) throws Exception {
-        if (httpServerExchange.isInIoThread()) {
-            httpServerExchange.dispatch(this);
-            return;
-        }
-
         final String payloadRec = Helper.getStringFrom(httpServerExchange);
         String contentType = httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE).getFirst();
         final boolean isJSON = contentType.contains("application/json");
         final boolean isXMI = contentType.contains("application/vnd.xmi+xml");
         final boolean isTrace = contentType.contains("text/plain");
-        if (isJSON || isXMI || isTrace) {
-            httpServerExchange.setResponseCode(201);
-            httpServerExchange.getResponseSender().close();
-        } else {
+
+        if (!isJSON && !isXMI && !isTrace) {
             httpServerExchange.setResponseCode(406);
             httpServerExchange.getResponseSender().send("Unknown model mime type ("+contentType+")");
         }
 
-        dispatcher.submit(new Runnable() {
-            @Override
-            public void run() {
-                KevoreeTransaction currentTransaction = manager.createTransaction();
-                try {
-                    ContainerRoot currentRoot = (ContainerRoot) currentTransaction.lookup("/");
-                    MemoryDataStore tempStore = new MemoryDataStore();
-                    TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
-                    KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
+        if (httpServerExchange.isInIoThread()) {
+            httpServerExchange.dispatch(new Runnable() {
+                @Override
+                public void run() {
+                    KevoreeTransaction currentTransaction = manager.createTransaction();
+                    try {
+                        ContainerRoot currentRoot = (ContainerRoot) currentTransaction.lookup("/");
+                        MemoryDataStore tempStore = new MemoryDataStore();
+                        TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
+                        KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
 
 
-                    if (isJSON || isXMI) {
-                        ModelLoader loader;
-                        if (isJSON) {
-                            loader = tempTransaction.createJSONLoader();
-                        } else {
-                            loader = tempTransaction.createXMILoader();
-                        }
-                        List<KMFContainer> models = loader.loadModelFromString(payloadRec);
-                        ModelCompare compare = currentTransaction.createModelCompare();
-                        for (KMFContainer model : models) {
-                            ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
-                            TraceSequence seq = compare.merge(newRootToCompare, model);
-                            seq.applyOn(currentRoot);
-                        }
-
-                    } else if (isTrace) {
-                        TraceSequence ts = new TraceSequence(new DefaultKevoreeFactory(new MemoryDataStore()) {
-                            @NotNull
-                            @Override
-                            public Transaction getOriginTransaction() {
-                                return null;
+                        if (isJSON || isXMI) {
+                            ModelLoader loader;
+                            if (isJSON) {
+                                loader = tempTransaction.createJSONLoader();
+                            } else {
+                                loader = tempTransaction.createXMILoader();
                             }
-                        });
-                        ts.populateFromString(payloadRec);
-                        ts.applyOn(currentRoot);
+                            List<KMFContainer> models = loader.loadModelFromString(payloadRec);
+                            ModelCompare compare = currentTransaction.createModelCompare();
+                            for (KMFContainer model : models) {
+                                ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
+                                TraceSequence seq = compare.merge(newRootToCompare, model);
+                                seq.applyOn(currentRoot);
+                            }
+
+                        } else if (isTrace) {
+                            TraceSequence ts = new TraceSequence(new DefaultKevoreeFactory(new MemoryDataStore()) {
+                                @NotNull
+                                @Override
+                                public Transaction getOriginTransaction() {
+                                    return null;
+                                }
+                            });
+                            ts.populateFromString(payloadRec);
+                            ts.applyOn(currentRoot);
+                        }
+
+                        tempTransaction.close();
+                        tempMemoryManager.close();
+                        currentTransaction.commit();
+
+                        httpServerExchange.setResponseCode(201);
+                        httpServerExchange.getResponseSender().close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        httpServerExchange.setResponseCode(500);
+                        httpServerExchange.getResponseSender().send("Server error");
+                    } finally {
+                        currentTransaction.close();
                     }
-
-                    tempTransaction.close();
-                    tempMemoryManager.close();
-                    currentTransaction.commit();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    currentTransaction.close();
                 }
-            }
-        });
+            });
+        }
     }
-
-
 }
