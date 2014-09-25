@@ -17,15 +17,11 @@ import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by duke on 8/27/14.
  */
 public class DeployHandler implements HttpHandler {
-
-    private ExecutorService dispatcher = Executors.newSingleThreadExecutor();
 
     private KevoreeTransactionManager manager;
 
