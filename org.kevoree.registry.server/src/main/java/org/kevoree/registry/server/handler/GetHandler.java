@@ -25,10 +25,12 @@ public class GetHandler implements HttpHandler {
 
     private KevoreeTransactionManager manager;
     private Configuration config;
+    private String kevoreeVersion;
 
-    public GetHandler(KevoreeTransactionManager manager, Configuration config) {
+    public GetHandler(KevoreeTransactionManager manager, Configuration config, String kevoreeVersion) {
         this.manager = manager;
         this.config = config;
+        this.kevoreeVersion = kevoreeVersion;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class GetHandler implements HttpHandler {
                     exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
 
                     SimpleHash root = new SimpleHash();
-                    root.put("version", "5.0.0-SNAPSHOT");
+                    root.put("version", kevoreeVersion);
                     root.put("previousPath", ModelHelper.generatePreviousPath(exchange.getRelativePath()));
                     root.put("children", ModelHelper.generateChildren(selected, exchange.getRelativePath()));
                     root.put("elements", ModelHelper.generateElements(selected));

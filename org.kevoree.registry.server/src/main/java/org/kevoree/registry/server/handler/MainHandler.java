@@ -20,10 +20,10 @@ public class MainHandler implements HttpHandler {
     private SearchHandler searchHandler;
     private HttpHandler staticHandler;
 
-    public MainHandler(KevoreeTransactionManager ma, Configuration config) {
+    public MainHandler(KevoreeTransactionManager ma, Configuration config, String kevoreeVersion) {
         this.manager = ma;
         this.deployHandler = new DeployHandler(manager);
-        this.getHandler = new GetHandler(manager, config);
+        this.getHandler = new GetHandler(manager, config, kevoreeVersion);
         this.searchHandler = new SearchHandler(manager);
         this.staticHandler = new ResourceHandler(new ClassPathResourceManager(getClass().getClassLoader()));
     }

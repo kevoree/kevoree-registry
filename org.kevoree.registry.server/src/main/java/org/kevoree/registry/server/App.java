@@ -63,7 +63,7 @@ public class App {
 
         Undertow server = Undertow.builder()
                 .addHttpListener(Integer.parseInt(port), host)
-                .setHandler(new MainHandler(manager, cfg))
+                .setHandler(new MainHandler(manager, cfg, factory.getVersion()))
                 .build();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
