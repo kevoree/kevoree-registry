@@ -95,24 +95,12 @@ public class GetHandler implements HttpHandler {
 
                 } else {
                     // send HTML view of the model
-                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-
-                    SimpleHash root = new SimpleHash();
-                    root.put("version", kevoreeVersion);
-                    root.put("previousPath", ModelHelper.generatePreviousPath(exchange.getRelativePath()));
-                    root.put("children", ModelHelper.generateChildren(selected, exchange.getRelativePath()));
-                    root.put("elements", ModelHelper.generateElements(selected));
-
-                    Template tpl = config.getTemplate("index.ftl");
-                    StringWriter writer = new StringWriter();
-                    tpl.process(root, writer);
-                    exchange.getResponseSender().send(writer.toString());
+                    htmlResponse(exchange, selected, config);
                 }
 
             } else {
                 if (acceptType.contains("text/html")) {
-                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-//                    exchange.getResponseSender().send(ModelHelper.generate(selected, exchange.getRelativePath()));
+                    htmlResponse(exchange, selected, config);
                 } else {
                     exchange.setResponseCode(404);
                     exchange.getResponseSender().close();
@@ -121,5 +109,21 @@ public class GetHandler implements HttpHandler {
         } finally {
             trans.close();
         }
+    }
+
+    private void htmlResponse(HttpServerExchange exchange, List<KMFContainer> selected, Configuration config)
+            throws Exception {
+        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+
+        SimpleHash root = new SimpleHash();
+        root.put("version", kevoreeVersion);
+        root.put("previousPath", ModelHelper.generatePreviousPath(exchange.getRelativePath()));
+        root.put("children", ModelHelper.generateChildren(selected, exchange.getRelativePath()));
+        root.put("elements", ModelHelper.generateElements(selected));
+
+        Template tpl = config.getTemplate("index.ftl");
+        StringWriter writer = new StringWriter();
+        tpl.process(root, writer);
+        exchange.getResponseSender().send(writer.toString());
     }
 }
