@@ -1,4 +1,4 @@
-package org.kevoree.registry.server;
+package org.kevoree.registry.server.handler;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -15,6 +15,8 @@ import org.kevoree.modeling.api.TransactionManager;
 import org.kevoree.modeling.api.compare.ModelCompare;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.registry.server.util.ModelHelper;
+import org.kevoree.registry.server.util.RequestHelper;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class DeployHandler implements HttpHandler {
 
     @Override
     public void handleRequest(final HttpServerExchange httpServerExchange) throws Exception {
-        final String payloadRec = Helper.getStringFrom(httpServerExchange);
+        final String payloadRec = RequestHelper.getStringFrom(httpServerExchange);
         String contentType = httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE).getFirst();
         final boolean isJSON = contentType.contains("application/json");
         final boolean isXMI = contentType.contains("application/vnd.xmi+xml");

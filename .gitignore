@@ -7,3 +7,4 @@ release.properties
 *.iml
 kev_db_*/
 /*.iml
+*.log

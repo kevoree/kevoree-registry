@@ -1,4 +1,4 @@
-package org.kevoree.registry.server;
+package org.kevoree.registry.server.handler;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonValue;
@@ -14,6 +14,8 @@ import org.kevoree.modeling.api.ModelPruner;
 import org.kevoree.modeling.api.TransactionManager;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.registry.server.util.ModelHelper;
+import org.kevoree.registry.server.util.RequestHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class SearchHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange httpServerExchange) throws Exception {
         httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
 
-        final String payloadRec = Helper.getStringFrom(httpServerExchange);
+        final String payloadRec = RequestHelper.getStringFrom(httpServerExchange);
         JsonArray jsonArray = JsonArray.readFrom(payloadRec);
         KevoreeTransaction transaction = this.manager.createTransaction();
         try {

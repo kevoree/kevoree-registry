@@ -1,8 +1,8 @@
-package org.kevoree.registry.server;
+package org.kevoree.registry.server.handler;
 
+import freemarker.template.*;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import org.kevoree.ContainerRoot;
@@ -13,7 +13,9 @@ import org.kevoree.modeling.api.ModelPruner;
 import org.kevoree.modeling.api.TransactionManager;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.registry.server.util.ModelHelper;
 
+import java.io.StringWriter;
 import java.util.List;
 
 /**
@@ -22,18 +24,20 @@ import java.util.List;
 public class GetHandler implements HttpHandler {
 
     private KevoreeTransactionManager manager;
+    private Configuration config;
 
-    public GetHandler(KevoreeTransactionManager manager) {
+    public GetHandler(KevoreeTransactionManager manager, Configuration config) {
         this.manager = manager;
+        this.config = config;
     }
 
     @Override
-    public void handleRequest(HttpServerExchange httpServerExchange) throws Exception {
-        httpServerExchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
+    public void handleRequest(HttpServerExchange exchange) throws Exception {
+        exchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
 
         KevoreeTransaction trans = manager.createTransaction();
         try {
-            String[] paths = httpServerExchange.getRequestPath().split("/");
+            String[] paths = exchange.getRequestPath().split("/");
             StringBuilder pathBuilder = new StringBuilder();
             for (String path : paths) {
                 if (!path.equals("")) {
@@ -47,7 +51,7 @@ public class GetHandler implements HttpHandler {
                 pathBuilder.append("/");
             }
             List<KMFContainer> selected = trans.select(pathBuilder.toString());
-            String acceptType = httpServerExchange.getRequestHeaders().get("Accept").getFirst();
+            String acceptType = exchange.getRequestHeaders().get("Accept").getFirst();
             if (selected.size() > 0) {
                 if (acceptType.contains("application/json") || acceptType.contains("application/vnd.xmi+xml")) {
                     MemoryDataStore tempStore = new MemoryDataStore();
@@ -66,8 +70,8 @@ public class GetHandler implements HttpHandler {
                         tempTransaction.close();
                         tempMemoryManager.close();
 
-                        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
-                        httpServerExchange.getResponseSender().send(prunedModelSaved);
+                        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/json");
+                        exchange.getResponseSender().send(prunedModelSaved);
 
                     } else {
                         // send XMI back
@@ -75,8 +79,8 @@ public class GetHandler implements HttpHandler {
                         tempTransaction.close();
                         tempMemoryManager.close();
 
-                        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/vnd.xmi+xml");
-                        httpServerExchange.getResponseSender().send(prunedModelSaved);
+                        exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "application/vnd.xmi+xml");
+                        exchange.getResponseSender().send(prunedModelSaved);
                     }
 
                 } else if (acceptType.contains("text/plain")) {
@@ -84,22 +88,32 @@ public class GetHandler implements HttpHandler {
                     ModelPruner pruner = trans.createModelPruner();
                     TraceSequence prunedTraceSeq = pruner.prune(selected);
 
-                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
-                    httpServerExchange.getResponseSender().send(prunedTraceSeq.exportToString());
+                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
+                    exchange.getResponseSender().send(prunedTraceSeq.exportToString());
 
                 } else {
                     // send HTML view of the model
-                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-                    httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
+                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+
+                    SimpleHash root = new SimpleHash();
+                    root.put("version", "5.0.0-SNAPSHOT");
+                    root.put("previousPath", ModelHelper.generatePreviousPath(exchange.getRelativePath()));
+                    root.put("children", ModelHelper.generateChildren(selected, exchange.getRelativePath()));
+                    root.put("elements", ModelHelper.generateElements(selected));
+
+                    Template tpl = config.getTemplate("index.ftl");
+                    StringWriter writer = new StringWriter();
+                    tpl.process(root, writer);
+                    exchange.getResponseSender().send(writer.toString());
                 }
 
             } else {
                 if (acceptType.contains("text/html")) {
-                    httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
-                    httpServerExchange.getResponseSender().send(Helper.generate(selected, httpServerExchange.getRelativePath()));
+                    exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/html");
+//                    exchange.getResponseSender().send(ModelHelper.generate(selected, exchange.getRelativePath()));
                 } else {
-                    httpServerExchange.setResponseCode(404);
-                    httpServerExchange.getResponseSender().close();
+                    exchange.setResponseCode(404);
+                    exchange.getResponseSender().close();
                 }
             }
         } finally {
