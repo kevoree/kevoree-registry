@@ -9,11 +9,53 @@ import org.kevoree.modeling.api.util.ModelAttributeVisitor;
 import org.kevoree.modeling.api.util.ModelVisitor;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Created by duke on 8/27/14.
  */
 public class ModelHelper {
+
+    public static String fqn2path(String fqn) {
+        String path = "";
+        if (fqn != null) {
+            if (fqn.matches("^([a-z][.])*[A-Z]\\w*(/[a-zA-Z0-9_.-])?$|^([a-z])([.][a-z])*$")) {
+
+            } else {
+                // TODO does not match
+            }
+        }
+
+        return path;
+
+//
+//        if (fqn.isEmpty()) {
+//            return "";
+//        } else {
+//            if (Character.isUpperCase(fqn.charAt(0))) {
+//                return "*[org]/*[kevoree]/*[library]/name="+fqn;
+//            } else {
+//                String[] split = fqn.split(".");
+//                String last = split[split.length-1];
+//                if (Character.isUpperCase(fqn.charAt(0))) {
+//                    // given fqn has no package => Kevoree std lib TypeDefinition
+//                    if (last.contains("/")) {
+//                        // TypeDefinition's version specified (e.g JavaNode/1.2.3)
+//                        while (last.endsWith("/")) {
+//                            // remove trailing slash
+//                            last = "name="+last.substring(0, last.length()-2);
+//                        }
+//
+//                    } else {
+//                        // TypeDefinition without version specified (e.g JavascriptNode)
+//                        last = "name="+last;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return "";
+    }
 
     public static String generatePreviousPath(String relativePath) {
         if (relativePath.equals("")) {

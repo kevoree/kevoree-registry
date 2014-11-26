@@ -1,0 +1,32 @@
+html,
+body {
+    height: 100%;
+    background-color: #333;
+}
+
+#navbar-logo {
+    padding: 8px 15px 0;
+}
+
+#profile-picture-link {
+    padding: 0;
+}
+
+#profile-picture {
+    width: 50px;
+    margin-left: 10px;
+}
+
+#content {
+    margin-top: 65px;
+}
+
+table#namespaces th.align-right, table#namespaces td.align-right {
+    text-align: right;
+}
+
+.list-group-item {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

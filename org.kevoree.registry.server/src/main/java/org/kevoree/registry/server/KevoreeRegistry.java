@@ -1,7 +1,5 @@
 package org.kevoree.registry.server;
 
-import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 import io.undertow.Undertow;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.ContainerRoot;
@@ -10,33 +8,45 @@ import org.kevoree.factory.KevoreeFactory;
 import org.kevoree.factory.KevoreeTransaction;
 import org.kevoree.factory.KevoreeTransactionManager;
 import org.kevoree.modeling.api.Transaction;
-import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.datastores.leveldb.LevelDbDataStore;
-import org.kevoree.registry.server.handler.MainHandler;
+import org.kevoree.registry.server.handler.KevoreeRegistryHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
+ * Kevoree Registry main
  * Created by duke on 8/22/14.
  */
-public class App {
+public class KevoreeRegistry {
+
+    /**
+     *
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
-        KevoreeFactory factory = new DefaultKevoreeFactory(new MemoryDataStore()) {
+        final Logger log = LoggerFactory.getLogger(KevoreeRegistry.class.getSimpleName());
+
+        // create model datastore
+        final LevelDbDataStore dataStore = new LevelDbDataStore("kevoree-registry-db");
+        log.info("Database location: {}", Paths.get(dataStore.getDbStorageBasePath()).toAbsolutePath());
+
+        // create Kevoree factory
+        KevoreeFactory factory = new DefaultKevoreeFactory(dataStore) {
             @NotNull
             @Override
             public Transaction getOriginTransaction() {
                 return null;
             }
         };
-        String kevoreeVersion = factory.getVersion();
-        if (kevoreeVersion.contains(".")) {
-            kevoreeVersion = kevoreeVersion.substring(0, kevoreeVersion.indexOf("."));
-        }
-        System.out.println("Kevoree Registry Server (v"+kevoreeVersion+")");
-        final LevelDbDataStore dataStore = new LevelDbDataStore("kev_db_" + kevoreeVersion);
-        System.out.println("Database location: "+ Paths.get(dataStore.getDbStorageBasePath()).toAbsolutePath());
+        log.info("Kevoree Registry Server (v{})", factory.getVersion());
+
+        // create Kevoree transaction manager
         final KevoreeTransactionManager manager = new KevoreeTransactionManager(dataStore);
+
         KevoreeTransaction transaction = manager.createTransaction();
         ContainerRoot root = (ContainerRoot) transaction.lookup("/");
         if (root == null) {
@@ -46,32 +56,23 @@ public class App {
         transaction.commit();
         transaction.close();
 
-        String port = "8080";
-        if (System.getProperty("port") != null) {
-            port = System.getProperty("port");
-        }
-
-        String host = "0.0.0.0";
-        if (System.getProperty("host") != null) {
-            host = System.getProperty("host");
-        }
-
-        Configuration cfg = new Configuration();
-        cfg.setClassForTemplateLoading(App.class, "/WEB-INF/templates");
-        cfg.setDefaultEncoding("UTF-8");
-        cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
+        String port = System.getProperty("port", "8080");
+        String host = System.getProperty("host", "0.0.0.0");
 
         Undertow server = Undertow.builder()
                 .addHttpListener(Integer.parseInt(port), host)
-                .setHandler(new MainHandler(manager, cfg, factory.getVersion()))
+                .setHandler(new KevoreeRegistryHandler(manager, factory))
                 .build();
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+                log.info("Shutting down data store...");
                 manager.close();
+                log.info("Database gracefully closed.");
             }
         });
-        server.start();
-        System.out.println("Listening on "+host+":"+port);
-    }
 
+        server.start();
+        log.info("Listening on {}:{}", host, port);
+    }
 }

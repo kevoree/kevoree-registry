@@ -39,6 +39,31 @@
             <artifactId>freemarker</artifactId>
             <version>2.3.14</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.3.7.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.3-1102-jdbc41</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -48,7 +73,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>org.kevoree.registry.server.App</mainClass>
+                            <mainClass>org.kevoree.registry.server.KevoreeRegistry</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
