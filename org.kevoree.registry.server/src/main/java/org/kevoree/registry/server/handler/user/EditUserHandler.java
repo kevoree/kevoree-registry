@@ -10,15 +10,16 @@ import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import org.kevoree.registry.server.dao.KevUserDAO;
 import org.kevoree.registry.server.handler.AbstractTemplateHandler;
+import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.template.TemplateManager;
 
 /**
  * Created by leiko on 24/11/14.
  */
-public class EditHandler extends AbstractTemplateHandler {
+public class EditUserHandler extends AbstractTemplateHandler {
 
-    public EditHandler(TemplateManager manager) {
+    public EditUserHandler(TemplateManager manager) {
         super(manager);
     }
 
@@ -26,9 +27,8 @@ public class EditHandler extends AbstractTemplateHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        if (session.getAttribute("user") != null) {
-            KevUser user = (KevUser) session.getAttribute("user");
-
+        KevUser user = (KevUser) session.getAttribute(SessionHandler.ATTR_USER);
+        if (user != null) {
             // retrieve "namespace" value from form
             FormEncodedDataDefinition form = new FormEncodedDataDefinition();
             FormDataParser parser = form.create(exchange);

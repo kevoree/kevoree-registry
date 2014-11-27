@@ -1,29 +1,60 @@
-<div class="container">
-    <div class="row">
-        <div class="col-md-3 col-md-offset-2">
-            <a href="/!/auth/connect">
-                <img id="googleSignIn" src="/!/static/images/google_signin_base.png"
-                     onmousedown="document.getElementById('googleSignIn').src='/!/static/images/google_signin_press.png'"
-                     onmouseup="document.getElementById('googleSignIn').src='/!/static/images/google_signin_base.png'"
-                     onmouseover="document.getElementById('googleSignIn').src='/!/static/images/google_signin_hover.png'"
-                     onmouseout="document.getElementById('googleSignIn').src='/!/static/images/google_signin_base.png'"
-                     alt="Sign in with Google"/>
-            </a>
+<div class="container" data-ng-controller="SignInCtrl">
+    <div class="col-md-offset-1 col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Using OpenIDs</h3>
+            </div>
+            <div class="panel-body">
+                <a href="/!/auth/connect" class="align-middle">
+                    <img id="googleSignIn" src="/!/static/images/google_signin_base.png"
+                         onmousedown="document.getElementById('googleSignIn').src='/!/static/images/google_signin_press.png'"
+                         onmouseup="document.getElementById('googleSignIn').src='/!/static/images/google_signin_base.png'"
+                         onmouseover="document.getElementById('googleSignIn').src='/!/static/images/google_signin_hover.png'"
+                         onmouseout="document.getElementById('googleSignIn').src='/!/static/images/google_signin_base.png'"
+                         alt="Sign in with Google"/>
+                </a>
+            </div>
         </div>
-        <div class="col-md-6 well">
-            <form class="form-horizontal" role="form" action="/!/ns/add" method="post">
-                <div class="form-group form-group-sm">
-                    <label for="namespace" class="col-sm-3 control-label">Add namespace</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="namespace" placeholder="e.g: org.kevoree.library">
+    </div>
+
+    <div class="col-md-5">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Or using your email</h3>
+            </div>
+            <ul class="list-group" ng-show="error">
+                <li class="list-group-item list-group-item-danger">
+                    <h4 class="list-group-item-heading">Invalid inputs</h4>
+                    <p class="list-group-item-text">{{error}}</p>
+                </li>
+            </ul>
+            <div class="panel-body">
+                <form name="form" class="form-horizontal col-md-8 col-md-push-2">
+                    <div class="form-group" data-ng-class="{'has-error': form.name.$invalid && form.name.$dirty}">
+                        <label class="control-label" for="name">Username</label>
+                        <input class="form-control" type="text" id="name" name="name" data-ng-model="user.name" placeholder="Username" data-ng-minlength="1" required>
+                        <span class="help-block" data-ng-show="form.name.$invalid && form.name.$dirty">Required</span>
                     </div>
-                </div>
-                <div class="form-group form-group-sm">
-                    <div class="col-sm-offset-3 col-sm-9">
-                        <button type="submit" class="btn btn-default">Sign in</button>
+                    <div class="form-group" data-ng-class="{'has-error': form.email.$invalid && form.email.$dirty}">
+                        <label class="control-label" for="email">Email</label>
+                        <input class="form-control" type="email" id="email" name="email" data-ng-model="user.email" placeholder="Email" required>
+                        <span class="help-block" data-ng-show="form.email.$invalid && form.email.$dirty">Malformed email</span>
                     </div>
-                </div>
-            </form>
+                    <div class="form-group" data-ng-class="{'has-error': form.password.$invalid && form.password.$dirty}">
+                        <label class="control-label" for="password">Password</label>
+                        <input class="form-control" type="password" id="password" name="password" data-ng-model="user.password" data-ng-minlength="8" data-match="user.password1" placeholder="Password" required>
+                        <span class="help-block" data-ng-show="(form.password.$invalid && form.password.$dirty) || form.password.$error.match">Too short (min = 8) or not equal to other password</span>
+                    </div>
+                    <div class="form-group" data-ng-class="{'has-error': form.password1.$invalid && form.password1.$dirty}">
+                        <label class="control-label" for="password1">Retype password</label>
+                        <input class="form-control" type="password" id="password1" name="password1" data-ng-model="user.password1" data-ng-minlength="8" placeholder="Retype password" data-match="user.password" required>
+                        <span class="help-block" data-ng-show="(form.password1.$invalid && form.password1.$dirty) || form.password1.$error.match">Too short or not equal to other password</span>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary align-middle" data-ng-click="validate(user)" data-ng-disabled="form.$invalid">Sign in</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>

@@ -4,10 +4,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.RedirectHandler;
 import org.kevoree.registry.server.handler.AbstractTemplateHandler;
-import org.kevoree.registry.server.handler.auth.GoogleCallbackHandler;
-import org.kevoree.registry.server.handler.auth.ConnectHandler;
-import org.kevoree.registry.server.handler.auth.SignInHandler;
-import org.kevoree.registry.server.handler.auth.LogOutHandler;
+import org.kevoree.registry.server.handler.auth.*;
 import org.kevoree.registry.server.oauth.google.Auth;
 import org.kevoree.registry.server.template.TemplateManager;
 
@@ -34,7 +31,8 @@ public class AuthRouter extends AbstractTemplateHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         new PathHandler()
-                .addPrefixPath("/signin", get(new SignInHandler(tplManager)))
+                .addPrefixPath("/signin", new SignInHandler(tplManager))
+                .addPrefixPath("/login", get(new LogInHandler(tplManager)))
                 .addPrefixPath("/logout", get(new LogOutHandler()))
                 .addPrefixPath("/connect", get(new ConnectHandler(googleAuth)))
                 .addPrefixPath("/gcallback", get(new GoogleCallbackHandler(googleAuth)))

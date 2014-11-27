@@ -7,6 +7,7 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import org.kevoree.registry.server.dao.KevUserDAO;
+import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.oauth.google.Auth;
 import org.kevoree.registry.server.oauth.google.GoogleOAuth2Manager;
@@ -31,7 +32,7 @@ public class GoogleCallbackHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        if (session.getAttribute("user") != null) {
+        if (session.getAttribute(SessionHandler.ATTR_USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
         } else {
             Map<String, Deque<String>> params = exchange.getQueryParameters();
@@ -47,13 +48,14 @@ public class GoogleCallbackHandler implements HttpHandler {
                         // session state is consistent: proceed
                         // create HTTPS POST request to retrieve OAuth2 token
                         KevUser user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
-                        session.setAttribute("user", user);
 
                         // check if user is already in db
                         if (KevUserDAO.getInstance().get(user.getId()) == null) {
                             // user not in db: add it
                             KevUserDAO.getInstance().add(user);
                         }
+
+                        session.setAttribute(SessionHandler.ATTR_USERID, user.getId());
 
                         exchange.setQueryString("");
                         new RedirectHandler("/").handleRequest(exchange);

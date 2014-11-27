@@ -5,6 +5,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import org.kevoree.registry.server.dao.KevUserDAO;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.MD5;
@@ -14,6 +15,9 @@ import org.kevoree.registry.server.util.MD5;
  * Created by leiko on 19/11/14.
  */
 public class SessionHandler extends AbstractTemplateHandler {
+
+    public static final String ATTR_USERID = "userId";
+    public static final String ATTR_USER = "user";
 
     private HttpHandler next;
 
@@ -32,11 +36,14 @@ public class SessionHandler extends AbstractTemplateHandler {
                 manager.createSession(exchange, sessionConfig);
                 tplManager.putLayoutData("connected", false);
             } else {
-                if (session.getAttribute("user") == null) {
+                if (session.getAttribute(ATTR_USERID) == null) {
                     tplManager.putLayoutData("user", null);
                     tplManager.putLayoutData("connected", false);
                 } else {
-                    KevUser user = (KevUser) session.getAttribute("user");
+                    String userId = (String) session.getAttribute(ATTR_USERID);
+                    KevUser user = KevUserDAO.getInstance().get(userId);
+                    // update user in session for each request
+                    session.setAttribute(ATTR_USER, user);
                     String gravatar = "https://secure.gravatar.com/avatar/" +
                             MD5.md5Hex(user.getGravatarEmail()) +
                             ".jpg?s=50&r=g&d=mm";

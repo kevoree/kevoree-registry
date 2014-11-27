@@ -21,7 +21,7 @@ body {
     margin-top: 65px;
 }
 
-table#namespaces th.align-right, table#namespaces td.align-right {
+table th.align-right, table td.align-right {
     text-align: right;
 }
 
@@ -29,4 +29,9 @@ table#namespaces th.align-right, table#namespaces td.align-right {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.align-middle {
+    display: table;
+    margin: 0 auto;
 }

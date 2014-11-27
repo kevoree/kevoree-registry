@@ -1,22 +1,30 @@
-package org.kevoree.registry.server.handler.user;
+package org.kevoree.registry.server.handler.auth;
 
-import freemarker.template.SimpleHash;
+import com.eclipsesource.json.JsonObject;
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import io.undertow.util.Methods;
+import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.dao.KevUserDAO;
 import org.kevoree.registry.server.handler.AbstractTemplateHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.util.Password;
+import org.kevoree.registry.server.util.PasswordHash;
+import org.kevoree.registry.server.util.RequestHelper;
 
 /**
+ *
  * Created by leiko on 20/11/14.
  */
-public class ProfileHandler extends AbstractTemplateHandler {
+public class LogInHandler extends AbstractTemplateHandler {
 
-    public ProfileHandler(TemplateManager manager) {
+    public LogInHandler(TemplateManager manager) {
         super(manager);
     }
 
@@ -24,16 +32,16 @@ public class ProfileHandler extends AbstractTemplateHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.ATTR_USER);
-        if (user != null) {
-            SimpleHash data = new SimpleHash();
-            // TODO add CSRF token for the form
-            data.put("user", user);
-            data.put("namespaces", user.getNamespaces());
-            tplManager.template(exchange, data, "profile.ftl");
-
-        } else {
+        if (session.getAttribute(SessionHandler.ATTR_USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
+        } else {
+            if (exchange.getRequestMethod().equals(Methods.POST)) {
+                // process POST data
+
+
+            } else {
+                tplManager.template(exchange, null, "login.ftl");
+            }
         }
     }
 }

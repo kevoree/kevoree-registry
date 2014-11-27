@@ -6,6 +6,7 @@ import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.oauth.google.Auth;
 import org.kevoree.registry.server.oauth.google.GoogleOAuth2Manager;
 
@@ -26,7 +27,7 @@ public class ConnectHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        if (session.getAttribute("user") != null) {
+        if (session.getAttribute(SessionHandler.ATTR_USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
         } else {
             googleAuth.state = UUID.randomUUID().toString();

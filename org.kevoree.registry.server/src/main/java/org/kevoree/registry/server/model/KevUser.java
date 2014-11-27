@@ -2,11 +2,11 @@ package org.kevoree.registry.server.model;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
+import org.kevoree.registry.server.util.PasswordHash;
 
 import javax.persistence.*;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * User POJO
@@ -29,10 +29,11 @@ public class KevUser {
             })
     private Set<Namespace> namespaces;
 
-    @Column(name = "session_id")
-    private String sessionId;
-
     private String name;
+
+    private String password;
+
+    private String salt;
 
     @Column(name = "gravatar_email")
     private String gravatarEmail;
@@ -61,14 +62,6 @@ public class KevUser {
         this.namespaces.remove(namespace);
     }
 
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
     public String getName() {
         return name;
     }
@@ -83,6 +76,22 @@ public class KevUser {
 
     public void setGravatarEmail(String gravatarEmail) {
         this.gravatarEmail = gravatarEmail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public JsonObject toJson() {

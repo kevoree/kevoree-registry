@@ -2,9 +2,9 @@ package org.kevoree.registry.server.router;
 
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
-import io.undertow.server.handlers.ResponseCodeHandler;
 import org.kevoree.registry.server.handler.AbstractTemplateHandler;
-import org.kevoree.registry.server.handler.user.EditHandler;
+import org.kevoree.registry.server.handler.user.DeleteUserHandler;
+import org.kevoree.registry.server.handler.user.EditUserHandler;
 import org.kevoree.registry.server.handler.user.ProfileHandler;
 import org.kevoree.registry.server.template.TemplateManager;
 
@@ -23,9 +23,9 @@ public class UserRouter extends AbstractTemplateHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         new PathHandler()
-            .addPrefixPath("/delete", ResponseCodeHandler.HANDLE_404) // TODO
-            .addPrefixPath("/edit", post(new EditHandler(tplManager)))
-            .addPrefixPath("/", new ProfileHandler(tplManager))
-            .handleRequest(exchange);
+                .addPrefixPath("/delete", post(new DeleteUserHandler(tplManager)))
+                .addPrefixPath("/edit", post(new EditUserHandler(tplManager)))
+                .addPrefixPath("/", new ProfileHandler(tplManager))
+                .handleRequest(exchange);
     }
 }
