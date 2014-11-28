@@ -12,17 +12,18 @@
             </ul>
             <div class="panel-body">
                 <form name="form" class="form-horizontal col-md-8 col-md-push-2">
+                    <input type="hidden" name="csrfToken" value="${csrfToken}">
                     <div class="form-group" data-ng-class="{'has-error': form.email.$invalid && form.email.$dirty}">
                         <label class="control-label" for="email">Email</label>
-                        <input class="form-control" type="email" id="email" name="email" data-ng-model="user.email" placeholder="Email" required>
+                        <input class="form-control" type="email" id="email" name="email" data-ng-model="user.email" placeholder="Email" data-ng-keyup="$event.keyCode == 13 && !form.$invalid" required>
                         <span class="help-block" data-ng-show="form.email.$invalid && form.email.$dirty">Malformed email</span>
                     </div>
                     <div class="form-group" data-ng-class="{'has-error': form.password.$invalid && form.password.$dirty}">
                         <label class="control-label" for="password">Password</label>
-                        <input class="form-control" type="password" id="password" name="password" data-ng-model="user.password" data-ng-minlength="8" placeholder="Password" required>
+                        <input class="form-control" type="password" id="password" name="password" data-ng-model="user.password" data-ng-minlength="8" data-ng-keyup="$event.keyCode == 13 && !form.$invalid" placeholder="Password" required>
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary align-middle" data-ng-click="validate(user)" data-ng-disabled="form.$invalid">Log in</button>
+                        <button type="submit" class="btn btn-primary align-middle" data-ng-click="validate(user, form.csrfToken)" data-ng-disabled="form.$invalid">Log in</button>
                     </div>
                 </form>
             </div>

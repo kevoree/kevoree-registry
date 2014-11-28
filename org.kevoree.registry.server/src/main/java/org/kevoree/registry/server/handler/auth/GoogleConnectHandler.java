@@ -16,10 +16,10 @@ import java.util.UUID;
  * Redirects the user to Google OAuth2 API
  * Created by leiko on 17/11/14.
  */
-public class ConnectHandler implements HttpHandler {
+public class GoogleConnectHandler implements HttpHandler {
     private Auth googleAuth;
 
-    public ConnectHandler(Auth auth) {
+    public GoogleConnectHandler(Auth auth) {
         this.googleAuth = auth;
     }
 
@@ -27,7 +27,7 @@ public class ConnectHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        if (session.getAttribute(SessionHandler.ATTR_USERID) != null) {
+        if (session.getAttribute(SessionHandler.USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
         } else {
             googleAuth.state = UUID.randomUUID().toString();

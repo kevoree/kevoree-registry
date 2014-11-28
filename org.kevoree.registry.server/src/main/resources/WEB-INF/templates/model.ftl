@@ -3,7 +3,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">Error</div>
         <ul class="list-group">
-            <li class="list-group-item list-group-item-warning">
+            <li class="list-group-item list-group-item-warning list-group-item-ellipsis">
                 Unable to find <strong>${relativePath}</strong>
             </li>
         </ul>
@@ -14,7 +14,7 @@
             <div class="panel-heading">${elem.name}</div>
             <ul class="list-group">
                 <#list elem.attributes as attr>
-                    <li class="list-group-item">${attr}</a></li>
+                    <li class="list-group-item list-group-item-ellipsis">${attr}</a></li>
                 </#list>
             </ul>
         </div>
@@ -23,9 +23,9 @@
     <div class="panel panel-default">
         <div class="panel-heading">Children (${children?size + 1})</div>
         <ul class="list-group">
-            <li class="list-group-item"><a href="${previousPath}">parent</a></li>
+            <li class="list-group-item list-group-item-ellipsis"><a href="${previousPath}">parent</a></li>
             <#list children as child>
-                <li class="list-group-item"><a href="${child.link}">${child.key}</a></li>
+                <li class="list-group-item list-group-item-ellipsis"><a href="${child.link}">${child.key}</a></li>
             </#list>
         </ul>
     </div>

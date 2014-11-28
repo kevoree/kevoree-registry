@@ -32,9 +32,9 @@ public class AuthRouter extends AbstractTemplateHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         new PathHandler()
                 .addPrefixPath("/signin", new SignInHandler(tplManager))
-                .addPrefixPath("/login", get(new LogInHandler(tplManager)))
+                .addPrefixPath("/login", new LogInHandler(tplManager))
                 .addPrefixPath("/logout", get(new LogOutHandler()))
-                .addPrefixPath("/connect", get(new ConnectHandler(googleAuth)))
+                .addPrefixPath("/gconnect", get(new GoogleConnectHandler(googleAuth)))
                 .addPrefixPath("/gcallback", get(new GoogleCallbackHandler(googleAuth)))
                 .addPrefixPath("/", new RedirectHandler("/"))
                 .handleRequest(exchange);

@@ -6,6 +6,8 @@ import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
 import org.kevoree.registry.server.dao.NamespaceDAO;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
@@ -20,7 +22,7 @@ abstract class AbstractNSHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.ATTR_USER);
+        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
         if (user != null) {
             String fqn = exchange.getRelativePath();
             if (fqn.startsWith("/")) {
@@ -36,6 +38,13 @@ abstract class AbstractNSHandler implements HttpHandler {
                 } else {
                     new RedirectHandler("/").handleRequest(exchange);
                 }
+            }
+        } else {
+            HeaderValues acceptValues = exchange.getRequestHeaders().get(Headers.ACCEPT);
+            if (acceptValues == null || acceptValues.getFirst().equals("text/html")) {
+
+            } else {
+
             }
         }
     }

@@ -9,6 +9,7 @@ import org.kevoree.registry.server.handler.user.ProfileHandler;
 import org.kevoree.registry.server.template.TemplateManager;
 
 import static org.kevoree.registry.server.util.RequestHelper.post;
+import static org.kevoree.registry.server.util.RequestHelper.get;
 
 /**
  * API /user router
@@ -25,7 +26,7 @@ public class UserRouter extends AbstractTemplateHandler {
         new PathHandler()
                 .addPrefixPath("/delete", post(new DeleteUserHandler(tplManager)))
                 .addPrefixPath("/edit", post(new EditUserHandler(tplManager)))
-                .addPrefixPath("/", new ProfileHandler(tplManager))
+                .addPrefixPath("/", get(new ProfileHandler(tplManager)))
                 .handleRequest(exchange);
     }
 }

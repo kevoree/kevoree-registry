@@ -32,7 +32,7 @@ public class GoogleCallbackHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        if (session.getAttribute(SessionHandler.ATTR_USERID) != null) {
+        if (session.getAttribute(SessionHandler.USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
         } else {
             Map<String, Deque<String>> params = exchange.getQueryParameters();
@@ -52,10 +52,11 @@ public class GoogleCallbackHandler implements HttpHandler {
                         // check if user is already in db
                         if (KevUserDAO.getInstance().get(user.getId()) == null) {
                             // user not in db: add it
+                            user.setSessionId(session.getId());
                             KevUserDAO.getInstance().add(user);
                         }
 
-                        session.setAttribute(SessionHandler.ATTR_USERID, user.getId());
+                        session.setAttribute(SessionHandler.USERID, user.getId());
 
                         exchange.setQueryString("");
                         new RedirectHandler("/").handleRequest(exchange);

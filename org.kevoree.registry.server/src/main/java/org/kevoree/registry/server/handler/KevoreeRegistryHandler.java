@@ -12,6 +12,7 @@ import org.kevoree.factory.KevoreeFactory;
 import org.kevoree.factory.KevoreeTransactionManager;
 import org.kevoree.registry.server.handler.model.ModelHandler;
 import org.kevoree.registry.server.handler.model.SearchModelHandler;
+import org.kevoree.registry.server.manager.DbSessionManager;
 import org.kevoree.registry.server.router.AuthRouter;
 import org.kevoree.registry.server.router.NamespaceRouter;
 import org.kevoree.registry.server.router.UserRouter;
@@ -42,14 +43,16 @@ public class KevoreeRegistryHandler implements HttpHandler {
         tplManager.putLayoutData("version", factory.getVersion());
 
         this.sessionAttachmentHandler = new SessionAttachmentHandler(
-                new SessionHandler(tplManager, new PathHandler()
-                        .addPrefixPath("/!/auth", new AuthRouter(tplManager))
-                        .addPrefixPath("/!/user", new UserRouter(tplManager))
-                        .addPrefixPath("/!/ns", new NamespaceRouter(tplManager))
-                        .addPrefixPath("/!/search", new SearchModelHandler(tplManager))
-                        .addPrefixPath("/!/static", get(new StaticHandler()))
-                        .addPrefixPath("/", new ModelHandler(tplManager, manager))),
-                new InMemorySessionManager("kevoree_registry"),
+                new SessionHandler(tplManager,
+                        new CSRFHandler(tplManager, new PathHandler()
+                                .addPrefixPath("/!/auth", new AuthRouter(tplManager))
+                                .addPrefixPath("/!/user", new UserRouter(tplManager))
+                                .addPrefixPath("/!/ns", new NamespaceRouter(tplManager))
+                                .addPrefixPath("/!/search", new SearchModelHandler(tplManager))
+                                .addPrefixPath("/!/static", get(new StaticHandler()))
+                                .addPrefixPath("/", new ModelHandler(tplManager, manager))
+                        )),
+                new DbSessionManager("kevoree_registry"),
                 new SessionCookieConfig()
         );
     }

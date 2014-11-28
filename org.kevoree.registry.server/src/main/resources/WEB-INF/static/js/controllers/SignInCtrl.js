@@ -6,15 +6,12 @@
 angular.module('kevoreeRegistry')
     .controller('SignInCtrl', ['$scope', '$http', function($scope, $http) {
         $scope.error = null;
-        $scope.validate = function(user) {
-            var data = {
-                name: user.name,
-                email: user.email,
-                password: CryptoJS.SHA512(user.password).toString()
-            };
 
-            console.log('Sign in clicked:', data);
-            $http.post('/!/auth/signin', data)
+        $scope.validate = function(user) {
+            var formData = angular.copy(user);
+            delete formData['password1'];
+
+            $http.post('/!/auth/signin', formData)
                 .success(function () {
                     window.location = '/';
                 })
@@ -23,22 +20,4 @@ angular.module('kevoreeRegistry')
                 });
         };
 
-    }]).directive("match", function() {
-        return {
-            require: '?ngModel',
-            restrict: 'A',
-            scope: {
-                match: '='
-            },
-            link: function(scope, elem, attrs, ctrl) {
-                if (!ctrl) { return; }
-
-                scope.$watch(function() {
-                    var modelValue = angular.isUndefined(ctrl.$modelValue)? ctrl.$$invalidModelValue : ctrl.$modelValue;
-                    return (ctrl.$pristine && angular.isUndefined(modelValue)) || scope.match === modelValue;
-                }, function(currentValue) {
-                    ctrl.$setValidity('match', currentValue);
-                });
-            }
-        };
-    });
+    }]);

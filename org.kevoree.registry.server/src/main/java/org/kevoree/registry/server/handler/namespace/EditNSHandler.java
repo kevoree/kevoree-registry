@@ -11,7 +11,7 @@ import org.kevoree.registry.server.model.Namespace;
 import java.io.StringWriter;
 
 /**
- * REST namespace/edit/:fqn
+ * REST /!/ns/edit/:fqn
  * Created by leiko on 21/11/14.
  */
 public class EditNSHandler extends AbstractNSHandler {

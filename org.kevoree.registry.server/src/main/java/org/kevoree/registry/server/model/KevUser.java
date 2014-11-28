@@ -38,6 +38,9 @@ public class KevUser {
     @Column(name = "gravatar_email")
     private String gravatarEmail;
 
+    @Column(name = "session_id")
+    private String sessionId;
+
     public KevUser() {
         this.namespaces = Collections.synchronizedSet(new HashSet<Namespace>());
     }
@@ -94,10 +97,19 @@ public class KevUser {
         this.salt = salt;
     }
 
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     public JsonObject toJson() {
         JsonObject obj = new JsonObject();
         obj.add("id", id);
         obj.add("name", name);
+        obj.add("gravatarEmail", gravatarEmail);
 
         JsonArray namespaces = new JsonArray();
         for (Namespace ns : this.namespaces)  {

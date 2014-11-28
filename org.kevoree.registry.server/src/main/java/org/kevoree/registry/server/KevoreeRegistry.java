@@ -71,7 +71,6 @@ public class KevoreeRegistry {
                 log.info("Database gracefully closed.");
             }
         });
-
         server.start();
         log.info("Listening on {}:{}", host, port);
     }

@@ -18,6 +18,7 @@ import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.model.Namespace;
 
 /**
+ * API /!/ns/add
  * Created by leiko on 24/11/14.
  */
 public class AddNSHandler implements HttpHandler {
@@ -26,7 +27,7 @@ public class AddNSHandler implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.ATTR_USER);
+        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
         if (user != null) {
             // retrieve "namespace" value from form
             FormEncodedDataDefinition form = new FormEncodedDataDefinition();

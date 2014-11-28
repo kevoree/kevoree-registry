@@ -12,6 +12,15 @@
 
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="/!/static/css/style.css" rel="stylesheet"/>
+
+    <#-- TODO improve that in order to have only one file and some minification -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script>
+    <script src="/!/static/js/modules/ui-bootstrap-0.12.0.min.js"></script>
+    <script src="/!/static/js/app.js"></script>
+    <script src="/!/static/js/controllers/NavbarCtrl.js"></script>
+    <script src="/!/static/js/controllers/SignInCtrl.js"></script>
+    <script src="/!/static/js/controllers/LogInCtrl.js"></script>
+    <script src="/!/static/js/controllers/ProfileCtrl.js"></script>
 </head>
 
 <body>
@@ -63,14 +72,5 @@
     </nav>
 
     <div id="content">${content}</div>
-
-    <#-- TODO improve that in order to have only one file and some minification -->
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script>
-    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha512.js"></script>
-    <script src="/!/static/js/modules/ui-bootstrap-0.12.0.min.js"></script>
-    <script src="/!/static/js/app.js"></script>
-    <script src="/!/static/js/controllers/NavbarCtrl.js"></script>
-    <script src="/!/static/js/controllers/SignInCtrl.js"></script>
-    <script src="/!/static/js/controllers/LogInCtrl.js"></script>
 </body>
 </html>

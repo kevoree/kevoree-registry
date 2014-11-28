@@ -40,8 +40,8 @@ import java.security.spec.InvalidKeySpecException;
  * Author: havoc AT defuse.ca
  * www: http://crackstation.net/hashing-security.htm
  */
-public class PasswordHash
-{
+public class PasswordHash {
+
     public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
 
     // The following constants may be changed without breaking existing hashes.
@@ -53,6 +53,8 @@ public class PasswordHash
     public static final int SALT_INDEX = 1;
     public static final int PBKDF2_INDEX = 2;
 
+    private static final SecureRandom random = new SecureRandom();
+
     /**
      * Returns a salted PBKDF2 hash of the password.
      *
@@ -60,8 +62,7 @@ public class PasswordHash
      * @return              a salted PBKDF2 hash of the password
      */
     public static Password createHash(String password)
-            throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         return createHash(password.toCharArray());
     }
 
@@ -72,10 +73,8 @@ public class PasswordHash
      * @return              a salted PBKDF2 hash of the password
      */
     public static Password createHash(char[] password)
-            throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         // Generate a random salt
-        SecureRandom random = new SecureRandom();
         byte[] salt = new byte[SALT_BYTE_SIZE];
         random.nextBytes(salt);
 
@@ -90,30 +89,27 @@ public class PasswordHash
      * Validates a password using a hash.
      *
      * @param   password        the password to check
-     * @param   correctHash     the hash of the valid password
+     * @param   hashedPassword  the hash of the valid password
      * @return                  true if the password is correct, false if not
      */
-    public static boolean validatePassword(String password, String correctHash)
-            throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
-        return validatePassword(password.toCharArray(), correctHash);
+    public static boolean validatePassword(String password, Password hashedPassword)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        return validatePassword(password.toCharArray(), hashedPassword);
     }
 
     /**
      * Validates a password using a hash.
      *
      * @param   password        the password to check
-     * @param   correctHash     the hash of the valid password
+     * @param   hashedPassword  the hash of the valid password
      * @return                  true if the password is correct, false if not
      */
-    public static boolean validatePassword(char[] password, String correctHash)
-            throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
+    public static boolean validatePassword(char[] password, Password hashedPassword)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         // Decode the hash into its parameters
-        String[] params = correctHash.split(":");
-        int iterations = Integer.parseInt(params[ITERATION_INDEX]);
-        byte[] salt = fromHex(params[SALT_INDEX]);
-        byte[] hash = fromHex(params[PBKDF2_INDEX]);
+        int iterations = hashedPassword.getIterations();
+        byte[] salt = fromHex(hashedPassword.getSalt());
+        byte[] hash = fromHex(hashedPassword.getHash());
         // Compute the hash of the provided password, using the same salt, 
         // iteration count, and hash length
         byte[] testHash = pbkdf2(password, salt, iterations, hash.length);
@@ -131,8 +127,7 @@ public class PasswordHash
      * @param   b       the second byte array 
      * @return          true if both byte arrays are the same, false if not
      */
-    private static boolean slowEquals(byte[] a, byte[] b)
-    {
+    private static boolean slowEquals(byte[] a, byte[] b) {
         int diff = a.length ^ b.length;
         for(int i = 0; i < a.length && i < b.length; i++)
             diff |= a[i] ^ b[i];
@@ -149,8 +144,7 @@ public class PasswordHash
      * @return              the PBDKF2 hash of the password
      */
     private static byte[] pbkdf2(char[] password, byte[] salt, int iterations, int bytes)
-            throws NoSuchAlgorithmException, InvalidKeySpecException
-    {
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
         PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, bytes * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
         return skf.generateSecret(spec).getEncoded();
@@ -162,8 +156,7 @@ public class PasswordHash
      * @param   hex         the hex string
      * @return              the hex string decoded into a byte array
      */
-    private static byte[] fromHex(String hex)
-    {
+    private static byte[] fromHex(String hex) {
         byte[] binary = new byte[hex.length() / 2];
         for(int i = 0; i < binary.length; i++)
         {
@@ -178,8 +171,7 @@ public class PasswordHash
      * @param   array       the byte array to convert
      * @return              a length*2 character string encoding the byte array
      */
-    private static String toHex(byte[] array)
-    {
+    private static String toHex(byte[] array) {
         BigInteger bi = new BigInteger(1, array);
         String hex = bi.toString(16);
         int paddingLength = (array.length * 2) - hex.length();
