@@ -17,14 +17,14 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script>
     <script src="/!/static/js/modules/ui-bootstrap-0.12.0.min.js"></script>
     <script src="/!/static/js/app.js"></script>
-    <script src="/!/static/js/controllers/NavbarCtrl.js"></script>
+    <script src="/!/static/js/controllers/MainCtrl.js"></script>
     <script src="/!/static/js/controllers/SignInCtrl.js"></script>
     <script src="/!/static/js/controllers/LogInCtrl.js"></script>
     <script src="/!/static/js/controllers/ProfileCtrl.js"></script>
 </head>
 
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" data-ng-controller="NavbarCtrl">
+<body data-ng-controller="MainCtrl">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-ng-click="isCollapsed = !isCollapsed" aria-expanded="false" aria-controls="navbar">
@@ -37,7 +37,7 @@
                     <img src="/!/static/images/logo.png" alt="Kevoree logo"/>
                 </a>
             </div>
-            <div id="navbar" class="navbar-collapse collapse" collapse="isCollapsed">
+            <div id="navbar" class="navbar-collapse collapse" data-collapse="isCollapsed">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="/">Registry</a></li>
                 </ul>
@@ -48,24 +48,21 @@
                     <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search" aria-hidden="true"></span><span class="sr-only">Search</span></button>
                 </form>
                 <ul class="nav navbar-nav navbar-right">
-                <#if connected>
-                    <li class="dropdown" dropdown>
-                        <a href class="dropdown-toggle" dropdown-toggle>${user.getName()} <span class="caret"></span></a>
+                    <li class="dropdown" data-dropdown data-ng-show="user">
+                        <a href class="dropdown-toggle" data-dropdown-toggle>{{user.name}} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/!/user">My profile</a></li>
                             <li class="divider"></li>
                             <li><a href="/!/auth/logout">Log out</a></li>
                         </ul>
                     </li>
-                    <li>
+                    <li data-ng-show="user">
                         <a id="profile-picture-link" class="navbar-brand" href="/!/user">
-                            <img id="profile-picture" alt="Profile picture" src="${gravatar}">
+                            <img id="profile-picture" alt="Profile picture" data-ng-src="{{genGravatar(user.gravatarEmail)}}">
                         </a>
                     </li>
-                <#else>
-                    <li><a href="/!/auth/login">Log in</a></li>
-                    <li><a href="/!/auth/signin">Sign in</a></li>
-                </#if>
+                    <li data-ng-show="!user"><a href="/!/auth/login">Log in</a></li>
+                    <li data-ng-show="!user"><a href="/!/auth/signin">Sign in</a></li>
                 </ul>
             </div>
         </div>

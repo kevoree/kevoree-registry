@@ -33,7 +33,7 @@ public class NamespaceRouter extends AbstractTemplateHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         new PathHandler()
                 .addPrefixPath("/add", RequestHelper.post(add))
-                .addPrefixPath("/delete", RequestHelper.delete(delete))
+                .addPrefixPath("/delete", RequestHelper.post(delete))
                 .addPrefixPath("/leave", RequestHelper.post(leave))
                 .addPrefixPath("/", RequestHelper.get(get))
                 .handleRequest(exchange);

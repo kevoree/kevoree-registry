@@ -30,7 +30,6 @@
             </ul>
             <div class="panel-body">
                 <form name="form" class="form-horizontal col-md-8 col-md-push-2">
-                    <input type="hidden" name="csrfToken" value="${csrfToken}">
                     <div class="form-group" data-ng-class="{'has-error': form.name.$invalid && form.name.$dirty}">
                         <label class="control-label" for="name">Username</label>
                         <input class="form-control" type="text" id="name" name="name" data-ng-model="user.name" placeholder="Username" data-ng-minlength="1" data-ng-keyup="$event.keyCode == 13 && !form.$invalid" required>
@@ -54,7 +53,7 @@
                         <span class="help-block" data-ng-show="form.password1.$error.match">Must be equal to the other password</span>
                     </div>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary align-middle" data-ng-click="validate(user, form.csrfToken)" data-ng-disabled="form.$invalid">Sign in</button>
+                        <button type="submit" class="btn btn-primary align-middle" data-ng-click="validate(user)" data-ng-disabled="form.$invalid">Sign in</button>
                     </div>
                 </form>
             </div>

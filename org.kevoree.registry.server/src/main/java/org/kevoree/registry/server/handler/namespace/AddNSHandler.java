@@ -1,41 +1,48 @@
 package org.kevoree.registry.server.handler.namespace;
 
-import io.undertow.server.HttpHandler;
+import com.eclipsesource.json.JsonObject;
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.RedirectHandler;
-import io.undertow.server.handlers.form.FormData;
-import io.undertow.server.handlers.form.FormDataParser;
-import io.undertow.server.handlers.form.FormEncodedDataDefinition;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
+import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.dao.KevUserDAO;
 import org.kevoree.registry.server.dao.NamespaceDAO;
+import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.model.Namespace;
+import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.util.RequestHelper;
+import org.kevoree.registry.server.util.ResponseHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * API /!/ns/add
+ * POST /!/ns/add
+ * { fqn: 'com.example' }
  * Created by leiko on 24/11/14.
  */
-public class AddNSHandler implements HttpHandler {
+public class AddNSHandler extends AbstractHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(AddNSHandler.class.getSimpleName());
+
+    public AddNSHandler(TemplateManager manager) {
+        super(manager, true);
+    }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
-        if (user != null) {
-            // retrieve "namespace" value from form
-            FormEncodedDataDefinition form = new FormEncodedDataDefinition();
-            FormDataParser parser = form.create(exchange);
-            FormData data = parser.parseBlocking();
-            String fqn = data.getFirst("namespace").getValue();
-
-            if (fqn != null && !fqn.isEmpty()) {
+        // retrieve "namespace" value from form
+        String payload = RequestHelper.getStringFrom(exchange);
+        try {
+            JsonObject data = JsonObject.readFrom(payload);
+            String fqn = data.get("fqn").asString();
+            if (fqn != null && !fqn.trim().isEmpty()) {
                 // try to find namespace in db
                 Namespace namespace = NamespaceDAO.getInstance().get(fqn);
                 if (namespace == null) {
@@ -47,27 +54,39 @@ public class AddNSHandler implements HttpHandler {
                     user.addNamespace(namespace);
                     KevUserDAO.getInstance().update(user);
 
-                    HeaderValues referer = exchange.getRequestHeaders().get(Headers.REFERER);
-                    if (referer == null) {
-                        new RedirectHandler("/").handleRequest(exchange);
-                    } else {
-                        new RedirectHandler(referer.getFirst()).handleRequest(exchange);
-                    }
+                    ResponseHelper.ok(exchange);
 
                 } else {
                     // namespace is already owned by someone else
-                    // TODO show error namespace already owned by someone else
+                    exchange.setResponseCode(StatusCodes.CONFLICT);
+                    JsonObject response = new JsonObject();
+                    response.add("error", "Namespace \""+fqn+"\" not available.");
+                    ResponseHelper.json(exchange, response);
                 }
             } else {
-                HeaderValues referer = exchange.getRequestHeaders().get(Headers.REFERER);
-                if (referer == null) {
-                    new RedirectHandler("/").handleRequest(exchange);
-                } else {
-                    new RedirectHandler(referer.getFirst()).handleRequest(exchange);
-                }
+                exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                JsonObject response = new JsonObject();
+                response.add("error", "Given fqn is null or empty");
+                ResponseHelper.json(exchange, response);
             }
-        } else {
-            new RedirectHandler("/").handleRequest(exchange);
+        } catch (Exception e) {
+            log.error("500 - Internal Server Error - {}", exchange, e.getMessage());
+            log.debug("Caught exception", e);
+            exchange.setResponseCode(StatusCodes.INTERNAL_SERVER_ERROR);
+            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
         }
+    }
+
+    @Override
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
+        exchange.setResponseCode(StatusCodes.NOT_ACCEPTABLE);
+        JsonObject response = new JsonObject();
+        response.add("error", "Only accept application/json request");
+        ResponseHelper.json(exchange, response);
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        handleHTML(exchange);
     }
 }

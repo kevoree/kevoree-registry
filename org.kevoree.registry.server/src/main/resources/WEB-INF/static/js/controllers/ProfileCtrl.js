@@ -6,47 +6,89 @@ var FQN_REGEX = /^([a-z_]+(\.[a-z_]+)*)$/;
  *
  */
 angular.module('kevoreeRegistry')
-    .controller('ProfileCtrl', ['$scope', '$http', function ($scope, $http) {
-        $scope.user = {};
+    .controller('ProfileCtrl', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
         $scope.namespace = null;
         $scope.password = {};
         $scope.fqnRegex = FQN_REGEX.toString();
 
-        $http({method: 'GET', url: '/!/user', headers: { Accept: 'application/json' }}).
-            success(function(data, status, headers, config) {
-                console.log(data);
-                $scope.user = data;
-            }).
-            error(function(data, status, headers, config) {
-                console.log('ERROR', data, status);
+        function nsErrorHandler(res, status) {
+            if (res.error) {
+                $scope.nsError = res.error;
+            } else {
+                $scope.nsError = 'Something went wrong (status code '+status+')';
             }
-        );
+        }
 
-        $scope.updatePassword = function (data, csrfToken) {
-            // TODO
+        // listeners
+        $scope.updatePassword = function (data) {
             var formData = angular.copy(data);
-            formData['csrfmiddlewaretoken'] = csrfToken;
             delete formData['new_pass1'];
-            console.log('TODO update password using', formData);
+            $http.post('/!/user/edit', formData)
+                .success(function () {
+                    $scope.userSuccess = "Password updated successfully";
+                })
+                .error(function (res, status) {
+                    if (res.error == null) {
+                        $scope.userError = "Something went wrong (status code "+status+")";
+                    } else {
+                        $scope.userError = res.error;
+                    }
+                });
         };
 
-        $scope.updateGravatar = function (data, csrfToken) {
-            // TODO
-            console.log('TODO update gravatar email using', data, csrfToken);
+        $scope.updateGravatar = function (email) {
+            $http.post('/!/user/edit', { gravatar_email: email })
+                .success(function () {
+                    $scope.gravatarSuccess = "Gravatar email updated successfully";
+                })
+                .error(function (res, status) {
+                    if (res.error == null) {
+                        $scope.gravatarError = "Something went wrong (status code "+status+")";
+                    } else {
+                        $scope.gravatarError = res.error;
+                    }
+                });
         };
 
-        $scope.registerNamespace = function (data, csrfToken) {
-            console.log('TODO register namespace:', data, csrfToken);
+        $scope.registerNamespace = function (ns) {
+            $http.post('/!/ns/add', { fqn: ns })
+                .success(function () {
+                    $scope.getUser();
+                    $scope.order(false);
+                })
+                .error(nsErrorHandler);
         };
 
-        $scope.deleteNs = function (data) {
-            console.log('Should delete ns', data);
+        $scope.deleteNs = function (ns) {
+            $http.post('/!/ns/delete', { fqn: ns })
+                .success(function () {
+                    $scope.getUser();
+                    $scope.order(false);
+                })
+                .error(nsErrorHandler);
         };
 
-        $scope.leaveNs = function (data) {
-            console.log('Should leave ns', data);
+        $scope.leaveNs = function (ns) {
+            $http.post('/!/ns/leave', { fqn: ns })
+                .success(function () {
+                    $scope.getUser();
+                    $scope.order(false);
+                })
+                .error(nsErrorHandler);
         };
 
+        $scope.order = function (reverse) {
+            $scope.user.namespaces = $filter('orderBy')($scope.user.namespaces, 'fqn', reverse);
+        };
+
+        $scope.getUser(function (err) {
+            if (err) {
+                // humm, that's embarassing
+                console.error(err);
+            } else {
+                $scope.order(false);
+            }
+        });
     }]).directive('fqnCompliant', function() {
         return {
             require: 'ngModel',

@@ -43,7 +43,7 @@ public class KevoreeRegistryHandler implements HttpHandler {
         tplManager.putLayoutData("version", factory.getVersion());
 
         this.sessionAttachmentHandler = new SessionAttachmentHandler(
-                new SessionHandler(tplManager,
+                new SessionHandler(
                         new CSRFHandler(tplManager, new PathHandler()
                                 .addPrefixPath("/!/auth", new AuthRouter(tplManager))
                                 .addPrefixPath("/!/user", new UserRouter(tplManager))

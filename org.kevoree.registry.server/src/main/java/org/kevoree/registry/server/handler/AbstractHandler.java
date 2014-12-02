@@ -1,7 +1,6 @@
 package org.kevoree.registry.server.handler;
 
 import io.undertow.io.IoCallback;
-import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
@@ -20,10 +19,6 @@ public abstract class AbstractHandler extends AbstractTemplateHandler {
 
     private boolean needAuth;
 
-    public AbstractHandler(TemplateManager manager) {
-        this(manager, false);
-    }
-
     public AbstractHandler(TemplateManager manager, boolean needAuth) {
         super(manager);
         this.needAuth = needAuth;
@@ -37,13 +32,13 @@ public abstract class AbstractHandler extends AbstractTemplateHandler {
         KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
         HeaderValues acceptValues = exchange.getRequestHeaders().get(Headers.ACCEPT);
 
-        if (acceptValues == null || acceptValues.contains("text/html")) {
+        if (acceptValues == null || acceptValues.getFirst().startsWith("text/html")) {
             if (needAuth && user == null) {
                 new RedirectHandler("/").handleRequest(exchange);
             } else {
                 handleHTML(exchange);
             }
-        } else if (acceptValues.contains("application/json")) {
+        } else if (acceptValues.getFirst().startsWith("application/json")) {
             if (needAuth && user == null) {
                 exchange.setResponseCode(StatusCodes.FORBIDDEN);
                 exchange.getResponseSender().close(IoCallback.END_EXCHANGE);

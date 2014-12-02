@@ -1,5 +1,6 @@
 package org.kevoree.registry.server.handler;
 
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
@@ -7,7 +8,9 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionCookieConfig;
 import io.undertow.server.session.SessionManager;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.Methods;
+import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.template.TemplateManager;
 
 import java.math.BigInteger;
@@ -18,7 +21,7 @@ import java.security.SecureRandom;
  */
 public class CSRFHandler extends AbstractTemplateHandler {
 
-    public static final String TOKEN_NAME = "csrfToken";
+    public static final String TOKEN_NAME = "XSRF-TOKEN";
 
     private static final int DEFAULT_MAXAGE = 30*60; // 30 minutes
 
@@ -39,6 +42,7 @@ public class CSRFHandler extends AbstractTemplateHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
+        // set CSRF cookie
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         if (session.getAttribute(TOKEN_NAME) == null) {
@@ -52,7 +56,7 @@ public class CSRFHandler extends AbstractTemplateHandler {
         } else {
             // get token from session
             String token = session.getAttribute(TOKEN_NAME).toString();
-            // try to retrive CSRF cookie if any
+            // try to retrieve CSRF cookie if any
             Cookie csrfCookie = exchange.getRequestCookies().get(TOKEN_NAME);
             if (csrfCookie != null) {
                 // there is a cookie for CSRF in the request
@@ -69,7 +73,26 @@ public class CSRFHandler extends AbstractTemplateHandler {
                 addCSRFCookie(exchange, token);
             }
         }
-        next.handleRequest(exchange);
+
+        if (exchange.getRequestMethod().equals(Methods.GET)) {
+            next.handleRequest(exchange);
+        } else {
+            // non-GET method: validate CSRF token before continuing
+            HeaderValues csrfToken = exchange.getRequestHeaders().get("X-XSRF-TOKEN");
+            if (csrfToken == null) {
+                exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                exchange.getResponseSender().send("Missing X-XSRF-TOKEN header");
+                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+            } else {
+                if (session.getAttribute(TOKEN_NAME).toString().equals(csrfToken.getFirst())) {
+                    next.handleRequest(exchange);
+                } else {
+                    exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                    exchange.getResponseSender().send("Bad X-XSRF-TOKEN header");
+                    exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                }
+            }
+        }
     }
 
     private void addCSRFCookie(HttpServerExchange exchange, String token) {

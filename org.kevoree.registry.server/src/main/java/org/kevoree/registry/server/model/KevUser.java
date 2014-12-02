@@ -110,6 +110,7 @@ public class KevUser {
         obj.add("id", id);
         obj.add("name", name);
         obj.add("gravatarEmail", gravatarEmail);
+        obj.add("oauthOnly", salt == null);
 
         JsonArray namespaces = new JsonArray();
         for (Namespace ns : this.namespaces)  {

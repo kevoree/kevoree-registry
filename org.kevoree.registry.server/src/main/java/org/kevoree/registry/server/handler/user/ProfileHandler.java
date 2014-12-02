@@ -1,61 +1,58 @@
 package org.kevoree.registry.server.handler.user;
 
-import io.undertow.io.IoCallback;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
-import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
+import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.KevUser;
 import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.util.ResponseHelper;
 
 /**
  * API /!/user
  * Created by leiko on 20/11/14.
  */
-public class ProfileHandler extends AbstractTemplateHandler {
+public class ProfileHandler extends AbstractHandler {
 
     public ProfileHandler(TemplateManager manager) {
-        super(manager);
+        super(manager, false);
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
-
-        HeaderValues acceptValues = exchange.getRequestHeaders().get(Headers.ACCEPT);
-        if (acceptValues != null) {
-            if (acceptValues.getFirst().equals("application/json")) {
-                if (user != null) {
-                    exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json");
-                    exchange.getResponseSender().send(user.toJson().toString());
-                    exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-                } else {
-                    exchange.setResponseCode(StatusCodes.FORBIDDEN);
-                    exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-                }
-            } else {
-                if (user != null) {
-                    tplManager.template(exchange, "profile.ftl");
-
-                } else {
-                    new RedirectHandler("/").handleRequest(exchange);
-                }
-            }
+        if (user != null) {
+            tplManager.template(exchange, "profile.ftl");
         } else {
-            if (user != null) {
-                tplManager.template(exchange, "profile.ftl");
-
-            } else {
-                new RedirectHandler("/").handleRequest(exchange);
-            }
+            new RedirectHandler("/").handleRequest(exchange);
         }
+    }
+
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+        Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        if (user != null) {
+            ResponseHelper.json(exchange, user.toJson());
+        } else {
+            exchange.setResponseCode(StatusCodes.FORBIDDEN);
+            JsonObject response = new JsonObject();
+            response.add("error", "Not connected");
+            ResponseHelper.json(exchange, response);
+        }
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        handleHTML(exchange);
     }
 }

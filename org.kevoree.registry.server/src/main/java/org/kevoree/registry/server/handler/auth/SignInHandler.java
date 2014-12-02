@@ -46,48 +46,35 @@ public class SignInHandler extends AbstractTemplateHandler {
                 String payload = RequestHelper.getStringFrom(exchange);
                 try {
                     JsonObject data = JsonObject.readFrom(payload);
+                    String email = data.get("email").asString();
+                    String name = data.get("name").asString();
+                    String password = data.get("password").asString();
 
-                    String csrfToken = data.get(CSRFHandler.TOKEN_NAME).asString();
-                    if (csrfToken == session.getAttribute(CSRFHandler.TOKEN_NAME)) {
-                        // CSRF Token valid
-                        String email = data.get("email").asString();
-                        String name = data.get("name").asString();
-                        String password = data.get("password").asString();
+                    KevUser user = KevUserDAO.getInstance().get(email);
+                    if (user == null) {
+                        // this user id is available
+                        user = new KevUser();
+                        user.setId(email);
+                        user.setGravatarEmail(email);
+                        user.setName(name);
 
-                        KevUser user = KevUserDAO.getInstance().get(email);
-                        if (user == null) {
-                            // this user id is available
-                            user = new KevUser();
-                            user.setId(email);
-                            user.setGravatarEmail(email);
-                            user.setName(name);
+                        Password hashedPassword = PasswordHash.createHash(password);
+                        user.setSalt(hashedPassword.getSalt());
+                        user.setPassword(hashedPassword.getHash());
+                        // save it in db
+                        user.setSessionId(session.getId());
+                        KevUserDAO.getInstance().add(user);
+                        // save it in session
+                        session.setAttribute(SessionHandler.USERID, email);
 
-                            Password hashedPassword = PasswordHash.createHash(password);
-                            user.setSalt(hashedPassword.getSalt());
-                            user.setPassword(hashedPassword.getHash());
-                            // save it in db
-                            user.setSessionId(session.getId());
-                            KevUserDAO.getInstance().add(user);
-                            // save it in session
-                            session.setAttribute(SessionHandler.USERID, email);
-
-                            exchange.setResponseCode(StatusCodes.CREATED);
-                            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-
-                        } else {
-                            // error: user id already exists in db
-                            exchange.setResponseCode(StatusCodes.CONFLICT);
-                            JsonObject response = new JsonObject();
-                            response.add("message", "This email address is already associated with an account");
-                            exchange.getResponseSender().send(response.toString());
-                            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-                        }
+                        exchange.setResponseCode(StatusCodes.CREATED);
+                        exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
 
                     } else {
-                        // CSTF Token invalid
-                        exchange.setResponseCode(StatusCodes.FORBIDDEN);
+                        // error: user id already exists in db
+                        exchange.setResponseCode(StatusCodes.CONFLICT);
                         JsonObject response = new JsonObject();
-                        response.add("message", "CSRF Token invalid");
+                        response.add("message", "This email address is already associated with an account");
                         exchange.getResponseSender().send(response.toString());
                         exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
                     }
