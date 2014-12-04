@@ -7,12 +7,12 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.NamespaceDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
-import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
@@ -26,8 +26,8 @@ public class DeleteNSHandler extends AbstractHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DeleteNSHandler.class.getSimpleName());
 
-    public DeleteNSHandler(TemplateManager manager) {
-        super(manager, true);
+    public DeleteNSHandler(Context context) {
+        super(context, true);
     }
 
     @Override
@@ -41,11 +41,11 @@ public class DeleteNSHandler extends AbstractHandler {
             JsonObject data = JsonObject.readFrom(payload);
             String fqn = data.get("fqn").asString();
             if (fqn != null && !fqn.trim().isEmpty()) {
-                Namespace ns = NamespaceDAO.getInstance().get(fqn);
+                Namespace ns = NamespaceDAO.getInstance(context.getEntityManagerFactory()).get(fqn);
                 if (ns != null) {
                     // ok
                     if (ns.getOwner().getId().equals(user.getId())) {
-                        NamespaceDAO.getInstance().delete(ns);
+                        NamespaceDAO.getInstance(context.getEntityManagerFactory()).delete(ns);
                         ResponseHelper.ok(exchange);
                     } else {
                         exchange.setResponseCode(StatusCodes.FORBIDDEN);

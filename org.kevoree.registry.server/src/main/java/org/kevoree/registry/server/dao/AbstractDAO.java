@@ -10,10 +10,10 @@ import java.util.List;
 abstract class AbstractDAO<T> {
 
     private Class<T> clazz;
-    protected static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("postgres");
-//    protected static EntityManager em = emf.createEntityManager();
+    protected final EntityManagerFactory emf;
 
-    protected AbstractDAO(Class<T> clazz) {
+    protected AbstractDAO(EntityManagerFactory emf, Class<T> clazz) {
+        this.emf = emf;
         this.clazz = clazz;
     }
 
@@ -79,23 +79,6 @@ abstract class AbstractDAO<T> {
             tx.begin();
             t = em.merge(t);
             em.remove(t);
-            tx.commit();
-
-        } catch (RuntimeException e) {
-            if ( tx != null && tx.isActive() ) { tx.rollback(); }
-            throw e;
-        } finally {
-            em.close();
-        }
-    }
-
-    public void refresh(T t) {
-        EntityTransaction tx = null;
-        EntityManager em = emf.createEntityManager();
-        try {
-            tx = em.getTransaction();
-            tx.begin();
-            em.refresh(t);
             tx.commit();
 
         } catch (RuntimeException e) {

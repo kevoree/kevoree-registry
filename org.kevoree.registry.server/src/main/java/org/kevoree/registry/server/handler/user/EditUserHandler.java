@@ -8,6 +8,7 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
@@ -27,8 +28,8 @@ public class EditUserHandler extends AbstractHandler {
 
     private static final Logger log = LoggerFactory.getLogger(EditUserHandler.class.getSimpleName());
 
-    public EditUserHandler(TemplateManager manager) {
-        super(manager, true);
+    public EditUserHandler(Context context) {
+        super(context, true);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class EditUserHandler extends AbstractHandler {
             } else if (data.get("gravatar_email") != null) {
                 JsonValue gravatarVal = data.get("gravatar_email");
                 user.setGravatarEmail(gravatarVal.asString());
-                UserDAO.getInstance().update(user);
+                UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
                 ResponseHelper.ok(exchange);
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
@@ -72,7 +73,7 @@ public class EditUserHandler extends AbstractHandler {
                 Password pass = PasswordHash.createHash(newPass);
                 user.setPassword(pass.getHash());
                 user.setSalt(pass.getSalt());
-                UserDAO.getInstance().update(user);
+                UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
                 ResponseHelper.ok(exchange);
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
@@ -92,7 +93,7 @@ public class EditUserHandler extends AbstractHandler {
                         Password pass = PasswordHash.createHash(newPass);
                         user.setPassword(pass.getHash());
                         user.setSalt(pass.getSalt());
-                        UserDAO.getInstance().update(user);
+                        UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
                         ResponseHelper.ok(exchange);
 
                     } else {

@@ -3,10 +3,9 @@ package org.kevoree.registry.server.router;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.RedirectHandler;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.auth.*;
 import org.kevoree.registry.server.oauth.google.Auth;
-import org.kevoree.registry.server.template.TemplateManager;
 
 import static org.kevoree.registry.server.util.RequestHelper.get;
 
@@ -14,12 +13,12 @@ import static org.kevoree.registry.server.util.RequestHelper.get;
  * API /auth router
  * Created by leiko on 24/11/14.
  */
-public class AuthRouter extends AbstractTemplateHandler {
+public class AuthRouter extends AbstractRouter {
 
     private Auth googleAuth;
 
-    public AuthRouter(TemplateManager manager) {
-        super(manager);
+    public AuthRouter(Context context) {
+        super(context);
 
         googleAuth = new Auth();
         googleAuth.responseType = "code";
@@ -31,11 +30,11 @@ public class AuthRouter extends AbstractTemplateHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         new PathHandler()
-                .addPrefixPath("/signin", new SignInHandler(tplManager))
-                .addPrefixPath("/login", new LogInHandler(tplManager))
+                .addPrefixPath("/signin", new SignInHandler(context))
+                .addPrefixPath("/login", new LogInHandler(context))
                 .addPrefixPath("/logout", get(new LogOutHandler()))
                 .addPrefixPath("/gconnect", get(new GoogleConnectHandler(googleAuth)))
-                .addPrefixPath("/gcallback", get(new GoogleCallbackHandler(googleAuth)))
+                .addPrefixPath("/gcallback", get(new GoogleCallbackHandler(context, googleAuth)))
                 .addPrefixPath("/", new RedirectHandler("/"))
                 .handleRequest(exchange);
     }

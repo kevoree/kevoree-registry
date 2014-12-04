@@ -6,6 +6,7 @@ import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
@@ -23,8 +24,10 @@ import java.util.Map;
 public class GoogleCallbackHandler implements HttpHandler {
 
     private Auth googleAuth;
+    private final Context context;
 
-    public GoogleCallbackHandler(Auth auth) {
+    public GoogleCallbackHandler(Context context, Auth auth) {
+        this.context = context;
         this.googleAuth = auth;
     }
 
@@ -50,9 +53,9 @@ public class GoogleCallbackHandler implements HttpHandler {
                         User user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
 
                         // check if user is already in db
-                        if (UserDAO.getInstance().get(user.getId()) == null) {
+                        if (UserDAO.getInstance(context.getEntityManagerFactory()).get(user.getId()) == null) {
                             // user not in db: add it
-                            UserDAO.getInstance().add(user);
+                            UserDAO.getInstance(context.getEntityManagerFactory()).add(user);
                         }
 
                         session.setAttribute(SessionHandler.USERID, user.getId());

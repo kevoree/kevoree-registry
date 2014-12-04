@@ -1,15 +1,11 @@
 package org.kevoree.registry.server.handler;
 
-import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.PathHandler;
-import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
-import org.kevoree.factory.KevoreeFactory;
-import org.kevoree.factory.KevoreeTransactionManager;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.model.ModelHandler;
 import org.kevoree.registry.server.handler.model.SearchModelHandler;
 import org.kevoree.registry.server.manager.DbSessionManager;
@@ -17,7 +13,6 @@ import org.kevoree.registry.server.router.AuthRouter;
 import org.kevoree.registry.server.router.ModelRouter;
 import org.kevoree.registry.server.router.NamespaceRouter;
 import org.kevoree.registry.server.router.UserRouter;
-import org.kevoree.registry.server.template.TemplateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,25 +29,22 @@ public class KevoreeRegistryHandler implements HttpHandler {
     private final Logger log = LoggerFactory.getLogger(KevoreeRegistryHandler.class.getSimpleName());
 
     private HttpHandler sessionAttachmentHandler;
+    private final Context context;
 
-    public KevoreeRegistryHandler(KevoreeTransactionManager manager, KevoreeFactory factory) throws IOException {
-        Configuration conf = new Configuration();
-        conf.setClassForTemplateLoading(getClass(), "/WEB-INF/templates");
-        conf.setDefaultEncoding("UTF-8");
-        conf.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
-        TemplateManager tplManager = new TemplateManager(conf, "layout.ftl");
-        tplManager.putLayoutData("version", factory.getVersion());
+    public KevoreeRegistryHandler(Context context)
+            throws IOException {
+        this.context = context;
 
         this.sessionAttachmentHandler = new SessionAttachmentHandler(
-                new SessionHandler(
-                        new CSRFHandler(tplManager, new PathHandler()
-                                .addPrefixPath("/!/model", new ModelRouter(tplManager))
-                                .addPrefixPath("/!/auth", new AuthRouter(tplManager))
-                                .addPrefixPath("/!/user", new UserRouter(tplManager))
-                                .addPrefixPath("/!/ns", new NamespaceRouter(tplManager))
-                                .addPrefixPath("/!/search", new SearchModelHandler(tplManager))
+                new SessionHandler(context,
+                        new CSRFHandler(context, new PathHandler()
+                                .addPrefixPath("/!/model", new ModelRouter(context))
+                                .addPrefixPath("/!/auth", new AuthRouter(context))
+                                .addPrefixPath("/!/user", new UserRouter(context))
+                                .addPrefixPath("/!/ns", new NamespaceRouter(context))
+                                .addPrefixPath("/!/search", new SearchModelHandler(context))
                                 .addPrefixPath("/!/static", get(new StaticHandler()))
-                                .addPrefixPath("/", new ModelHandler(tplManager, manager))
+                                .addPrefixPath("/", new ModelHandler(context))
                         )),
                 new DbSessionManager("kevoree_registry"),
                 new SessionCookieConfig()

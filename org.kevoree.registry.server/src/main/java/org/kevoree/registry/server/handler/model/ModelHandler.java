@@ -14,8 +14,8 @@ import org.kevoree.modeling.api.ModelPruner;
 import org.kevoree.modeling.api.TransactionManager;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
-import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.Context;
+import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.util.ModelHelper;
 
 import java.util.List;
@@ -23,20 +23,17 @@ import java.util.List;
 /**
  * Created by duke on 8/22/14.
  */
-public class ModelHandler extends AbstractTemplateHandler {
+public class ModelHandler extends AbstractHandler {
 
-    private KevoreeTransactionManager manager;
-
-    public ModelHandler(TemplateManager tplManager, KevoreeTransactionManager manager) {
-        super(tplManager);
-        this.manager = manager;
+    public ModelHandler(Context context) {
+        super(context, false);
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
         exchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
 
-        KevoreeTransaction trans = manager.createTransaction();
+        KevoreeTransaction trans = context.getKevoreeTransactionManager().createTransaction();
         try {
             String[] paths = exchange.getRelativePath().split("/");
             StringBuilder pathBuilder = new StringBuilder();
@@ -122,6 +119,18 @@ public class ModelHandler extends AbstractTemplateHandler {
         }
     }
 
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+        // TODO improve that
+        handleHTML(exchange);
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        // TODO improve that
+        handleHTML(exchange);
+    }
+
     private void htmlResponse(HttpServerExchange exchange, List<KMFContainer> selected)
             throws Exception {
         SimpleHash data = new SimpleHash();
@@ -132,6 +141,6 @@ public class ModelHandler extends AbstractTemplateHandler {
         data.put("children", ModelHelper.generateChildren(selected, exchange.getRelativePath()));
         data.put("elements", ModelHelper.generateElements(selected));
 
-        tplManager.template(exchange, data, "model.ftl");
+        context.getTemplateManager().template(exchange, data, "model.ftl");
     }
 }

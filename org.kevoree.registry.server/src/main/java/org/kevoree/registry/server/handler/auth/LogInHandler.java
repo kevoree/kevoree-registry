@@ -9,11 +9,11 @@ import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
+import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
-import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.Password;
 import org.kevoree.registry.server.util.PasswordHash;
 import org.kevoree.registry.server.util.RequestHelper;
@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
  *
  * Created by leiko on 20/11/14.
  */
-public class LogInHandler extends AbstractTemplateHandler {
+public class LogInHandler extends AbstractHandler {
 
     private static final Logger log = LoggerFactory.getLogger(LogInHandler.class.getSimpleName());
 
-    public LogInHandler(TemplateManager manager) {
-        super(manager);
+    public LogInHandler(Context context) {
+        super(context, false);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class LogInHandler extends AbstractTemplateHandler {
                     String email = data.get("email").asString();
                     String password = data.get("password").asString();
 
-                    User user = UserDAO.getInstance().get(email);
+                    User user = UserDAO.getInstance(context.getEntityManagerFactory()).get(email);
                     if (user == null) {
                         // error: user id unknown
                         exchange.setResponseCode(StatusCodes.BAD_REQUEST);
@@ -69,7 +69,7 @@ public class LogInHandler extends AbstractTemplateHandler {
                             if (PasswordHash.validatePassword(password, hashedPassword)) {
                                 // valid authentication
                                 // save user in session
-                                UserDAO.getInstance().update(user);
+                                UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
                                 session.setAttribute(SessionHandler.USERID, email);
                                 // send response
                                 exchange.setResponseCode(StatusCodes.OK);
@@ -92,8 +92,23 @@ public class LogInHandler extends AbstractTemplateHandler {
                 }
 
             } else {
-                tplManager.template(exchange, null, "login.ftl");
+                context.getTemplateManager().template(exchange, null, "login.ftl");
             }
         }
+    }
+
+    @Override
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
+
+    }
+
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+
     }
 }

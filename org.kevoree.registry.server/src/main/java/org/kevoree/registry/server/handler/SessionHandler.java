@@ -5,6 +5,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.model.User;
 
@@ -18,8 +19,10 @@ public class SessionHandler implements HttpHandler {
     public static final String USER = "user";
 
     private HttpHandler next;
+    private final Context context;
 
-    public SessionHandler(HttpHandler next) {
+    public SessionHandler(Context context, HttpHandler next) {
+        this.context = context;
         this.next = next;
     }
 
@@ -35,7 +38,7 @@ public class SessionHandler implements HttpHandler {
                 if (session.getAttribute(USERID) != null) {
                     // user found in session: ok
                     String userId = (String) session.getAttribute(USERID);
-                    User user = UserDAO.getInstance().get(userId);
+                    User user = UserDAO.getInstance(context.getEntityManagerFactory()).get(userId);
                     // update user in session
                     session.setAttribute(USER, user);
                 }

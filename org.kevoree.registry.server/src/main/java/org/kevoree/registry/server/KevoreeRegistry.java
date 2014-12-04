@@ -1,5 +1,7 @@
 package org.kevoree.registry.server;
 
+import freemarker.template.Configuration;
+import freemarker.template.TemplateExceptionHandler;
 import io.undertow.Undertow;
 import org.jetbrains.annotations.NotNull;
 import org.kevoree.ContainerRoot;
@@ -10,9 +12,12 @@ import org.kevoree.factory.KevoreeTransactionManager;
 import org.kevoree.modeling.api.Transaction;
 import org.kevoree.modeling.datastores.leveldb.LevelDbDataStore;
 import org.kevoree.registry.server.handler.KevoreeRegistryHandler;
+import org.kevoree.registry.server.template.TemplateManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -47,6 +52,9 @@ public class KevoreeRegistry {
         // create Kevoree transaction manager
         final KevoreeTransactionManager manager = new KevoreeTransactionManager(dataStore);
 
+        // create database EntityManagerFactory
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("prod");
+
         KevoreeTransaction transaction = manager.createTransaction();
         ContainerRoot root = (ContainerRoot) transaction.lookup("/");
         if (root == null) {
@@ -59,9 +67,18 @@ public class KevoreeRegistry {
         String port = System.getProperty("port", "8080");
         String host = System.getProperty("host", "0.0.0.0");
 
+        Configuration conf = new Configuration();
+        conf.setClassForTemplateLoading(KevoreeRegistry.class, "/WEB-INF/templates");
+        conf.setDefaultEncoding("UTF-8");
+        conf.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
+        TemplateManager tplManager = new TemplateManager(conf, "layout.ftl");
+        tplManager.putLayoutData("version", factory.getVersion());
+
+        Context context = new Context(emf, tplManager, manager, factory);
+
         Undertow server = Undertow.builder()
                 .addHttpListener(Integer.parseInt(port), host)
-                .setHandler(new KevoreeRegistryHandler(manager, factory))
+                .setHandler(new KevoreeRegistryHandler(context))
                 .build();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

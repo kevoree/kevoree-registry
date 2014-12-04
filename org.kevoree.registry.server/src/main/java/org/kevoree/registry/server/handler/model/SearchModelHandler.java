@@ -1,9 +1,12 @@
 package org.kevoree.registry.server.handler.model;
 
+import com.eclipsesource.json.JsonObject;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
-import org.kevoree.registry.server.template.TemplateManager;
+import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
+import org.kevoree.registry.server.handler.AbstractHandler;
+import org.kevoree.registry.server.util.ResponseHelper;
 
 import java.util.Deque;
 import java.util.Map;
@@ -11,17 +14,17 @@ import java.util.Map;
 /**
  * Created by leiko on 25/11/14.
  */
-public class SearchModelHandler extends AbstractTemplateHandler {
+public class SearchModelHandler extends AbstractHandler {
 
-    public SearchModelHandler(TemplateManager tplManager) {
-        super(tplManager);
+    public SearchModelHandler(Context context) {
+        super(context, false);
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
         Map<String, Deque<String>> params = exchange.getQueryParameters();
 
-        // TODO this could use some better parsing, cause "as is" it can explode in soooo many cases
+        // TODO this could use some better parsing, cause "as is" it can explode in so many cases
         StringBuilder modelQuery = new StringBuilder();
         if (params.get("q") != null) {
             String query = params.get("q").getFirst();
@@ -67,5 +70,18 @@ public class SearchModelHandler extends AbstractTemplateHandler {
         }
 
         new RedirectHandler(modelQuery.toString()).handleRequest(exchange);
+    }
+
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+        // TODO
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        exchange.setResponseCode(StatusCodes.NOT_ACCEPTABLE);
+        JsonObject response = new JsonObject();
+        response.add("error", "Only accept text/html or application/json request");
+        ResponseHelper.json(exchange, response);
     }
 }

@@ -11,6 +11,7 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.template.TemplateManager;
 
 import java.math.BigInteger;
@@ -19,7 +20,7 @@ import java.security.SecureRandom;
 /**
  * Created by leiko on 28/11/14.
  */
-public class CSRFHandler extends AbstractTemplateHandler {
+public class CSRFHandler extends AbstractHandler {
 
     public static final String TOKEN_NAME = "XSRF-TOKEN";
 
@@ -29,8 +30,8 @@ public class CSRFHandler extends AbstractTemplateHandler {
     private SessionCookieConfig config;
     private SecureRandom random;
 
-    public CSRFHandler(TemplateManager tplManager, HttpHandler next) {
-        super(tplManager);
+    public CSRFHandler(Context context, HttpHandler next) {
+        super(context, false);
         this.next = next;
         this.config = new SessionCookieConfig();
         this.random = new SecureRandom();
@@ -41,7 +42,7 @@ public class CSRFHandler extends AbstractTemplateHandler {
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleHTML(HttpServerExchange exchange) throws Exception {
         // set CSRF cookie
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
@@ -66,7 +67,7 @@ public class CSRFHandler extends AbstractTemplateHandler {
                 } else {
                     // CSRF Cookie value matches with CSRF Session value
                     // put token value in template layout data just in case it has been done yet
-                    tplManager.putLayoutData(TOKEN_NAME, token);
+                    context.getTemplateManager().putLayoutData(TOKEN_NAME, token);
                 }
             } else {
                 // set cookie for next response
@@ -95,11 +96,21 @@ public class CSRFHandler extends AbstractTemplateHandler {
         }
     }
 
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+        handleHTML(exchange);
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        handleHTML(exchange);
+    }
+
     private void addCSRFCookie(HttpServerExchange exchange, String token) {
         // set cookie for next response
         config.setSessionId(exchange, token);
         // put token value in template layout data (for form display)
-        tplManager.putLayoutData(TOKEN_NAME, token);
+        context.getTemplateManager().putLayoutData(TOKEN_NAME, token);
     }
 
     private String genToken() {

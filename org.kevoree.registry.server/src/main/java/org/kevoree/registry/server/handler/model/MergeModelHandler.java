@@ -4,8 +4,8 @@ import com.eclipsesource.json.JsonObject;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.AbstractHandler;
-import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.ResponseHelper;
 
 /**
@@ -14,8 +14,8 @@ import org.kevoree.registry.server.util.ResponseHelper;
  */
 public class MergeModelHandler extends AbstractHandler {
 
-    public MergeModelHandler(TemplateManager manager) {
-        super(manager, true);
+    public MergeModelHandler(Context context) {
+        super(context, true);
     }
 
     @Override

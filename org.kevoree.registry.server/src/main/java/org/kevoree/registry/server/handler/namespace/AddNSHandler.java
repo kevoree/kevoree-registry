@@ -7,13 +7,13 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.dao.UserDAO;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.NamespaceDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
-import org.kevoree.registry.server.template.TemplateManager;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
@@ -28,8 +28,8 @@ public class AddNSHandler extends AbstractHandler {
 
     private static final Logger log = LoggerFactory.getLogger(AddNSHandler.class.getSimpleName());
 
-    public AddNSHandler(TemplateManager manager) {
-        super(manager, true);
+    public AddNSHandler(Context context) {
+        super(context, true);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class AddNSHandler extends AbstractHandler {
             String fqn = data.get("fqn").asString();
             if (fqn != null && !fqn.trim().isEmpty()) {
                 // try to find namespace in db
-                Namespace namespace = NamespaceDAO.getInstance().get(fqn);
+                Namespace namespace = NamespaceDAO.getInstance(context.getEntityManagerFactory()).get(fqn);
                 if (namespace == null) {
                     // namespace is available: save it for that user
                     namespace = new Namespace();
@@ -52,7 +52,7 @@ public class AddNSHandler extends AbstractHandler {
                     namespace.setOwner(user);
                     // update user in db
                     user.addNamespace(namespace);
-                    UserDAO.getInstance().update(user);
+                    UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
 
                     ResponseHelper.ok(exchange);
 

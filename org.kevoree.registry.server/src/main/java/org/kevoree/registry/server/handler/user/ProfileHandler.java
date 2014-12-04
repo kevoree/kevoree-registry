@@ -7,10 +7,10 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
-import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.ResponseHelper;
 
 /**
@@ -19,8 +19,8 @@ import org.kevoree.registry.server.util.ResponseHelper;
  */
 public class ProfileHandler extends AbstractHandler {
 
-    public ProfileHandler(TemplateManager manager) {
-        super(manager, false);
+    public ProfileHandler(Context context) {
+        super(context, false);
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ProfileHandler extends AbstractHandler {
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         User user = (User) session.getAttribute(SessionHandler.USER);
         if (user != null) {
-            tplManager.template(exchange, "profile.ftl");
+            context.getTemplateManager().template(exchange, "profile.ftl");
         } else {
             new RedirectHandler("/").handleRequest(exchange);
         }

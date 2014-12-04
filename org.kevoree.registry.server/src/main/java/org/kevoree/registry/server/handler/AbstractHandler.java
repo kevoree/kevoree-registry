@@ -1,6 +1,7 @@
 package org.kevoree.registry.server.handler;
 
 import io.undertow.io.IoCallback;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
@@ -9,18 +10,20 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 
 /**
  * Created by leiko on 28/11/14.
  */
-public abstract class AbstractHandler extends AbstractTemplateHandler {
+public abstract class AbstractHandler implements HttpHandler {
 
-    private boolean needAuth;
+    private final boolean needAuth;
+    protected final Context context;
 
-    public AbstractHandler(TemplateManager manager, boolean needAuth) {
-        super(manager);
+    public AbstractHandler(Context context, boolean needAuth) {
+        this.context = context;
         this.needAuth = needAuth;
     }
 

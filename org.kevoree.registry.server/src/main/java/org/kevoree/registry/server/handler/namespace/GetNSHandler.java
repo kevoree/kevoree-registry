@@ -7,24 +7,24 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.Headers;
+import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
-import org.kevoree.registry.server.template.TemplateManager;
 
 /**
  * Created by leiko on 28/11/14.
  */
 public class GetNSHandler extends AbstractHandler {
 
-    public GetNSHandler(TemplateManager manager) {
-        super(manager, true);
+    public GetNSHandler(Context context) {
+        super(context, true);
     }
 
     @Override
     protected void handleHTML(HttpServerExchange exchange) throws Exception {
-        tplManager.template(exchange, "namespaces.ftl");
+        context.getTemplateManager().template(exchange, "namespaces.ftl");
     }
 
     @Override

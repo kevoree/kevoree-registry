@@ -1,17 +1,12 @@
 package org.kevoree.registry.server.dao;
 
-import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
+import org.kevoree.registry.server.model.User;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.ParameterExpression;
-import javax.persistence.criteria.Root;
 import java.util.HashSet;
-import java.util.List;
 
 /**
  *
@@ -21,13 +16,13 @@ public class NamespaceDAO extends AbstractDAO<Namespace> {
 
     public static NamespaceDAO INSTANCE;
 
-    private NamespaceDAO() {
-        super(Namespace.class);
+    private NamespaceDAO(EntityManagerFactory emf) {
+        super(emf, Namespace.class);
     }
 
-    public static NamespaceDAO getInstance() {
+    public static NamespaceDAO getInstance(EntityManagerFactory emf) {
         if (NamespaceDAO.INSTANCE == null) {
-            NamespaceDAO.INSTANCE = new NamespaceDAO();
+            NamespaceDAO.INSTANCE = new NamespaceDAO(emf);
         }
         return NamespaceDAO.INSTANCE;
     }
