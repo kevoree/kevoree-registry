@@ -1,12 +1,20 @@
 package org.kevoree.registry.server.dao;
 
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
+import javax.persistence.criteria.Root;
+import java.util.HashSet;
 import java.util.List;
 
 /**
+ *
  * Created by leiko on 20/11/14.
  */
 public class NamespaceDAO extends AbstractDAO<Namespace> {
@@ -24,24 +32,30 @@ public class NamespaceDAO extends AbstractDAO<Namespace> {
         return NamespaceDAO.INSTANCE;
     }
 
-    public boolean isOwner(Namespace ns, KevUser user) {
-        TypedQuery<String> query = manager.createQuery(
-                "SELECT u.id FROM " +
-                        KevUser.class.getSimpleName() +
-                        " u, " +
-                        Namespace.class.getSimpleName() +
-                        " n WHERE u.id = :id AND n.fqn = :fqn",
-                String.class);
-        query.setParameter("id", user.getId());
-        query.setParameter("fqn", ns.getFqn());
-        boolean result;
+    @Override
+    public void delete(Namespace ns) {
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
         try {
-            List<String> results = query.getResultList();
-            result = (results.size() > 0);
-        } catch (Exception e) {
-            result = false;
-        }
+            tx = em.getTransaction();
+            tx.begin();
+            ns = em.find(ns.getClass(), ns.getFqn());
+            for (User u : new HashSet<User>(ns.getUsers())) {
+                // update join
+                ns.removeUser(u);
+                u.removeNamespace(ns);
+                em.merge(u);
+            }
+            em.remove(ns);
+            tx.commit();
 
-        return result;
+        } catch (RuntimeException e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 }

@@ -1,21 +1,18 @@
 package org.kevoree.registry.server.handler.auth;
 
 import com.eclipsesource.json.JsonObject;
-import freemarker.template.SimpleHash;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
-import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.dao.KevUserDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.AbstractTemplateHandler;
-import org.kevoree.registry.server.handler.CSRFHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.Password;
 import org.kevoree.registry.server.util.PasswordHash;
@@ -23,8 +20,6 @@ import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.xml.ws.Response;
 
 /**
  *
@@ -53,12 +48,12 @@ public class LogInHandler extends AbstractTemplateHandler {
                     String email = data.get("email").asString();
                     String password = data.get("password").asString();
 
-                    KevUser user = KevUserDAO.getInstance().get(email);
+                    User user = UserDAO.getInstance().get(email);
                     if (user == null) {
                         // error: user id unknown
-                        exchange.setResponseCode(StatusCodes.NOT_FOUND);
+                        exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                         JsonObject response = new JsonObject();
-                        response.add("message", "Email address \"" + email + "\" unknown");
+                        response.add("error", "Email address \"" + email + "\" unknown");
                         ResponseHelper.json(exchange, response);
                     } else {
                         // email address is available in db: check for password match
@@ -66,7 +61,7 @@ public class LogInHandler extends AbstractTemplateHandler {
                             // seems like this email has been saved using OAuth so there is no password
                             exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                             JsonObject response = new JsonObject();
-                            response.add("message", "It seems like this email address has been registered using OpenID, retry connection using OpenID SignIn service and edit your password in your profile.");
+                            response.add("error", "It seems like this email address has been registered using OpenID, retry connection using OpenID SignIn service and edit your password in your profile.");
                             ResponseHelper.json(exchange, response);
 
                         } else {
@@ -74,8 +69,7 @@ public class LogInHandler extends AbstractTemplateHandler {
                             if (PasswordHash.validatePassword(password, hashedPassword)) {
                                 // valid authentication
                                 // save user in session
-                                user.setSessionId(session.getId());
-                                KevUserDAO.getInstance().update(user);
+                                UserDAO.getInstance().update(user);
                                 session.setAttribute(SessionHandler.USERID, email);
                                 // send response
                                 exchange.setResponseCode(StatusCodes.OK);
@@ -83,9 +77,9 @@ public class LogInHandler extends AbstractTemplateHandler {
 
                             } else {
                                 // wrong password
-                                exchange.setResponseCode(StatusCodes.FORBIDDEN);
+                                exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                                 JsonObject response = new JsonObject();
-                                response.add("message", "Please enter a correct email and password");
+                                response.add("error", "Please enter a correct email and password");
                                 ResponseHelper.json(exchange, response);
                             }
                         }

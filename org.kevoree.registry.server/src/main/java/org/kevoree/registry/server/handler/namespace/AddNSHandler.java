@@ -7,11 +7,11 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.dao.KevUserDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.dao.NamespaceDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.RequestHelper;
@@ -36,7 +36,7 @@ public class AddNSHandler extends AbstractHandler {
     protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         // retrieve "namespace" value from form
         String payload = RequestHelper.getStringFrom(exchange);
         try {
@@ -50,9 +50,9 @@ public class AddNSHandler extends AbstractHandler {
                     namespace = new Namespace();
                     namespace.setFqn(fqn);
                     namespace.setOwner(user);
-                    namespace.addUser(user);
+                    // update user in db
                     user.addNamespace(namespace);
-                    KevUserDAO.getInstance().update(user);
+                    UserDAO.getInstance().update(user);
 
                     ResponseHelper.ok(exchange);
 

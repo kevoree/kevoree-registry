@@ -10,50 +10,125 @@ import java.util.List;
 abstract class AbstractDAO<T> {
 
     private Class<T> clazz;
-    protected static final EntityManager manager = Persistence.createEntityManagerFactory("postgres").createEntityManager();
+    protected static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("postgres");
+//    protected static EntityManager em = emf.createEntityManager();
 
     protected AbstractDAO(Class<T> clazz) {
         this.clazz = clazz;
     }
 
     public T get(String id) {
-        TypedQuery<T> query = manager.createQuery("SELECT a FROM "+clazz.getSimpleName()+" a WHERE a.id = :id", clazz);
-        query.setParameter("id", id);
         T result;
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
         try {
-            result = query.getSingleResult();
-        } catch (Exception e) {
-            result = null;
+            tx = em.getTransaction();
+            tx.begin();
+            result = em.find(clazz, id);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
         }
+
         return result;
     }
 
     public void update(T t) {
-        manager.getTransaction().begin();
-        manager.merge(t);
-        manager.getTransaction().commit();
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            tx = em.getTransaction();
+            tx.begin();
+            em.merge(t);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 
     public void add(T t) {
-        manager.getTransaction().begin();
-        manager.persist(t);
-        manager.getTransaction().commit();
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            tx = em.getTransaction();
+            tx.begin();
+            em.persist(t);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 
     public void delete(T t) {
-        manager.getTransaction().begin();
-        manager.remove(t);
-        manager.getTransaction().commit();
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            tx = em.getTransaction();
+            tx.begin();
+            t = em.merge(t);
+            em.remove(t);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
+        }
+    }
+
+    public void refresh(T t) {
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            tx = em.getTransaction();
+            tx.begin();
+            em.refresh(t);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
+        }
     }
 
     public List<T> findAll() {
-        TypedQuery<T> query = manager.createQuery("SELECT a FROM "+clazz.getSimpleName()+" a", clazz);
         List<T> result;
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
         try {
-            result = query.getResultList();
-        } catch (Exception e) {
-            result = null;
+            tx = em.getTransaction();
+            tx.begin();
+            TypedQuery<T> query = em.createQuery("SELECT a FROM "+clazz.getSimpleName()+" a", clazz);
+            try {
+                result = query.getResultList();
+            } catch (Exception e) {
+                result = null;
+            }
+
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
         }
+
         return result;
     }
 }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Namespace POJO
  * Created by leiko on 20/11/14.
  */
 @Entity
@@ -17,30 +18,25 @@ public class Namespace {
     @Id
     private String fqn;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy="namespaces", cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE,
-            CascadeType.REFRESH,
-            CascadeType.DETACH
-    })
-    private Set<KevUser> users;
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy="namespaces", cascade = { CascadeType.MERGE, CascadeType.REFRESH })
+    private Set<User> users;
 
-    @OneToOne(targetEntity = KevUser.class)
-    private KevUser owner;
+    @ManyToOne(optional = false)
+    private User owner;
 
     public Namespace() {
-        this.users = Collections.synchronizedSet(new HashSet<KevUser>());
+        this.users = new HashSet<User>();
     }
 
-    public Set<KevUser> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void addUser(KevUser u) {
+    public void addUser(User u) {
         this.users.add(u);
     }
 
-    public void removeUser(KevUser u) {
+    public void removeUser(User u) {
         this.users.remove(u);
     }
 
@@ -52,15 +48,15 @@ public class Namespace {
         this.fqn = fqn;
     }
 
-    public KevUser getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(KevUser owner) {
+    public void setOwner(User owner) {
         this.owner = owner;
     }
 
-    public void setUsers(Set<KevUser> users) {
+    public void setUsers(Set<User> users) {
         this.users = users;
     }
 
@@ -69,12 +65,12 @@ public class Namespace {
         obj.add("fqn", fqn);
 
         JsonArray users = new JsonArray();
-        for (KevUser u : this.users) {
+        for (User u : this.users) {
             users.add(u.getId());
         }
 
         obj.add("users", users);
-        obj.add("owner", owner.getId());
+        obj.add("owner", owner == null ? null : owner.getId());
         return obj;
     }
 

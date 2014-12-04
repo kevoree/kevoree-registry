@@ -4,19 +4,20 @@
  *
  */
 angular.module('kevoreeRegistry')
-    .controller('MainCtrl', ['$scope', '$http', function ($scope, $http) {
+    .controller('Main', ['$scope', '$filter', 'userFactory', function ($scope, $filter, userFactory) {
         $scope.user = null;
         $scope.isCollapsed = true;
 
-        $scope.getUser = function (done) {
+        $scope.updateUser = function (done) {
             done = done || function () {};
 
-            $http({method: 'GET', url: '/!/user', headers: { Accept: 'application/json' }}).
-                success(function(data) {
+            userFactory.getUser()
+                .success(function(data) {
                     $scope.user = data;
+                    $scope.order(false);
                     done();
-                }).
-                error(function(err, status) {
+                })
+                .error(function(err, status) {
                     $scope.user = null;
                     if (err.error) {
                         $scope.userError = err.error;
@@ -24,8 +25,7 @@ angular.module('kevoreeRegistry')
                         $scope.userError = 'Something went wrong (status code '+status+')';
                     }
                     done(err);
-                }
-            );
+                });
         };
 
         $scope.toggleDropdown = function($event) {
@@ -41,5 +41,11 @@ angular.module('kevoreeRegistry')
             }
         };
 
-        $scope.getUser();
+        $scope.order = function (reverse) {
+            if ($scope.user && $scope.user.namespaces) {
+                $scope.user.namespaces = $filter('orderBy')($scope.user.namespaces, 'fqn', reverse);
+            }
+        };
+
+        $scope.updateUser();
     }]);

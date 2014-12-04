@@ -7,11 +7,11 @@ import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.dao.KevUserDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.dao.NamespaceDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.RequestHelper;
@@ -35,7 +35,7 @@ public class LeaveNSHandler extends AbstractHandler {
     protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         // retrieve "namespace" value from form
         String payload = RequestHelper.getStringFrom(exchange);
         try {
@@ -44,10 +44,16 @@ public class LeaveNSHandler extends AbstractHandler {
             if (fqn != null && !fqn.trim().isEmpty()) {
                 Namespace ns = NamespaceDAO.getInstance().get(fqn);
                 if (ns != null) {
-                    user.removeNamespace(ns);
-                    ns.removeUser(user);
-                    KevUserDAO.getInstance().update(user);
-                    ResponseHelper.ok(exchange);
+                    if (ns.getOwner().getId().equals(user.getId())) {
+                        // prevent owner user from leaving a namespace
+                        exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                        JsonObject response = new JsonObject();
+                        response.add("error", "Owners cannot leave their own namespaces");
+                        ResponseHelper.json(exchange, response);
+                    } else {
+                        UserDAO.getInstance().leave(user, ns);
+                        ResponseHelper.ok(exchange);
+                    }
                 } else {
                     exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                     JsonObject response = new JsonObject();
@@ -57,7 +63,7 @@ public class LeaveNSHandler extends AbstractHandler {
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                 JsonObject response = new JsonObject();
-                response.add("message", "Given fqn is null or empty");
+                response.add("error", "Given fqn is null or empty");
                 ResponseHelper.json(exchange, response);
             }
         } catch (Exception e) {

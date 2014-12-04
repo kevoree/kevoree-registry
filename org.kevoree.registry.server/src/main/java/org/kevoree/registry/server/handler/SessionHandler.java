@@ -5,8 +5,8 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
-import org.kevoree.registry.server.dao.KevUserDAO;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.dao.UserDAO;
+import org.kevoree.registry.server.model.User;
 
 /**
  * Automatically creates a session for each request if none found
@@ -28,19 +28,20 @@ public class SessionHandler implements HttpHandler {
         SessionManager manager = exchange.getAttachment(SessionManager.ATTACHMENT_KEY);
         if (manager != null) {
             SessionConfig sessionConfig = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
-            Session session = manager.getSession(exchange, sessionConfig);
+            final Session session = manager.getSession(exchange, sessionConfig);
             if (session == null) {
                 manager.createSession(exchange, sessionConfig);
             } else {
                 if (session.getAttribute(USERID) != null) {
                     // user found in session: ok
                     String userId = (String) session.getAttribute(USERID);
-                    KevUser user = KevUserDAO.getInstance().get(userId);
+                    User user = UserDAO.getInstance().get(userId);
                     // update user in session
                     session.setAttribute(USER, user);
                 }
             }
         }
+
         next.handleRequest(exchange);
     }
 }

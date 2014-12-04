@@ -5,6 +5,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
+import io.undertow.util.StatusCodes;
 import org.kevoree.ContainerRoot;
 import org.kevoree.factory.KevoreeTransaction;
 import org.kevoree.factory.KevoreeTransactionManager;
@@ -108,7 +109,7 @@ public class ModelHandler extends AbstractTemplateHandler {
                     if (acceptType.contains("text/html")) {
                         htmlResponse(exchange, selected);
                     } else {
-                        exchange.setResponseCode(404);
+                        exchange.setResponseCode(StatusCodes.NOT_FOUND);
                         exchange.getResponseSender().close();
                         exchange.endExchange();
                     }

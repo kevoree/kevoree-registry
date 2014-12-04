@@ -6,9 +6,9 @@ import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
-import org.kevoree.registry.server.dao.KevUserDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.oauth.google.Auth;
 import org.kevoree.registry.server.oauth.google.GoogleOAuth2Manager;
 
@@ -47,13 +47,12 @@ public class GoogleCallbackHandler implements HttpHandler {
                     if (sessionState.equals(params.get("state").getFirst())) {
                         // session state is consistent: proceed
                         // create HTTPS POST request to retrieve OAuth2 token
-                        KevUser user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
+                        User user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
 
                         // check if user is already in db
-                        if (KevUserDAO.getInstance().get(user.getId()) == null) {
+                        if (UserDAO.getInstance().get(user.getId()) == null) {
                             // user not in db: add it
-                            user.setSessionId(session.getId());
-                            KevUserDAO.getInstance().add(user);
+                            UserDAO.getInstance().add(user);
                         }
 
                         session.setAttribute(SessionHandler.USERID, user.getId());

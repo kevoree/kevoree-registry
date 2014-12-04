@@ -38,78 +38,72 @@ public class DeployHandler implements HttpHandler {
 
     @Override
     public void handleRequest(final HttpServerExchange exchange) throws Exception {
-        if (exchange.getSecurityContext().isAuthenticated()) {
-            final String payloadRec = RequestHelper.getStringFrom(exchange);
-            HeaderValues contentTypeValues = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
-            if (contentTypeValues != null) {
-                String contentType = contentTypeValues.getFirst();
-                final boolean isJSON = contentType.contains("application/json");
-                final boolean isXMI = contentType.contains("application/vnd.xmi+xml");
-                final boolean isTrace = contentType.contains("text/plain");
+        final String payloadRec = RequestHelper.getStringFrom(exchange);
+        HeaderValues contentTypeValues = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
+        if (contentTypeValues != null) {
+            String contentType = contentTypeValues.getFirst();
+            final boolean isJSON = contentType.contains("application/json");
+            final boolean isXMI = contentType.contains("application/vnd.xmi+xml");
+            final boolean isTrace = contentType.contains("text/plain");
 
-                if (!isJSON && !isXMI && !isTrace) {
-                    exchange.setResponseCode(406);
-                    exchange.getResponseSender().send("Unknown model mime type ("+contentType+")");
-                }
-
-                if (exchange.isInIoThread()) {
-                    exchange.dispatch(new Runnable() {
-                        @Override
-                        public void run() {
-                            KevoreeTransaction currentTransaction = manager.createTransaction();
-                            try {
-                                ContainerRoot currentRoot = (ContainerRoot) currentTransaction.lookup("/");
-                                MemoryDataStore tempStore = new MemoryDataStore();
-                                TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
-                                KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
-
-
-                                if (isJSON || isXMI) {
-                                    ModelLoader loader;
-                                    if (isJSON) {
-                                        loader = tempTransaction.createJSONLoader();
-                                    } else {
-                                        loader = tempTransaction.createXMILoader();
-                                    }
-                                    List<KMFContainer> models = loader.loadModelFromString(payloadRec);
-                                    ModelCompare compare = currentTransaction.createModelCompare();
-                                    for (KMFContainer model : models) {
-                                        ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
-                                        TraceSequence seq = compare.merge(newRootToCompare, model);
-                                        seq.applyOn(currentRoot);
-                                    }
-
-                                } else if (isTrace) {
-                                    TraceSequence ts = new TraceSequence(factory);
-                                    ts.populateFromString(payloadRec);
-                                    ts.applyOn(currentRoot);
-                                }
-
-                                tempTransaction.close();
-                                tempMemoryManager.close();
-                                currentTransaction.commit();
-
-                                exchange.setResponseCode(201);
-                                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                exchange.setResponseCode(500);
-                                exchange.getResponseSender().send("Server error");
-                                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
-                            } finally {
-                                currentTransaction.close();
-                            }
-                        }
-                    });
-                }
-            } else {
+            if (!isJSON && !isXMI && !isTrace) {
                 exchange.setResponseCode(406);
-                exchange.getResponseSender().send("Unknown model mime type (Content-Type not set)");
+                exchange.getResponseSender().send("Unknown model mime type ("+contentType+")");
             }
 
+            if (exchange.isInIoThread()) {
+                exchange.dispatch(new Runnable() {
+                    @Override
+                    public void run() {
+                        KevoreeTransaction currentTransaction = manager.createTransaction();
+                        try {
+                            ContainerRoot currentRoot = (ContainerRoot) currentTransaction.lookup("/");
+                            MemoryDataStore tempStore = new MemoryDataStore();
+                            TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
+                            KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
+
+
+                            if (isJSON || isXMI) {
+                                ModelLoader loader;
+                                if (isJSON) {
+                                    loader = tempTransaction.createJSONLoader();
+                                } else {
+                                    loader = tempTransaction.createXMILoader();
+                                }
+                                List<KMFContainer> models = loader.loadModelFromString(payloadRec);
+                                ModelCompare compare = currentTransaction.createModelCompare();
+                                for (KMFContainer model : models) {
+                                    ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
+                                    TraceSequence seq = compare.merge(newRootToCompare, model);
+                                    seq.applyOn(currentRoot);
+                                }
+
+                            } else if (isTrace) {
+                                TraceSequence ts = new TraceSequence(factory);
+                                ts.populateFromString(payloadRec);
+                                ts.applyOn(currentRoot);
+                            }
+
+                            tempTransaction.close();
+                            tempMemoryManager.close();
+                            currentTransaction.commit();
+
+                            exchange.setResponseCode(201);
+                            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            exchange.setResponseCode(500);
+                            exchange.getResponseSender().send("Server error");
+                            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                        } finally {
+                            currentTransaction.close();
+                        }
+                    }
+                });
+            }
         } else {
-            exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
-            exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+            exchange.setResponseCode(406);
+            exchange.getResponseSender().send("Unknown model mime type (Content-Type not set)");
         }
     }
 }

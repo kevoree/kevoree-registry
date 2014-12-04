@@ -9,7 +9,7 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 
 /**
@@ -29,7 +29,7 @@ public abstract class AbstractHandler extends AbstractTemplateHandler {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
 
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         HeaderValues acceptValues = exchange.getRequestHeaders().get(Headers.ACCEPT);
 
         if (acceptValues == null || acceptValues.getFirst().startsWith("text/html")) {
@@ -40,14 +40,14 @@ public abstract class AbstractHandler extends AbstractTemplateHandler {
             }
         } else if (acceptValues.getFirst().startsWith("application/json")) {
             if (needAuth && user == null) {
-                exchange.setResponseCode(StatusCodes.FORBIDDEN);
+                exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
                 exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
             } else {
                 handleJson(exchange);
             }
         } else {
             if (needAuth && user == null) {
-                exchange.setResponseCode(StatusCodes.FORBIDDEN);
+                exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
                 exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
             } else {
                 handleOther(exchange);

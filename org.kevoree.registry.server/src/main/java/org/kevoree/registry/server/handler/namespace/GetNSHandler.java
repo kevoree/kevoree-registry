@@ -9,7 +9,7 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.Headers;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.model.Namespace;
 import org.kevoree.registry.server.template.TemplateManager;
 
@@ -31,7 +31,7 @@ public class GetNSHandler extends AbstractHandler {
     protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json");
         JsonArray namespaces = new JsonArray();
         for (Namespace ns : user.getNamespaces()) {

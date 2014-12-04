@@ -1,4 +1,4 @@
-<div class="container" data-ng-controller="ProfileCtrl">
+<div class="container" data-ng-controller="Profile">
     <div class="col-md-offset-1 col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">

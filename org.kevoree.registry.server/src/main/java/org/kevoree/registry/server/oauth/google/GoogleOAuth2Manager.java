@@ -1,7 +1,6 @@
 package org.kevoree.registry.server.oauth.google;
 
 import com.eclipsesource.json.JsonObject;
-import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.util.Headers;
 import io.undertow.util.QueryParameterUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -10,8 +9,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.kevoree.registry.server.model.KevUser;
-import org.kevoree.registry.server.util.MD5;
+import org.kevoree.registry.server.model.User;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -98,11 +96,11 @@ public class GoogleOAuth2Manager {
         }
     }
 
-    public static KevUser getUserInfo(String code, Auth auth) throws Exception {
+    public static User getUserInfo(String code, Auth auth) throws Exception {
         return getUserInfo(getAuthAccess(code, auth));
     }
 
-    public static KevUser getUserInfo(AuthAccess access) throws Exception {
+    public static User getUserInfo(AuthAccess access) throws Exception {
         CloseableHttpClient client = HttpClients.createDefault();
         try {
             HttpGet get = new HttpGet();
@@ -123,7 +121,7 @@ public class GoogleOAuth2Manager {
 
                 } else {
                     // alright
-                    KevUser user = new KevUser();
+                    User user = new User();
                     user.setId(responseObj.get("email").asString());
                     user.setGravatarEmail(user.getId());
                     user.setName(responseObj.get("given_name").asString());

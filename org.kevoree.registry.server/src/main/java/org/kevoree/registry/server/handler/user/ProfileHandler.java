@@ -1,7 +1,6 @@
 package org.kevoree.registry.server.handler.user;
 
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
@@ -10,7 +9,7 @@ import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.ResponseHelper;
 
@@ -28,7 +27,7 @@ public class ProfileHandler extends AbstractHandler {
     protected void handleHTML(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         if (user != null) {
             tplManager.template(exchange, "profile.ftl");
         } else {
@@ -40,11 +39,11 @@ public class ProfileHandler extends AbstractHandler {
     protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         if (user != null) {
             ResponseHelper.json(exchange, user.toJson());
         } else {
-            exchange.setResponseCode(StatusCodes.FORBIDDEN);
+            exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
             JsonObject response = new JsonObject();
             response.add("error", "Not connected");
             ResponseHelper.json(exchange, response);

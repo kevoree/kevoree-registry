@@ -17,13 +17,17 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.27/angular.min.js"></script>
     <script src="/!/static/js/modules/ui-bootstrap-0.12.0.min.js"></script>
     <script src="/!/static/js/app.js"></script>
-    <script src="/!/static/js/controllers/MainCtrl.js"></script>
-    <script src="/!/static/js/controllers/SignInCtrl.js"></script>
-    <script src="/!/static/js/controllers/LogInCtrl.js"></script>
-    <script src="/!/static/js/controllers/ProfileCtrl.js"></script>
+    <script src="/!/static/js/factories/user.js"></script>
+    <script src="/!/static/js/factories/namespace.js"></script>
+    <script src="/!/static/js/directives/match.js"></script>
+    <script src="/!/static/js/directives/fqnCompliant.js"></script>
+    <script src="/!/static/js/controllers/Main.js"></script>
+    <script src="/!/static/js/controllers/SignIn.js"></script>
+    <script src="/!/static/js/controllers/LogIn.js"></script>
+    <script src="/!/static/js/controllers/Profile.js"></script>
 </head>
 
-<body data-ng-controller="MainCtrl">
+<body data-ng-controller="Main">
     <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">

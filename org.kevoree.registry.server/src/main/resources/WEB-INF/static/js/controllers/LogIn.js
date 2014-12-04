@@ -4,7 +4,7 @@
  *
  */
 angular.module('kevoreeRegistry')
-    .controller('LogInCtrl', ['$scope', '$http', function($scope, $http) {
+    .controller('LogIn', ['$scope', '$http', function($scope, $http) {
         $scope.error = null;
         $scope.validate = function(user) {
             $http.post('/!/auth/login', { email: user.email, password: user.password })

@@ -1,10 +1,10 @@
-<div class="container" data-ng-controller="LogInCtrl">
+<div class="container" data-ng-controller="LogIn">
     <div class="col-md-offset-3 col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">Log in using your email</h3>
             </div>
-            <ul class="list-group" ng-show="error">
+            <ul class="list-group" data-ng-show="error">
                 <li class="list-group-item list-group-item-danger">
                     <h4 class="list-group-item-heading">Invalid inputs</h4>
                     <p class="list-group-item-text">{{error}}</p>

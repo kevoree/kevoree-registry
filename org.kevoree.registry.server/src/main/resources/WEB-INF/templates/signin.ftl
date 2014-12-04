@@ -1,4 +1,4 @@
-<div class="container" data-ng-controller="SignInCtrl">
+<div class="container" data-ng-controller="SignIn">
     <div class="col-md-offset-1 col-md-5">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -22,7 +22,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title">Or using your email</h3>
             </div>
-            <ul class="list-group" ng-show="error">
+            <ul class="list-group" data-ng-show="error">
                 <li class="list-group-item list-group-item-danger">
                     <h4 class="list-group-item-heading">Invalid inputs</h4>
                     <p class="list-group-item-text">{{error}}</p>

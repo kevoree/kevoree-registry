@@ -14,6 +14,7 @@ import org.kevoree.registry.server.handler.model.ModelHandler;
 import org.kevoree.registry.server.handler.model.SearchModelHandler;
 import org.kevoree.registry.server.manager.DbSessionManager;
 import org.kevoree.registry.server.router.AuthRouter;
+import org.kevoree.registry.server.router.ModelRouter;
 import org.kevoree.registry.server.router.NamespaceRouter;
 import org.kevoree.registry.server.router.UserRouter;
 import org.kevoree.registry.server.template.TemplateManager;
@@ -45,6 +46,7 @@ public class KevoreeRegistryHandler implements HttpHandler {
         this.sessionAttachmentHandler = new SessionAttachmentHandler(
                 new SessionHandler(
                         new CSRFHandler(tplManager, new PathHandler()
+                                .addPrefixPath("/!/model", new ModelRouter(tplManager))
                                 .addPrefixPath("/!/auth", new AuthRouter(tplManager))
                                 .addPrefixPath("/!/user", new UserRouter(tplManager))
                                 .addPrefixPath("/!/ns", new NamespaceRouter(tplManager))

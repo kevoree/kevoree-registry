@@ -4,18 +4,14 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
-import org.kevoree.registry.server.dao.KevUserDAO;
-import org.kevoree.registry.server.dao.NamespaceDAO;
+import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
-import org.kevoree.registry.server.handler.AbstractTemplateHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.KevUser;
-import org.kevoree.registry.server.model.Namespace;
+import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 import org.kevoree.registry.server.util.Password;
 import org.kevoree.registry.server.util.PasswordHash;
@@ -23,9 +19,6 @@ import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 /**
  * Created by leiko on 24/11/14.
@@ -42,7 +35,7 @@ public class EditUserHandler extends AbstractHandler {
     protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-        KevUser user = (KevUser) session.getAttribute(SessionHandler.USER);
+        User user = (User) session.getAttribute(SessionHandler.USER);
         // retrieve values from request payload
         String payload = RequestHelper.getStringFrom(exchange);
         try {
@@ -52,7 +45,7 @@ public class EditUserHandler extends AbstractHandler {
             } else if (data.get("gravatar_email") != null) {
                 JsonValue gravatarVal = data.get("gravatar_email");
                 user.setGravatarEmail(gravatarVal.asString());
-                KevUserDAO.getInstance().update(user);
+                UserDAO.getInstance().update(user);
                 ResponseHelper.ok(exchange);
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
@@ -68,7 +61,7 @@ public class EditUserHandler extends AbstractHandler {
         }
     }
 
-    private void editPassword(HttpServerExchange exchange, KevUser user, JsonObject data) throws Exception {
+    private void editPassword(HttpServerExchange exchange, User user, JsonObject data) throws Exception {
         JsonValue oldPassVal = data.get("old_pass");
         JsonValue newPassVal = data.get("new_pass");
 
@@ -79,7 +72,7 @@ public class EditUserHandler extends AbstractHandler {
                 Password pass = PasswordHash.createHash(newPass);
                 user.setPassword(pass.getHash());
                 user.setSalt(pass.getSalt());
-                KevUserDAO.getInstance().update(user);
+                UserDAO.getInstance().update(user);
                 ResponseHelper.ok(exchange);
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
@@ -99,7 +92,7 @@ public class EditUserHandler extends AbstractHandler {
                         Password pass = PasswordHash.createHash(newPass);
                         user.setPassword(pass.getHash());
                         user.setSalt(pass.getSalt());
-                        KevUserDAO.getInstance().update(user);
+                        UserDAO.getInstance().update(user);
                         ResponseHelper.ok(exchange);
 
                     } else {
