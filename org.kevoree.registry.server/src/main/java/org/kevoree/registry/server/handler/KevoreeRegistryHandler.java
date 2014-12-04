@@ -29,11 +29,9 @@ public class KevoreeRegistryHandler implements HttpHandler {
     private final Logger log = LoggerFactory.getLogger(KevoreeRegistryHandler.class.getSimpleName());
 
     private HttpHandler sessionAttachmentHandler;
-    private final Context context;
 
     public KevoreeRegistryHandler(Context context)
             throws IOException {
-        this.context = context;
 
         this.sessionAttachmentHandler = new SessionAttachmentHandler(
                 new SessionHandler(context,
