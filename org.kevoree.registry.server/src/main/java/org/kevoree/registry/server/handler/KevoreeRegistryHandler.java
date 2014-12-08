@@ -7,12 +7,8 @@ import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.model.ModelHandler;
-import org.kevoree.registry.server.handler.model.SearchModelHandler;
 import org.kevoree.registry.server.manager.DbSessionManager;
-import org.kevoree.registry.server.router.AuthRouter;
-import org.kevoree.registry.server.router.ModelRouter;
-import org.kevoree.registry.server.router.NamespaceRouter;
-import org.kevoree.registry.server.router.UserRouter;
+import org.kevoree.registry.server.router.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +36,7 @@ public class KevoreeRegistryHandler implements HttpHandler {
                                 .addPrefixPath("/!/auth", new AuthRouter(context))
                                 .addPrefixPath("/!/user", new UserRouter(context))
                                 .addPrefixPath("/!/ns", new NamespaceRouter(context))
-                                .addPrefixPath("/!/search", new SearchModelHandler(context))
+                                .addPrefixPath("/!/registry", new RegistryRouter(context))
                                 .addPrefixPath("/!/static", get(new StaticHandler()))
                                 .addPrefixPath("/", new ModelHandler(context))
                         )),

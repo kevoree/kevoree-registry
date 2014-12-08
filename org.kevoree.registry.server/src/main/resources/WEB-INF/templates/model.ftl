@@ -1,33 +1,29 @@
-<div class="container-fluid">
-<#if isEmpty>
-    <div class="panel panel-default">
+<div class="container-fluid" data-ng-controller="Model">
+    <div class="panel panel-default" data-ng-show="elements.length === 0">
         <div class="panel-heading">Error</div>
         <ul class="list-group">
             <li class="list-group-item list-group-item-warning list-group-item-ellipsis">
-                Unable to find <strong>${relativePath}</strong>
+                Unable to find <strong>{{relativePath}}</strong>
             </li>
         </ul>
     </div>
-<#else>
-    <#list elements as elem>
-        <div class="panel panel-default">
-            <div class="panel-heading">${elem.name}</div>
-            <ul class="list-group">
-                <#list elem.attributes as attr>
-                    <li class="list-group-item list-group-item-ellipsis">${attr}</a></li>
-                </#list>
-            </ul>
-        </div>
-    </#list>
 
-    <div class="panel panel-default">
-        <div class="panel-heading">Children (${children?size + 1})</div>
+    <div class="panel panel-default" data-ng-hide="elements.length === 0" data-ng-repeat="elem in elements">
+        <div class="panel-heading">{{elem.name}}</div>
         <ul class="list-group">
-            <li class="list-group-item list-group-item-ellipsis"><a href="${previousPath}">parent</a></li>
-            <#list children as child>
-                <li class="list-group-item list-group-item-ellipsis"><a href="${child.link}">${child.key}</a></li>
-            </#list>
+            <li class="list-group-item list-group-item-ellipsis" data-ng-repeat="attr in elem.attributes">{{attr}}</li>
         </ul>
     </div>
-</#if>
+
+    <div class="panel panel-default" data-ng-hide="elements.length === 0">
+        <div class="panel-heading">Children ({{children.length + 1}})</div>
+        <ul class="list-group">
+            <li class="list-group-item list-group-item-ellipsis" data-ng-show="relativePath !== '/'">
+                <a href="" data-ng-href="{{previousPath}}">parent</a>
+            </li>
+            <li class="list-group-item list-group-item-ellipsis" data-ng-repeat="child in children">
+                <a href="" data-ng-href="{{child.link}}">{{child.key}}</a>
+            </li>
+        </ul>
+    </div>
 </div>

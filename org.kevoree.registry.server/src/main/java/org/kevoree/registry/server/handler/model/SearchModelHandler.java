@@ -12,6 +12,7 @@ import java.util.Deque;
 import java.util.Map;
 
 /**
+ *
  * Created by leiko on 25/11/14.
  */
 public class SearchModelHandler extends AbstractHandler {
@@ -22,6 +23,25 @@ public class SearchModelHandler extends AbstractHandler {
 
     @Override
     protected void handleHTML(HttpServerExchange exchange) throws Exception {
+        new RedirectHandler(getQuery(exchange)).handleRequest(exchange);
+    }
+
+    @Override
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
+        JsonObject response = new JsonObject();
+        response.add("path", getQuery(exchange));
+        ResponseHelper.json(exchange, response);
+    }
+
+    @Override
+    protected void handleOther(HttpServerExchange exchange) throws Exception {
+        exchange.setResponseCode(StatusCodes.NOT_ACCEPTABLE);
+        JsonObject response = new JsonObject();
+        response.add("error", "Only accept text/html or application/json request");
+        ResponseHelper.json(exchange, response);
+    }
+
+    private String getQuery(HttpServerExchange exchange) {
         Map<String, Deque<String>> params = exchange.getQueryParameters();
 
         // TODO this could use some better parsing, cause "as is" it can explode in so many cases
@@ -68,20 +88,6 @@ public class SearchModelHandler extends AbstractHandler {
         } else {
             modelQuery.append("/");
         }
-
-        new RedirectHandler(modelQuery.toString()).handleRequest(exchange);
-    }
-
-    @Override
-    protected void handleJson(HttpServerExchange exchange) throws Exception {
-        // TODO
-    }
-
-    @Override
-    protected void handleOther(HttpServerExchange exchange) throws Exception {
-        exchange.setResponseCode(StatusCodes.NOT_ACCEPTABLE);
-        JsonObject response = new JsonObject();
-        response.add("error", "Only accept text/html or application/json request");
-        ResponseHelper.json(exchange, response);
+        return modelQuery.toString();
     }
 }

@@ -15,6 +15,7 @@ import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.template.TemplateManager;
 
 /**
+ *
  * Created by leiko on 28/11/14.
  */
 public abstract class AbstractHandler implements HttpHandler {

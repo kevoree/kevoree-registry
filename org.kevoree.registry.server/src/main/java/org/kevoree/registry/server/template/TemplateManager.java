@@ -4,6 +4,7 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateModel;
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 
@@ -48,8 +49,7 @@ public class TemplateManager {
 
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "text/html");
         exchange.getResponseSender().send(layoutWriter.toString());
-        exchange.getResponseSender().close();
-        exchange.endExchange();
+        exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
     }
 
     public void putLayoutData(String key, Object value) {

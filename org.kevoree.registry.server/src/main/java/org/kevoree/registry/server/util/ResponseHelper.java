@@ -18,11 +18,25 @@ public class ResponseHelper {
      * @param json
      */
     public static void json(HttpServerExchange exchange, JsonValue json) {
+        json(exchange, json.toString());
+    }
+
+    /**
+     * Sends the given String and closes the response sender.
+     * This helper also set the response header Content-Type to "application/json"
+     * @param exchange
+     * @param jsonStr
+     */
+    public static void json(HttpServerExchange exchange, String jsonStr) {
         exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, "application/json");
-        exchange.getResponseSender().send(json.toString());
+        exchange.getResponseSender().send(jsonStr);
         exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
     }
 
+    /**
+     * HTTP Response 200 OK
+     * @param exchange
+     */
     public static void ok(HttpServerExchange exchange) {
         exchange.setResponseCode(StatusCodes.OK);
         exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
