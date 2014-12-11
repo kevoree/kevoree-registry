@@ -8,12 +8,12 @@ import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.Context;
-import org.kevoree.registry.server.dao.NamespaceDAO;
-import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.Namespace;
 import org.kevoree.registry.server.model.User;
+import org.kevoree.registry.server.exception.NotAvailableException;
+import org.kevoree.registry.server.exception.NotValidException;
+import org.kevoree.registry.server.service.NamespaceService;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
@@ -44,31 +44,31 @@ public class AddNSHandler extends AbstractHandler {
             String fqn = data.get("fqn").asString();
             if (fqn != null && !fqn.trim().isEmpty()) {
                 // try to find namespace in db
-                Namespace namespace = NamespaceDAO.getInstance(context.getEntityManagerFactory()).get(fqn);
-                if (namespace == null) {
-                    // namespace is available: save it for that user
-                    namespace = new Namespace();
-                    namespace.setFqn(fqn);
-                    namespace.setOwner(user);
-                    // update user in db
-                    user.addNamespace(namespace);
-                    UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
+                NamespaceService nsService = NamespaceService.getInstance(context.getEntityManagerFactory());
+                nsService.add(fqn, user);
+                ResponseHelper.ok(exchange);
 
-                    ResponseHelper.ok(exchange);
-
-                } else {
-                    // namespace is already owned by someone else
-                    exchange.setResponseCode(StatusCodes.CONFLICT);
-                    JsonObject response = new JsonObject();
-                    response.add("error", "Namespace \""+fqn+"\" not available.");
-                    ResponseHelper.json(exchange, response);
-                }
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                 JsonObject response = new JsonObject();
                 response.add("error", "Given fqn is null or empty");
                 ResponseHelper.json(exchange, response);
             }
+
+        } catch (NotAvailableException e) {
+            // namespace is not available
+            exchange.setResponseCode(StatusCodes.CONFLICT);
+            JsonObject response = new JsonObject();
+            response.add("error", e.getMessage());
+            ResponseHelper.json(exchange, response);
+
+        } catch (NotValidException e) {
+            // namespace is not valid
+            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+            JsonObject response = new JsonObject();
+            response.add("error", e.getMessage());
+            ResponseHelper.json(exchange, response);
+
         } catch (Exception e) {
             log.error("500 - Internal Server Error - {}", exchange, e.getMessage());
             log.debug("Caught exception", e);

@@ -42,7 +42,7 @@ public class GoogleCallbackHandler implements HttpHandler {
 
             if (params.get("error") != null) {
                 // user refused the authentication
-                // TODO
+                new RedirectHandler("/!/auth/signin").handleRequest(exchange);
             } else {
                 // user accepted the authentication
                 if (session.getAttribute("state") != null) {

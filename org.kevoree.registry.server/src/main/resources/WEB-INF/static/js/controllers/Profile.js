@@ -1,8 +1,5 @@
 // Created by leiko on 26/11/14 17:06
 
-var FQN_REGEX = /^([a-z_]+(\.[a-z_]+)*)$/,
-    INFO_TIMEOUT = 4000;
-
 /**
  *
  */

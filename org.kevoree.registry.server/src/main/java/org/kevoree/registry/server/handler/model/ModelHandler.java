@@ -40,7 +40,7 @@ public class ModelHandler extends AbstractHandler {
 
     @Override
     protected void handleHTML(HttpServerExchange exchange) throws Exception {
-        context.getTemplateManager().template(exchange, "model.ftl");
+        context.getTemplateManager().template(exchange, "model.html");
     }
 
     @Override

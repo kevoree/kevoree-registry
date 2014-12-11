@@ -6,10 +6,11 @@ angular.module('kevoreeRegistry')
 
         /**
          *
+         * @param fqn
          * @returns {*}
          */
-        factory.getNs = function () {
-            return $http.get(baseURL);
+        factory.getNs = function (fqn) {
+            return $http.get(baseURL + '/show/' + fqn);
         };
 
         /**

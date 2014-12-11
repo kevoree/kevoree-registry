@@ -8,12 +8,13 @@ import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
 import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.Context;
-import org.kevoree.registry.server.dao.NamespaceDAO;
-import org.kevoree.registry.server.dao.UserDAO;
+import org.kevoree.registry.server.exception.NotAvailableException;
+import org.kevoree.registry.server.exception.OwnerCantLeaveNamespaceException;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
-import org.kevoree.registry.server.model.Namespace;
 import org.kevoree.registry.server.model.User;
+import org.kevoree.registry.server.service.NamespaceService;
+import org.kevoree.registry.server.service.UserService;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
@@ -41,31 +42,30 @@ public class LeaveNSHandler extends AbstractHandler {
         try {
             JsonObject data = JsonObject.readFrom(payload);
             String fqn = data.get("fqn").asString();
+
             if (fqn != null && !fqn.trim().isEmpty()) {
-                Namespace ns = NamespaceDAO.getInstance(context.getEntityManagerFactory()).get(fqn);
-                if (ns != null) {
-                    if (ns.getOwner().getId().equals(user.getId())) {
-                        // prevent owner user from leaving a namespace
-                        exchange.setResponseCode(StatusCodes.BAD_REQUEST);
-                        JsonObject response = new JsonObject();
-                        response.add("error", "Owners cannot leave their own namespaces");
-                        ResponseHelper.json(exchange, response);
-                    } else {
-                        UserDAO.getInstance(context.getEntityManagerFactory()).leave(user, ns);
-                        ResponseHelper.ok(exchange);
-                    }
-                } else {
-                    exchange.setResponseCode(StatusCodes.BAD_REQUEST);
-                    JsonObject response = new JsonObject();
-                    response.add("error", "Unable to find \""+fqn+"\"");
-                    ResponseHelper.json(exchange, response);
-                }
+                NamespaceService nsService = NamespaceService.getInstance(context.getEntityManagerFactory());
+                nsService.leave(fqn, user);
+                ResponseHelper.ok(exchange);
             } else {
                 exchange.setResponseCode(StatusCodes.BAD_REQUEST);
                 JsonObject response = new JsonObject();
                 response.add("error", "Given fqn is null or empty");
                 ResponseHelper.json(exchange, response);
             }
+
+        } catch (NotAvailableException e) {
+            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+            JsonObject response = new JsonObject();
+            response.add("error", e.getMessage());
+            ResponseHelper.json(exchange, response);
+
+        } catch (OwnerCantLeaveNamespaceException e) {
+            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+            JsonObject response = new JsonObject();
+            response.add("error", e.getMessage());
+            ResponseHelper.json(exchange, response);
+
         } catch (Exception e) {
             log.error("500 - Internal Server Error - {}", exchange, e.getMessage());
             log.debug("Caught exception", e);

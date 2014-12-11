@@ -29,7 +29,7 @@ public class ProfileHandler extends AbstractHandler {
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         User user = (User) session.getAttribute(SessionHandler.USER);
         if (user != null) {
-            context.getTemplateManager().template(exchange, "profile.ftl");
+            context.getTemplateManager().template(exchange, "profile.html");
         } else {
             new RedirectHandler("/").handleRequest(exchange);
         }

@@ -78,4 +78,18 @@ public class Namespace {
     public String toString() {
         return this.toJson().toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Namespace) {
+            return this.fqn.equals(((Namespace) obj).fqn);
+        } else {
+            return super.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return fqn.hashCode();
+    }
 }

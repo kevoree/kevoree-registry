@@ -11,9 +11,13 @@ import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
+import org.kevoree.registry.server.exception.NotAvailableException;
+import org.kevoree.registry.server.exception.NotValidException;
+import org.kevoree.registry.server.exception.PasswordException;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
+import org.kevoree.registry.server.service.UserService;
 import org.kevoree.registry.server.util.Password;
 import org.kevoree.registry.server.util.PasswordHash;
 import org.kevoree.registry.server.util.RequestHelper;
@@ -48,42 +52,33 @@ public class LogInHandler extends AbstractHandler {
                     String email = data.get("email").asString();
                     String password = data.get("password").asString();
 
-                    User user = UserDAO.getInstance(context.getEntityManagerFactory()).get(email);
-                    if (user == null) {
-                        // error: user id unknown
-                        exchange.setResponseCode(StatusCodes.BAD_REQUEST);
-                        JsonObject response = new JsonObject();
-                        response.add("error", "Email address \"" + email + "\" unknown");
-                        ResponseHelper.json(exchange, response);
-                    } else {
-                        // email address is available in db: check for password match
-                        if (user.getSalt() == null) {
-                            // seems like this email has been saved using OAuth so there is no password
-                            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
-                            JsonObject response = new JsonObject();
-                            response.add("error", "It seems like this email address has been registered using OpenID, retry connection using OpenID SignIn service and edit your password in your profile.");
-                            ResponseHelper.json(exchange, response);
+                    UserService userService = UserService.getInstance(context.getEntityManagerFactory());
+                    userService.login(email, password);
+                    // save in session
+                    session.setAttribute(SessionHandler.USERID, email);
+                    ResponseHelper.ok(exchange);
 
-                        } else {
-                            Password hashedPassword = new Password(PasswordHash.PBKDF2_ITERATIONS, user.getPassword(), user.getSalt());
-                            if (PasswordHash.validatePassword(password, hashedPassword)) {
-                                // valid authentication
-                                // save user in session
-                                UserDAO.getInstance(context.getEntityManagerFactory()).update(user);
-                                session.setAttribute(SessionHandler.USERID, email);
-                                // send response
-                                exchange.setResponseCode(StatusCodes.OK);
-                                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                } catch (NotAvailableException e) {
+                    // user id unknown
+                    exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                    JsonObject response = new JsonObject();
+                    response.add("error", e.getMessage());
+                    ResponseHelper.json(exchange, response);
 
-                            } else {
-                                // wrong password
-                                exchange.setResponseCode(StatusCodes.BAD_REQUEST);
-                                JsonObject response = new JsonObject();
-                                response.add("error", "Please enter a correct email and password");
-                                ResponseHelper.json(exchange, response);
-                            }
-                        }
-                    }
+                } catch (NotValidException e) {
+                    // Account issued from OpenID sign-in
+                    exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                    JsonObject response = new JsonObject();
+                    response.add("error", e.getMessage());
+                    ResponseHelper.json(exchange, response);
+
+                } catch (PasswordException e) {
+                    // wrong password
+                    exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                    JsonObject response = new JsonObject();
+                    response.add("error", e.getMessage());
+                    ResponseHelper.json(exchange, response);
+
                 } catch (Exception e) {
                     log.error("500 - Internal Server Error", exchange);
                     log.debug("Caught exception", e);
@@ -92,7 +87,7 @@ public class LogInHandler extends AbstractHandler {
                 }
 
             } else {
-                context.getTemplateManager().template(exchange, null, "login.ftl");
+                context.getTemplateManager().template(exchange, null, "login.html");
             }
         }
     }

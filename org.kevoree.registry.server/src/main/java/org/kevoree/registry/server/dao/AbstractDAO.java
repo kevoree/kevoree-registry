@@ -1,6 +1,9 @@
 package org.kevoree.registry.server.dao;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -25,6 +28,28 @@ abstract class AbstractDAO<T> {
             tx = em.getTransaction();
             tx.begin();
             result = em.find(clazz, id);
+            tx.commit();
+
+        } catch (RuntimeException e) {
+            if ( tx != null && tx.isActive() ) { tx.rollback(); }
+            throw e;
+        } finally {
+            em.close();
+        }
+
+        return result;
+    }
+
+    public List<T> getAll() {
+        List<T> result;
+        EntityTransaction tx = null;
+        EntityManager em = emf.createEntityManager();
+        try {
+            tx = em.getTransaction();
+            tx.begin();
+            CriteriaQuery<T> q = em.getCriteriaBuilder().createQuery(clazz);
+            Root<T> t = q.from(clazz);
+            result = em.createQuery(q.select(t)).getResultList();
             tx.commit();
 
         } catch (RuntimeException e) {
@@ -87,31 +112,5 @@ abstract class AbstractDAO<T> {
         } finally {
             em.close();
         }
-    }
-
-    public List<T> findAll() {
-        List<T> result;
-        EntityTransaction tx = null;
-        EntityManager em = emf.createEntityManager();
-        try {
-            tx = em.getTransaction();
-            tx.begin();
-            TypedQuery<T> query = em.createQuery("SELECT a FROM "+clazz.getSimpleName()+" a", clazz);
-            try {
-                result = query.getResultList();
-            } catch (Exception e) {
-                result = null;
-            }
-
-            tx.commit();
-
-        } catch (RuntimeException e) {
-            if ( tx != null && tx.isActive() ) { tx.rollback(); }
-            throw e;
-        } finally {
-            em.close();
-        }
-
-        return result;
     }
 }

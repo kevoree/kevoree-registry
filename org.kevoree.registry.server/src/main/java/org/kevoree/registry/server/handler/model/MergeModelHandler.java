@@ -3,6 +3,9 @@ package org.kevoree.registry.server.handler.model;
 import com.eclipsesource.json.JsonObject;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.server.session.Session;
+import io.undertow.server.session.SessionConfig;
+import io.undertow.server.session.SessionManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
@@ -17,6 +20,9 @@ import org.kevoree.modeling.api.persistence.MemoryDataStore;
 import org.kevoree.modeling.api.trace.TraceSequence;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.AbstractHandler;
+import org.kevoree.registry.server.handler.SessionHandler;
+import org.kevoree.registry.server.model.User;
+import org.kevoree.registry.server.util.ModelHelper;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
 import org.slf4j.Logger;
@@ -38,7 +44,7 @@ public class MergeModelHandler extends AbstractHandler {
 
     @Override
     protected void handleJson(final HttpServerExchange exchange) throws Exception {
-        final String payloadRec = RequestHelper.getStringFrom(exchange);
+        final String modelStr = RequestHelper.getStringFrom(exchange);
         HeaderValues contentTypeValues = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
         if (contentTypeValues != null) {
             String contentType = contentTypeValues.getFirst();
@@ -63,6 +69,10 @@ public class MergeModelHandler extends AbstractHandler {
                         TransactionManager tempMemoryManager = new KevoreeTransactionManager(tempStore);
                         KevoreeTransaction tempTransaction = (KevoreeTransaction) tempMemoryManager.createTransaction();
 
+                        Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                                .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+
+                        User user = (User) session.getAttribute(SessionHandler.USER);
 
                         if (isJSON || isXMI) {
                             ModelLoader loader;
@@ -71,23 +81,33 @@ public class MergeModelHandler extends AbstractHandler {
                             } else {
                                 loader = tempTransaction.createXMILoader();
                             }
-                            List<KMFContainer> models = loader.loadModelFromString(payloadRec);
+
+                            List<KMFContainer> models = loader.loadModelFromString(modelStr);
                             ModelCompare compare = currentTransaction.createModelCompare();
                             if (models != null) {
-                                for (KMFContainer model : models) {
-                                    ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
-                                    TraceSequence seq = compare.merge(newRootToCompare, model);
-                                    if (currentRoot != null) {
-                                        seq.applyOn(currentRoot);
+                                if (ModelHelper.canWriteNamespace(user, models)) {
+                                    for (KMFContainer model : models) {
+                                        ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
+                                        TraceSequence seq = compare.merge(newRootToCompare, model);
+                                        if (currentRoot != null) {
+                                            seq.applyOn(currentRoot);
+                                        }
                                     }
+                                } else {
+                                    exchange.setResponseCode(StatusCodes.FORBIDDEN);
+                                    JsonObject response = new JsonObject();
+//                                    response.add("error", "You cannot write the namespace \""++"\"");
+                                    ResponseHelper.json(exchange, response);
                                 }
                             }
 
                         } else if (isTrace) {
+                            ContainerRoot modelToMerge = context.getKevoreeFactory().createContainerRoot();
                             TraceSequence ts = new TraceSequence(context.getKevoreeFactory());
-                            ts.populateFromString(payloadRec);
+                            ts.populateFromString(modelStr);
                             if (currentRoot != null) {
-                                ts.applyOn(currentRoot);
+                                ts.applyOn(modelToMerge);
+
                             }
                         }
 

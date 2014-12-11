@@ -11,8 +11,12 @@ angular.module('kevoreeRegistry')
                 .success(function () {
                     window.location = '/';
                 })
-                .error(function (err) {
-                    $scope.error = err.message;
+                .error(function (err, status) {
+                    if (err.error) {
+                        $scope.error = err.error;
+                    } else {
+                        $scope.error = 'Something went wrong (status code '+status+')';
+                    }
                 });
         };
     }]);

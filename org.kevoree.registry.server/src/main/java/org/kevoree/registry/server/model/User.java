@@ -5,6 +5,7 @@ import com.eclipsesource.json.JsonObject;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -106,5 +107,19 @@ public class User {
     @Override
     public String toString() {
         return this.toJson().toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            return this.id.equals(((User) obj).id);
+        } else {
+            return super.equals(obj);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

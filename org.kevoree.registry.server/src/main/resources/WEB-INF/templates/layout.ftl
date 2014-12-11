@@ -28,6 +28,7 @@
     <script src="/!/static/js/controllers/SignIn.js"></script>
     <script src="/!/static/js/controllers/LogIn.js"></script>
     <script src="/!/static/js/controllers/Profile.js"></script>
+    <script src="/!/static/js/controllers/Namespace.js"></script>
     <script src="/!/static/js/controllers/Model.js"></script>
 </head>
 
