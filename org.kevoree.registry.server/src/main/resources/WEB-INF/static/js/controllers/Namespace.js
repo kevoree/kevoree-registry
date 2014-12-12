@@ -7,20 +7,36 @@ angular.module('kevoreeRegistry')
     .controller('Namespace', [
         '$scope', 'namespaceFactory', function ($scope, namespaceFactory) {
 
-            namespaceFactory.getNs(retrieveNamespaceFromUrl())
-                .success(function (data) {
-                    $scope.namespace = data;
-                })
-                .error(function (res, status) {
-                    if (res.error) {
-                        $scope.error = res.error;
-                    } else {
-                        $scope.error = 'Something went wrong (status code '+status+')';
-                    }
-                });
+            function errorHandler(res, status) {
+                if (res.error) {
+                    $scope.error = res.error;
+                } else {
+                    $scope.error = 'Something went wrong (status code '+status+')';
+                }
+            }
 
-            $scope.removeMember = function (user) {
-                console.log('TODO remove user from namespace', user);
+            function getNs() {
+                namespaceFactory
+                    .getNs(retrieveNamespaceFromUrl())
+                    .success(function (data) {
+                        $scope.namespace = data;
+                    }).error(errorHandler);
+            }
+
+            getNs();
+
+            $scope.removeMember = function (userId) {
+                namespaceFactory
+                    .removeMember($scope.namespace.fqn, userId)
+                    .success(getNs)
+                    .error(errorHandler);
+            };
+
+            $scope.addMember = function (userId) {
+                namespaceFactory
+                    .addMember($scope.namespace.fqn, userId)
+                    .success(getNs)
+                    .error(errorHandler);
             };
 
             function retrieveNamespaceFromUrl() {

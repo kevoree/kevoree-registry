@@ -34,6 +34,32 @@ angular.module('kevoreeRegistry')
         /**
          *
          * @param {String} fqn
+         * @param {String} userId
+         * @returns {*}
+         */
+        factory.removeMember = function (fqn, userId) {
+            return $http.post(baseURL + '/remove', {
+                fqn : fqn,
+                member: userId
+            });
+        };
+
+        /**
+         *
+         * @param {String} fqn
+         * @param {String} userId
+         * @returns {*}
+         */
+        factory.addMember = function (fqn, userId) {
+            return $http.post(baseURL + '/register', {
+                fqn : fqn,
+                member: userId
+            });
+        };
+
+        /**
+         *
+         * @param {String} fqn
          * @returns {*}
          */
         factory.deleteNs = function (fqn) {

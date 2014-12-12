@@ -54,6 +54,21 @@ public class NamespaceService {
         }
     }
 
+    public void register(String fqn, String userId) throws NotAvailableException {
+        Namespace ns = nsDAO.get(fqn);
+        User user = userDAO.get(userId);
+        if (ns != null) {
+            if (user != null) {
+                user.addNamespace(ns);
+                userDAO.update(user);
+            } else {
+                throw new NotAvailableException("User \""+userId+"\" does not exist");
+            }
+        } else {
+            throw new NotAvailableException("Namespace \""+fqn+"\" is not available");
+        }
+    }
+
     public void join(String fqn, User user)
             throws NotAvailableException, NotValidException {
         if (isValid(fqn)) {
@@ -74,19 +89,24 @@ public class NamespaceService {
             throws OwnerCantLeaveNamespaceException, NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
         if (ns != null) {
-//            user = userDAO.get(user.getId());
             if (ns.getOwner().getId().equals(user.getId())) {
                 // prevent owner user from leaving a namespace
                 throw new OwnerCantLeaveNamespaceException(user, ns);
             } else {
-                System.out.println(user.toString());
-                System.out.println("REMOVING "+ns.getFqn()+" FROM "+user.getId());
                 user.removeNamespace(ns);
-                System.out.println(user.toString());
                 userDAO.update(user);
             }
         } else {
             throw new NotAvailableException("Namespace \""+fqn+"\" is not available");
+        }
+    }
+
+    public void leave(String fqn, String userId) throws OwnerCantLeaveNamespaceException, NotAvailableException {
+        User user = userDAO.get(userId);
+        if (user != null) {
+            leave(fqn, user);
+        } else {
+            throw new NotAvailableException("User \""+userId+"\" does not exist");
         }
     }
 
@@ -126,5 +146,19 @@ public class NamespaceService {
             }
         }
         return true;
+    }
+
+    public boolean isOwner(String fqn, String userId) throws NotAvailableException {
+        Namespace ns = nsDAO.get(fqn);
+        User user = userDAO.get(userId);
+        if (ns != null) {
+            if (user != null) {
+                return ns.getOwner().getId().equals(user.getId());
+            } else {
+                throw new NotAvailableException("User \""+userId+"\" does not exist");
+            }
+        } else {
+            throw new NotAvailableException("Namespace \""+fqn+"\" is not available");
+        }
     }
 }
