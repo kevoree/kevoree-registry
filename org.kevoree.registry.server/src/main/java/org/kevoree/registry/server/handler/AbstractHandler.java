@@ -30,29 +30,49 @@ public abstract class AbstractHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
-                .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
-
-        User user = (User) session.getAttribute(SessionHandler.USER);
         HeaderValues acceptValues = exchange.getRequestHeaders().get(Headers.ACCEPT);
 
         if (acceptValues == null || acceptValues.getFirst().startsWith("text/html")) {
-            if (needAuth && user == null) {
-                new RedirectHandler("/").handleRequest(exchange);
+            if (needAuth) {
+                Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                        .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+
+                User user = (User) session.getAttribute(SessionHandler.USER);
+                if (user == null) {
+                    new RedirectHandler("/").handleRequest(exchange);
+                } else {
+                    handleHTML(exchange);
+                }
             } else {
                 handleHTML(exchange);
             }
         } else if (acceptValues.getFirst().startsWith("application/json")) {
-            if (needAuth && user == null) {
-                exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
-                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+            if (needAuth) {
+                Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                        .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+
+                User user = (User) session.getAttribute(SessionHandler.USER);
+                if (user == null) {
+                    exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
+                    exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                } else {
+                    handleJson(exchange);
+                }
             } else {
                 handleJson(exchange);
             }
         } else {
-            if (needAuth && user == null) {
-                exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
-                exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+            if (needAuth) {
+                Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                        .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+
+                User user = (User) session.getAttribute(SessionHandler.USER);
+                if (user == null) {
+                    exchange.setResponseCode(StatusCodes.UNAUTHORIZED);
+                    exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+                } else {
+                    handleOther(exchange);
+                }
             } else {
                 handleOther(exchange);
             }

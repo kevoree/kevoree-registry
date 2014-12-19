@@ -17,7 +17,7 @@
                         <p class="list-group-item-text">{{namespace.owner}}</p>
                     </li>
                 </ul>
-                <ul class="list-group" data-ng-show="namespace.owner === user.id">
+                <ul class="list-group" data-ng-show="user && (namespace.owner === user.id)">
                     <li class="list-group-item">
                         <h4 class="list-group-item-heading">Add a member</h4>
                         <div class="list-group-item-content">

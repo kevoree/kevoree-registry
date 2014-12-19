@@ -5,6 +5,7 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 import io.undertow.server.session.SessionConfig;
 import io.undertow.server.session.SessionManager;
+import io.undertow.util.Headers;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.model.User;

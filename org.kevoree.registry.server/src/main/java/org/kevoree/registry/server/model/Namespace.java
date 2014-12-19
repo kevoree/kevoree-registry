@@ -18,7 +18,7 @@ public class Namespace {
     @Id
     private String fqn;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy="namespaces", cascade = { CascadeType.MERGE, CascadeType.REFRESH })
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy="namespaces", cascade = { CascadeType.REFRESH })
     private Set<User> users;
 
     @ManyToOne(optional = false)

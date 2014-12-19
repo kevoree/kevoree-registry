@@ -11,6 +11,7 @@ import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.handler.SessionHandler;
 import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.oauth.google.Auth;
+import org.kevoree.registry.server.oauth.google.GoogleOAuth2Exception;
 import org.kevoree.registry.server.oauth.google.GoogleOAuth2Manager;
 
 import java.util.Deque;
@@ -50,30 +51,34 @@ public class GoogleCallbackHandler implements HttpHandler {
                     if (sessionState.equals(params.get("state").getFirst())) {
                         // session state is consistent: proceed
                         // create HTTPS POST request to retrieve OAuth2 token
-                        User user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
+                        try {
+                            User user = GoogleOAuth2Manager.getUserInfo(params.get("code").getFirst(), googleAuth);
 
-                        // check if user is already in db
-                        if (UserDAO.getInstance(context.getEntityManagerFactory()).get(user.getId()) == null) {
-                            // user not in db: add it
-                            UserDAO.getInstance(context.getEntityManagerFactory()).add(user);
+                            // check if user is already in db
+                            if (UserDAO.getInstance(context.getEntityManagerFactory()).get(user.getId()) == null) {
+                                // user not in db: add it
+                                UserDAO.getInstance(context.getEntityManagerFactory()).add(user);
+                            }
+
+                            session.setAttribute(SessionHandler.USERID, user.getId());
+
+                            exchange.setQueryString("");
+                            new RedirectHandler("/").handleRequest(exchange);
+
+                        } catch (GoogleOAuth2Exception e) {
+                            new RedirectHandler("/!/auth/signin").handleRequest(exchange);
                         }
-
-                        session.setAttribute(SessionHandler.USERID, user.getId());
-
-                        exchange.setQueryString("");
-                        new RedirectHandler("/").handleRequest(exchange);
-
                     } else {
                         // session state differs: abort
                         // TODO something better than an index redirection
                         exchange.setQueryString("");
-                        new RedirectHandler("/").handleRequest(exchange);
+                        new RedirectHandler("/!/auth/signin").handleRequest(exchange);
                     }
                 } else {
                     // unable to find session state: abort
                     // TODO something better than an index redirection
                     exchange.setQueryString("");
-                    new RedirectHandler("/").handleRequest(exchange);
+                    new RedirectHandler("/!/auth/signin").handleRequest(exchange);
                 }
             }
         }

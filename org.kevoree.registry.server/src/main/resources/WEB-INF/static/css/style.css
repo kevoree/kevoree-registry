@@ -41,3 +41,8 @@ table th.align-right, table td.align-right {
     display: table;
     margin: 0 auto;
 }
+
+.element-path {
+    font-family: consolas, menlo, monaco, monospace;
+    font-size: small;
+}

@@ -30,12 +30,12 @@ public class GoogleConnectHandler implements HttpHandler {
         if (session.getAttribute(SessionHandler.USERID) != null) {
             new RedirectHandler("/").handleRequest(exchange);
         } else {
-            googleAuth.state = UUID.randomUUID().toString();
+            String state = UUID.randomUUID().toString();
             googleAuth.redirectURI = "http://" + exchange.getHostName() + "/!/auth/gcallback";
             // save state in session
-            session.setAttribute("state", googleAuth.state);
+            session.setAttribute("state", state);
 
-            HttpHandler redirect = new RedirectHandler(GoogleOAuth2Manager.authEndPoint(googleAuth));
+            HttpHandler redirect = new RedirectHandler(GoogleOAuth2Manager.authEndPoint(googleAuth, state));
             redirect.handleRequest(exchange);
         }
     }

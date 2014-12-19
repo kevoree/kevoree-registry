@@ -17,7 +17,9 @@ import org.kevoree.modeling.api.ModelLoader;
 import org.kevoree.modeling.api.TransactionManager;
 import org.kevoree.modeling.api.compare.ModelCompare;
 import org.kevoree.modeling.api.persistence.MemoryDataStore;
+import org.kevoree.modeling.api.trace.ModelTrace;
 import org.kevoree.modeling.api.trace.TraceSequence;
+import org.kevoree.modeling.api.util.ActionType;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.handler.AbstractHandler;
 import org.kevoree.registry.server.handler.SessionHandler;
@@ -25,9 +27,11 @@ import org.kevoree.registry.server.model.User;
 import org.kevoree.registry.server.util.ModelHelper;
 import org.kevoree.registry.server.util.RequestHelper;
 import org.kevoree.registry.server.util.ResponseHelper;
+import org.kevoree.registry.server.util.TraceHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,18 +48,16 @@ public class MergeModelHandler extends AbstractHandler {
 
     @Override
     protected void handleJson(final HttpServerExchange exchange) throws Exception {
-        final String modelStr = RequestHelper.getStringFrom(exchange);
         HeaderValues contentTypeValues = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
         if (contentTypeValues != null) {
             String contentType = contentTypeValues.getFirst();
             final boolean isJSON = contentType.contains("application/json");
             final boolean isXMI = contentType.contains("application/vnd.xmi+xml");
-            final boolean isTrace = contentType.contains("text/plain");
 
-            if (!isJSON && !isXMI && !isTrace) {
+            if (!isJSON && !isXMI) {
                 exchange.setResponseCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
                 JsonObject response = new JsonObject();
-                response.add("error", "Unsupported Content-Type (expected application/{json, vnd.xmi+xml} or text/plain");
+                response.add("error", "Unsupported Content-Type (expected application/{json, vnd.xmi+xml})");
                 ResponseHelper.json(exchange, response);
             }
 
@@ -73,6 +75,7 @@ public class MergeModelHandler extends AbstractHandler {
                                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
 
                         User user = (User) session.getAttribute(SessionHandler.USER);
+                        String modelStr = RequestHelper.getStringFrom(exchange);
 
                         if (isJSON || isXMI) {
                             ModelLoader loader;
@@ -83,31 +86,31 @@ public class MergeModelHandler extends AbstractHandler {
                             }
 
                             List<KMFContainer> models = loader.loadModelFromString(modelStr);
-                            ModelCompare compare = currentTransaction.createModelCompare();
+                            ModelCompare compare = tempTransaction.createModelCompare();
                             if (models != null) {
                                 if (ModelHelper.canWriteNamespace(user, models)) {
                                     for (KMFContainer model : models) {
-                                        ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("0");
+                                        ContainerRoot newRootToCompare = tempTransaction.createContainerRoot().withGenerated_KMF_ID("kevoree_registry");
                                         TraceSequence seq = compare.merge(newRootToCompare, model);
                                         if (currentRoot != null) {
-                                            seq.applyOn(currentRoot);
+                                            TraceSequence mergeSeq = new TraceSequence(context.getKevoreeFactory());
+                                            mergeSeq.setTraces(TraceHelper.merge(seq));
+                                            mergeSeq.applyOn(currentRoot);
                                         }
                                     }
                                 } else {
                                     exchange.setResponseCode(StatusCodes.FORBIDDEN);
                                     JsonObject response = new JsonObject();
-//                                    response.add("error", "You cannot write the namespace \""++"\"");
+                                    response.add("error", "You do not have write access to the namespaces you want to merge");
                                     ResponseHelper.json(exchange, response);
+                                    return;
                                 }
-                            }
-
-                        } else if (isTrace) {
-                            ContainerRoot modelToMerge = context.getKevoreeFactory().createContainerRoot();
-                            TraceSequence ts = new TraceSequence(context.getKevoreeFactory());
-                            ts.populateFromString(modelStr);
-                            if (currentRoot != null) {
-                                ts.applyOn(modelToMerge);
-
+                            } else {
+                                exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+                                JsonObject response = new JsonObject();
+                                response.add("error", "No model to load");
+                                ResponseHelper.json(exchange, response);
+                                return;
                             }
                         }
 
@@ -117,9 +120,11 @@ public class MergeModelHandler extends AbstractHandler {
 
                         exchange.setResponseCode(StatusCodes.CREATED);
                         exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
+
                     } catch (Exception e) {
                         log.error("500 - Internal Server Error - {}", exchange, e.getMessage());
                         log.debug("Caught exception", e);
+                        e.printStackTrace();
                         exchange.setResponseCode(StatusCodes.INTERNAL_SERVER_ERROR);
                         exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
                     } finally {
@@ -130,7 +135,7 @@ public class MergeModelHandler extends AbstractHandler {
         } else {
             exchange.setResponseCode(StatusCodes.BAD_REQUEST);
             JsonObject response = new JsonObject();
-            response.add("error", "Expect Content-Type to be set to application/{json, vnd.xmi+xml} or text/plain");
+            response.add("error", "Expect Content-Type to be set to application/{json, vnd.xmi+xml}");
             ResponseHelper.json(exchange, response);
         }
     }

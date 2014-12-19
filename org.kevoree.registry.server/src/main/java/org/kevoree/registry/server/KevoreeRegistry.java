@@ -58,7 +58,7 @@ public class KevoreeRegistry {
         KevoreeTransaction transaction = manager.createTransaction();
         ContainerRoot root = (ContainerRoot) transaction.lookup("/");
         if (root == null) {
-            root = transaction.createContainerRoot().withGenerated_KMF_ID("0");
+            root = transaction.createContainerRoot().withGenerated_KMF_ID("kevoree_registry");
             transaction.root(root);
         }
         transaction.commit();

@@ -8,7 +8,6 @@ package org.kevoree.registry.server.oauth.google;
 public class Auth {
 
     public String responseType;
-    public String state;
     public String clientId;
     public String clientSecret;
     public String redirectURI;

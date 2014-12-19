@@ -46,47 +46,51 @@ public class SearchModelHandler extends AbstractHandler {
 
         // TODO this could use some better parsing, cause "as is" it can explode in so many cases
         StringBuilder modelQuery = new StringBuilder();
-        if (params.get("q") != null) {
-            String query = params.get("q").getFirst();
-            if (!query.trim().isEmpty()) {
-                String[] split = query.split("/");
-                String[] parts = split[0].split("\\.");
-                String name = parts[parts.length - 1];
-                if (Character.isUpperCase(name.charAt(0))) {
-                    // query is for a DeployUnit or a TypeDefinition
-                    // first of all, append packages..
-                    if (parts.length == 1) {
-                        // query does not specify package (so it is a Kevoree Std Library TypeDefinition or DeployUnit)
-                        modelQuery.append("/org/kevoree/library");
+        try {
+            if (params.get("q") != null) {
+                String query = params.get("q").getFirst();
+                if (!query.trim().isEmpty()) {
+                    String[] split = query.split("/");
+                    String[] parts = split[0].split("\\.");
+                    String name = parts[parts.length - 1];
+                    if (Character.isUpperCase(name.charAt(0))) {
+                        // query is for a DeployUnit or a TypeDefinition
+                        // first of all, append packages..
+                        if (parts.length == 1) {
+                            // query does not specify package (so it is a Kevoree Std Library TypeDefinition or DeployUnit)
+                            modelQuery.append("/org/kevoree/library");
+                        } else {
+                            // prepend with packages
+                            for (int i=0; i < parts.length - 1; i++) {
+                                modelQuery.append("/");
+                                modelQuery.append(parts[i]);
+                            }
+                        }
+
+                        // now append TypeDef or DeployUnit name
+                        modelQuery.append("/name=");
+                        modelQuery.append(name);
                     } else {
-                        // prepend with packages
-                        for (int i=0; i < parts.length - 1; i++) {
+                        // query is for a package
+                        for (String pkg : parts) {
                             modelQuery.append("/");
-                            modelQuery.append(parts[i]);
+                            modelQuery.append(pkg);
                         }
                     }
 
-                    // now append TypeDef or DeployUnit name
-                    modelQuery.append("/name=");
-                    modelQuery.append(name);
-                } else {
-                    // query is for a package
-                    for (String pkg : parts) {
-                        modelQuery.append("/");
-                        modelQuery.append(pkg);
+                    if (split.length > 1) {
+                        // a version is specified
+                        modelQuery.append(",version=");
+                        modelQuery.append(split[1]);
                     }
-                }
-
-                if (split.length > 1) {
-                    // a version is specified
-                    modelQuery.append(",version=");
-                    modelQuery.append(split[1]);
+                } else {
+                    modelQuery.append("/");
                 }
             } else {
                 modelQuery.append("/");
             }
-        } else {
-            modelQuery.append("/");
+        } catch (Exception e) {
+            modelQuery = new StringBuilder("/");
         }
         return modelQuery.toString();
     }

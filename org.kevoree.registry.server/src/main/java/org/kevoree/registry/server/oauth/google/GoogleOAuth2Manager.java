@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class GoogleOAuth2Manager {
 
-    public static String authEndPoint(Auth auth) {
+    public static String authEndPoint(Auth auth, String state) {
         Map<String, Deque<String>> queryParams = new HashMap<String, Deque<String>>();
 
         Deque<String> responseType = new ArrayDeque<String>();
@@ -32,9 +32,9 @@ public class GoogleOAuth2Manager {
         clientID.add(auth.clientId);
         queryParams.put("client_id", clientID);
 
-        Deque<String> state = new ArrayDeque<String>();
-        state.add(auth.state);
-        queryParams.put("state", state);
+        Deque<String> stateParam = new ArrayDeque<String>();
+        stateParam.add(state);
+        queryParams.put("state", stateParam);
 
         Deque<String> redirectURI = new ArrayDeque<String>();
         redirectURI.add(auth.redirectURI);

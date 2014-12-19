@@ -1,13 +1,17 @@
 ### Kevoree Registry Web Server
 
-#### Dev
-
-**Start a PostgresSQL db:**
+#### Test db
 ```sh
-docker run --name kevoree-registry-db -p 5432:5432 -d postgres:9.4
+sh start-dev-db.sh
+mvn clean test
 ```
 
-Default configuration uses `kevoree_registry` as `user` and `db name`.
+#### Compile & start
 ```sh
-CREATE USER kevoree_registry; CREATE DATABASE kevoree_registry WITH OWNER = kevoree_registry;
+# compile
+mvn clean install -DskipTests
+# start a postgres db in a Docker container
+sh start-db.sh
+# run the server (don't forget to set the config.properties values properly)
+java -jar target/org.kevoree.registry.server-5.0.0-SNAPSHOT.jar
 ```

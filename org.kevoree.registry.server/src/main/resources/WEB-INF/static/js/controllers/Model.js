@@ -54,18 +54,22 @@ angular.module('kevoreeRegistry')
                 $scope.children = [];
                 elements.array.forEach(function (elem) {
                     var elemData = {};
-                    elemData['name'] = '['+elem.metaClassName()+'] '+elem.path();
+                    elemData['type'] = elem.metaClassName().split('.').pop();
+                    elemData['path'] = elem.path();
 
                     var attributes = [];
                     var attrVisitor = new kevoree.modeling.api.util.ModelVisitor();
                     attrVisitor.visit = function (value, name) {
                         if (value === null) { value = ''; }
-                        attributes.push(name + ': ' + value.toString());
+                        if (name === 'datatype') {
+                            value = ''; // TODO fix this as soon as Kotlin is updated
+                        }
+                        attributes.push({ name: name, value: value.toString() });
                     };
 
                     var notContVisitor = new kevoree.modeling.api.util.ModelVisitor();
                     notContVisitor.visit = function (elem, refNameInParent) {
-                        attributes.push(refNameInParent + ': ' + elem.path());
+                        attributes.push({ name: refNameInParent, value: elem.path() });
                     };
 
                     var contVisitor = new kevoree.modeling.api.util.ModelVisitor();

@@ -110,15 +110,23 @@ public class NamespaceService {
         }
     }
 
-    public void delete(String fqn, User user)
+    public void delete(String fqn, String userId)
             throws NotTheOwnerException, NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
         if (ns != null) {
-            if (ns.getOwner().getId().equals(user.getId())) {
-                nsDAO.delete(ns);
+            User user = userDAO.get(userId);
+            if (user != null) {
+                if (ns.getOwner().getId().equals(user.getId())) {
+                    for (User u : ns.getUsers()) {
+                        u.removeNamespace(ns);
+                    }
+                    nsDAO.delete(ns);
 
+                } else {
+                    throw new NotTheOwnerException(user, ns);
+                }
             } else {
-                throw new NotTheOwnerException(user, ns);
+                throw new NotAvailableException("User \""+userId+"\" does not exist");
             }
         } else {
             throw new NotAvailableException("Namespace \""+fqn+"\" is not available");

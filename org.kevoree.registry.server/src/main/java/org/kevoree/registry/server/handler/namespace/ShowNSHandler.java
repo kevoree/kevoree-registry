@@ -2,7 +2,6 @@ package org.kevoree.registry.server.handler.namespace;
 
 import com.eclipsesource.json.JsonObject;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.RedirectHandler;
 import io.undertow.util.StatusCodes;
 import org.kevoree.registry.server.Context;
 import org.kevoree.registry.server.dao.NamespaceDAO;
@@ -35,7 +34,7 @@ public class ShowNSHandler extends AbstractHandler {
         if (ns != null) {
             ResponseHelper.json(exchange, ns.toJson());
         } else {
-            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+            exchange.setResponseCode(StatusCodes.NOT_FOUND);
             JsonObject response = new JsonObject();
             response.add("error", "Unable to find \""+fqn+"\"");
             ResponseHelper.json(exchange, response);

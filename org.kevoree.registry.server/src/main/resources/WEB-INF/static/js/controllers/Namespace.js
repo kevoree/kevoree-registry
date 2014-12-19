@@ -40,7 +40,7 @@ angular.module('kevoreeRegistry')
             };
 
             function retrieveNamespaceFromUrl() {
-                var split = window.location.pathname.split("/");
+                var split = window.location.pathname.replace('/!/ns/show', '').split("/");
                 return split[split.length - 1];
             }
         }]);

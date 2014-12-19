@@ -38,11 +38,15 @@ public class LogInHandler extends AbstractHandler {
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    protected void handleJson(HttpServerExchange exchange) throws Exception {
         Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
                 .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
         if (session.getAttribute(SessionHandler.USERID) != null) {
-            new RedirectHandler("/").handleRequest(exchange);
+            exchange.setResponseCode(StatusCodes.BAD_REQUEST);
+            JsonObject response = new JsonObject();
+            response.add("error", "Already logged in");
+            ResponseHelper.json(exchange, response);
+
         } else {
             if (exchange.getRequestMethod().equals(Methods.POST)) {
                 // process POST data
@@ -87,23 +91,27 @@ public class LogInHandler extends AbstractHandler {
                 }
 
             } else {
-                context.getTemplateManager().template(exchange, null, "login.html");
+                exchange.setResponseCode(StatusCodes.METHOD_NOT_ALLOWED);
+                JsonObject response = new JsonObject();
+                response.add("error", "Only POST request accepted when expecting JSON response");
+                ResponseHelper.json(exchange, response);
             }
         }
     }
 
     @Override
     protected void handleHTML(HttpServerExchange exchange) throws Exception {
-
-    }
-
-    @Override
-    protected void handleJson(HttpServerExchange exchange) throws Exception {
-
+        Session session = exchange.getAttachment(SessionManager.ATTACHMENT_KEY)
+                .getSession(exchange, exchange.getAttachment(SessionConfig.ATTACHMENT_KEY));
+        if (session.getAttribute(SessionHandler.USERID) != null) {
+            new RedirectHandler("/").handleRequest(exchange);
+        } else {
+            context.getTemplateManager().template(exchange, null, "login.html");
+        }
     }
 
     @Override
     protected void handleOther(HttpServerExchange exchange) throws Exception {
-
+        this.handleHTML(exchange);
     }
 }

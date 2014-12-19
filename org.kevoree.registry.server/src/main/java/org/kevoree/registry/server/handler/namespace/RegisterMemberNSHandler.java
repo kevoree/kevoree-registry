@@ -79,6 +79,7 @@ public class RegisterMemberNSHandler extends AbstractHandler {
         } catch (Exception e) {
             log.error("500 - Internal Server Error - {}", exchange, e.getMessage());
             log.debug("Caught exception", e);
+            e.printStackTrace();
             exchange.setResponseCode(StatusCodes.INTERNAL_SERVER_ERROR);
             exchange.getResponseSender().close(IoCallback.END_EXCHANGE);
         }

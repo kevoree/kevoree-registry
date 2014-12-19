@@ -46,7 +46,7 @@ public class DeleteNSHandler extends AbstractHandler {
             String fqn = data.get("fqn").asString();
             if (fqn != null && !fqn.trim().isEmpty()) {
                 NamespaceService nsService = NamespaceService.getInstance(context.getEntityManagerFactory());
-                nsService.delete(fqn, user);
+                nsService.delete(fqn, user.getId());
                 ResponseHelper.ok(exchange);
 
             } else {
