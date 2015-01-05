@@ -45,7 +45,7 @@ public class AddNSHandler extends AbstractHandler {
             if (fqn != null && !fqn.trim().isEmpty()) {
                 // try to find namespace in db
                 NamespaceService nsService = NamespaceService.getInstance(context.getEntityManagerFactory());
-                nsService.add(fqn, user);
+                nsService.add(fqn, user.getId());
                 ResponseHelper.ok(exchange);
 
             } else {

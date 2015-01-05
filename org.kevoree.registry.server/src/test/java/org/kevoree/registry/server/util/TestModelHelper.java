@@ -18,8 +18,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by leiko on 17/12/14.
- */
+* Created by leiko on 17/12/14.
+*/
 public class TestModelHelper {
 
     private KevoreeFactory factory;

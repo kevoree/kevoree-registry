@@ -36,16 +36,28 @@ public class NamespaceService {
         return NamespaceService.INSTANCE;
     }
 
-    public void add(String fqn, User user)
+    /**
+     * Add a namespace to the db, using the given user as its owner
+     * @param fqn 
+     * @param userId
+     * @throws NotAvailableException
+     * @throws NotValidException
+     */
+    public void add(String fqn, String userId)
             throws NotAvailableException, NotValidException {
         if (isValid(fqn)) {
             if (isNamespaceAvailable(fqn)) {
-                Namespace namespace = new Namespace();
-                namespace.setFqn(fqn);
-                namespace.setOwner(user);
-                // update user in db
-                user.addNamespace(namespace);
-                userDAO.update(user);
+                User user = userDAO.get(userId);
+                if (user != null) {
+                    Namespace namespace = new Namespace();
+                    namespace.setFqn(fqn);
+                    namespace.setOwner(user);
+                    // update user in db
+                    user.addNamespace(namespace);
+                    userDAO.update(user);
+                } else {
+                    throw new NotAvailableException("User \""+userId+"\" unknown");
+                }
             } else {
                 throw new NotAvailableException("Namespace \""+fqn+"\" is not available");
             }
@@ -54,6 +66,12 @@ public class NamespaceService {
         }
     }
 
+    /**
+     * Add the given user id to the member of the given namespace fqn
+     * @param fqn
+     * @param userId
+     * @throws NotAvailableException
+     */
     public void register(String fqn, String userId) throws NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
         User user = userDAO.get(userId);
@@ -69,22 +87,13 @@ public class NamespaceService {
         }
     }
 
-    public void join(String fqn, User user)
-            throws NotAvailableException, NotValidException {
-        if (isValid(fqn)) {
-            Namespace namespace = nsDAO.get(fqn);
-            if (namespace != null) {
-                // update user in db
-                user.addNamespace(namespace);
-                userDAO.update(user);
-            } else {
-                throw new NotAvailableException("Namespace \""+fqn+"\" is not available");
-            }
-        } else {
-            throw new NotValidException("Namespace \""+fqn+"\" is not valid");
-        }
-    }
-
+    /**
+     *
+     * @param fqn
+     * @param user
+     * @throws OwnerCantLeaveNamespaceException
+     * @throws NotAvailableException
+     */
     public void leave(String fqn, User user)
             throws OwnerCantLeaveNamespaceException, NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
@@ -101,6 +110,13 @@ public class NamespaceService {
         }
     }
 
+    /**
+     *
+     * @param fqn
+     * @param userId
+     * @throws OwnerCantLeaveNamespaceException
+     * @throws NotAvailableException
+     */
     public void leave(String fqn, String userId) throws OwnerCantLeaveNamespaceException, NotAvailableException {
         User user = userDAO.get(userId);
         if (user != null) {
@@ -110,6 +126,14 @@ public class NamespaceService {
         }
     }
 
+    /**
+     * Deletes the namespace represented by the given fqn if the user represented by the given userId is the owner
+     * of that namespace.
+     * @param fqn
+     * @param userId
+     * @throws NotTheOwnerException
+     * @throws NotAvailableException
+     */
     public void delete(String fqn, String userId)
             throws NotTheOwnerException, NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
@@ -119,6 +143,7 @@ public class NamespaceService {
                 if (ns.getOwner().getId().equals(user.getId())) {
                     for (User u : ns.getUsers()) {
                         u.removeNamespace(ns);
+                        userDAO.update(u);
                     }
                     nsDAO.delete(ns);
 
@@ -133,18 +158,36 @@ public class NamespaceService {
         }
     }
 
+    /**
+     * Removes every user from the namespace and deletes the namespace from the db
+     * @param ns
+     */
     public void delete(Namespace ns) {
         ns = nsDAO.get(ns.getFqn());
         for (User u : ns.getUsers()) {
             u.removeNamespace(ns);
+            userDAO.update(u);
         }
         nsDAO.delete(ns);
     }
 
+    /**
+     *
+     * @param fqn
+     * @return true if the given fqn is well-formed; false otherwise
+     */
     public boolean isValid(String fqn) {
         return fqn.matches("^([a-z_]{2,}(\\.[a-z_]+[0-9]*[a-z_]*)(\\.[a-z_]+[0-9]*[a-z_]*)*)$");
     }
 
+    /**
+     * Tells whether or not the given fqn is available
+     * If "org.kevoree" is already in the db, then a call to:<br/>
+     * <pre>isNamespaceAvailable("org.kevoree.foo")</pre>
+     * will return <strong>false</strong>
+     * @param fqn
+     * @return true if the given fqn is available to register; false otherwise
+     */
     public boolean isNamespaceAvailable(String fqn) {
         List<Namespace> namespaces = nsDAO.getAll();
         for (Namespace ns : namespaces) {
@@ -156,6 +199,13 @@ public class NamespaceService {
         return true;
     }
 
+    /**
+     * Returns true if the given userId is the ID of the user who owns the namespace that matches the given fqn
+     * @param fqn
+     * @param userId
+     * @throws NotAvailableException if the given fqn or userId is unknown in the db
+     * @return
+     */
     public boolean isOwner(String fqn, String userId) throws NotAvailableException {
         Namespace ns = nsDAO.get(fqn);
         User user = userDAO.get(userId);

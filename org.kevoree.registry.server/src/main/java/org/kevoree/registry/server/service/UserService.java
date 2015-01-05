@@ -1,6 +1,5 @@
 package org.kevoree.registry.server.service;
 
-import org.kevoree.registry.server.dao.NamespaceDAO;
 import org.kevoree.registry.server.dao.UserDAO;
 import org.kevoree.registry.server.exception.NotAvailableException;
 import org.kevoree.registry.server.exception.NotValidException;
@@ -38,6 +37,16 @@ public class UserService {
         return UserService.INSTANCE;
     }
 
+    /**
+     * Register a new user in the db if possible
+     * @param id
+     * @param name
+     * @param password
+     * @throws NotAvailableException
+     * @throws PasswordException
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     */
     public void signin(String id, String name, String password)
             throws NotAvailableException, PasswordException, InvalidKeySpecException, NoSuchAlgorithmException {
         User user = userDAO.get(id);
@@ -61,6 +70,16 @@ public class UserService {
         }
     }
 
+    /**
+     * Log a user in
+     * @param id
+     * @param password
+     * @throws NotAvailableException
+     * @throws NotValidException
+     * @throws PasswordException
+     * @throws InvalidKeySpecException
+     * @throws NoSuchAlgorithmException
+     */
     public void login(String id, String password)
             throws NotAvailableException, NotValidException, PasswordException, InvalidKeySpecException, NoSuchAlgorithmException {
         User user = userDAO.get(id);
@@ -87,6 +106,10 @@ public class UserService {
         }
     }
 
+    /**
+     * Delete a user from the db
+     * @param user
+     */
     public void delete(User user) {
         user = userDAO.get(user.getId());
         for (Namespace ns : user.getNamespaces()) {
@@ -100,5 +123,9 @@ public class UserService {
         }
         user = userDAO.get(user.getId());
         userDAO.delete(user);
+    }
+
+    public void delete(String userId) {
+        delete(userDAO.get(userId));
     }
 }
