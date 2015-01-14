@@ -1,0 +1,48 @@
+
+<div class="well">
+    <h2><span translate="kevoreeRegistryApp.namespace.detail.title">Namespace</span> {{namespace.fqn}}</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th translate="entity.detail.field">Field</th>
+                    <th translate="entity.detail.value">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.namespace.fqn">Fqn</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{namespace.fqn}}" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{namespace.owner}}" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.namespace.members">Members</span>
+                    </td>
+                    <td>
+                        <select multiple class="form-control" disabled>
+                            <option ng-repeat="member in namespace.members">{{member}}</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit"
+            ui-sref="namespace"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="entity.action.back"> Back</span>
+    </button>
+</div>

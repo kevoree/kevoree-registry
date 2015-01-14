@@ -1,0 +1,43 @@
+# Disable the spring security default configuration from spring-boot-actuator
+management.security.enabled: true
+security.basic.enabled: false
+
+# Disable Jolokia - An http/json bridge for remote JMX access
+endpoints.jolokia.enabled: false
+
+# security configuration (this key should be unique for your application, and kept secret)
+jhipster.security.rememberme.key: kevoree_registry
+
+async:
+    corePoolSize: 2
+    maxPoolSize: 50
+    queueCapacity: 10000
+
+spring:
+    mail:
+        host: localhost
+        port: 25
+        user:
+        password:
+        protocol: smtp
+        tls: false
+        auth: false
+        from: registry@kevoree.org
+
+    messageSource:
+        cacheSeconds: 1
+
+authentication:
+    oauth:
+        clientid: kevoree_registryapp
+        secret: mySecretOAuthSecret
+        # Token is valid 30 minutes
+        tokenValidityInSeconds: 1800
+
+swagger:
+    title: Kevoree Registry API
+    description: Kevoree Registry API
+    termsOfServiceUrl: http://registry.kevoree.org/
+    contact:
+    license: LGPL-3.0
+    licenseUrl: http://opensource.org/licenses/lgpl-3.0.html

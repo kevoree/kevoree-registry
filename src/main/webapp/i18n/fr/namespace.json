@@ -1,0 +1,21 @@
+{
+    "kevoreeRegistryApp": {
+        "namespace" : {
+            "home": {
+                "title": "Namespaces",
+                "createLabel": "Créer un nouveau Namespace",
+                "createOrEditLabel": "Créer ou éditer un Namespace"
+            },
+            "delete": {
+                "question": "Etes-vous certain de vouloir supprimer le Namespace {{ fqn }} ?"
+            },
+            "detail": {
+                "title": "Namespace"
+            },
+            "fqn": "Fqn",
+            "owner": "Propriétaire",
+            "members": "Membres"
+        }
+    }
+}
+
