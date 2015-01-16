@@ -16,6 +16,11 @@ angular.module('kevoreeRegistryApp', ['LocalStorageModule', 'tmh.dynamicLocale',
             Language.getCurrent().then(function (language) {
                 $translate.use(language);
             });
+
+            // Update the user info
+            Principal.identity().then(function (user) {
+                $rootScope.user = user;
+            });
         });
 
         $rootScope.$on('$stateChangeSuccess',  function(event, toState, toParams, fromState, fromParams) {
@@ -32,7 +37,7 @@ angular.module('kevoreeRegistryApp', ['LocalStorageModule', 'tmh.dynamicLocale',
             }
         };
     })
-    
+
     .factory('authInterceptor', function ($rootScope, $q, $location, localStorageService) {
         return {
             // Add authorization token to headers
@@ -46,9 +51,9 @@ angular.module('kevoreeRegistryApp', ['LocalStorageModule', 'tmh.dynamicLocale',
             }
         };
     })
-    
+
     .config(function ($stateProvider, $urlRouterProvider, $httpProvider, $locationProvider, $translateProvider, tmhDynamicLocaleProvider, httpRequestInterceptorCacheBusterProvider) {
-        
+
 
         //Cache everything except rest api requests
         httpRequestInterceptorCacheBusterProvider.setMatchlist([/.*rest.*/, /.*protected.*/], true);
@@ -75,7 +80,7 @@ angular.module('kevoreeRegistryApp', ['LocalStorageModule', 'tmh.dynamicLocale',
                 }]
             }
         });
-        
+
         $httpProvider.interceptors.push('authInterceptor');
 
         // Initialize angular-translate

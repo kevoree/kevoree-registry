@@ -3,6 +3,7 @@ package org.kevoree.registry.config;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlet.InstrumentedFilter;
 import com.codahale.metrics.servlets.MetricsServlet;
+import org.kevoree.registry.web.filter.CORSHttpHeadersFilter;
 import org.kevoree.registry.web.filter.CachingHttpHeadersFilter;
 import org.kevoree.registry.web.filter.StaticResourcesProductionFilter;
 import org.kevoree.registry.web.filter.gzip.GZipServletFilter;
@@ -54,6 +55,7 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
         if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
             initH2Console(servletContext);
         }
+        initCORSHeadersFilter(servletContext, disps);
         log.info("Web application fully configured");
     }
 
@@ -118,6 +120,17 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/assets/*");
         cachingHttpHeadersFilter.addMappingForUrlPatterns(disps, true, "/scripts/*");
         cachingHttpHeadersFilter.setAsyncSupported(true);
+    }
+
+    /**
+     * Initializes the CORS headers filter
+     */
+    private void initCORSHeadersFilter(ServletContext servletContext, EnumSet<DispatcherType> disps) {
+        log.debug("Registering CORS HTTP Headers Filter");
+        FilterRegistration.Dynamic corsFilter =
+            servletContext.addFilter("corsHttpHeadersFilter",
+                new CORSHttpHeadersFilter());
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/model");
     }
 
     /**

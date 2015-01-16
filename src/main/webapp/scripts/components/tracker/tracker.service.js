@@ -14,9 +14,9 @@ angular.module('kevoreeRegistryApp')
             connect: function () {
                 var socket = new SockJS('/websocket/activity');
                 stompClient = Stomp.over(socket);
-                stompClient.connect({}, function(frame) {
+                stompClient.connect({}, function() {
                     sendActivity();
-                    $rootScope.$on('$stateChangeStart', function (event) {
+                    $rootScope.$on('$stateChangeStart', function () {
                         sendActivity();
                     });
                 });
@@ -29,7 +29,7 @@ angular.module('kevoreeRegistryApp')
             disconnect: function() {
                 if (stompClient != null) {
                     stompClient.disconnect();
-                    stompClient == null;
+                    stompClient = null;
                 }
             }
         };
