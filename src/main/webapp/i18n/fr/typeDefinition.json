@@ -1,0 +1,22 @@
+{
+    "kevoreeRegistryApp": {
+        "typeDefinition" : {
+            "home": {
+                "title": "Type Definition",
+                "createLabel": "Créer un nouveau Type Definition",
+                "createOrEditLabel": "Créer ou éditer un Type Definition"
+            },
+            "delete": {
+                "question": "Etes-vous certain de vouloir supprimer le Type Definition {{ name }}/{{ version }} ?"
+            },
+            "detail": {
+                "title": "Type Definition"
+            },
+            "name": "Nom",
+            "version": "Version",
+            "name_version": "Nom / Version",
+            "serializedModel": "Modèle sérialisé"
+        }
+    }
+}
+

@@ -23,8 +23,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label translate="kevoreeRegistryApp.namespace.fqn">Fqn</label>
-                            <input type="text" class="form-control" ng-model="namespace.fqn">
+                            <label translate="kevoreeRegistryApp.namespace.name">Name</label>
+                            <input type="text" class="form-control" ng-model="namespace.name">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -43,14 +43,14 @@
     <div class="modal fade" id="deleteNamespaceConfirmation">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(namespace.fqn)">
+                <form name="form" ng-submit="confirmDelete(namespace.name)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
                         <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
                     </div>
                     <div class="modal-body">
-                        <p translate="kevoreeRegistryApp.namespace.delete.question" translate-values="{fqn: '{{namespace.fqn}}'}">Are you sure you want to delete Namespace {{namespace.fqn}}?</p>
+                        <p translate="kevoreeRegistryApp.namespace.delete.question" translate-values="{name: '{{namespace.name}}'}">Are you sure you want to delete Namespace {{namespace.name}}?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
@@ -65,35 +65,102 @@
         </div>
     </div>
 
+    <div class="modal fade" id="addMemberModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form name="form" ng-submit="confirmAddMember(namespace.name, member)">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                                ng-click="clear()">&times;</button>
+                        <h4 class="modal-title" translate="kevoreeRegistryApp.namespace.addMember.title" translate-values="{name: '{{namespace.name}}'}">Add a member to {{namespace.name}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label translate="kevoreeRegistryApp.namespace.addMember.user">Select the user to add</label>
+                                <input type="text" class="form-control" ng-model="member"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                        </button>
+                        <button type="submit" ng-disabled="form.$invalid" class="btn btn-success">
+                            <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="entity.action.add">Add</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="removeMemberModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form name="form" ng-submit="confirmRemoveMember(namespace.name, member)">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                                ng-click="clear()">&times;</button>
+                        <h4 class="modal-title" translate="kevoreeRegistryApp.namespace.removeMember.title" translate-values="{name: '{{namespace.name}}'}">Remove a member from {{namespace.name}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label translate="kevoreeRegistryApp.namespace.removeMember.user">Select the user to remove</label>
+                                <select class="form-control" ng-model="member" ng-options="member as member for (i, member) in namespace.members"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                        </button>
+                        <button type="submit" ng-disabled="form.$invalid" class="btn btn-warning">
+                            <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;<span translate="entity.action.remove">Remove</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th translate="kevoreeRegistryApp.namespace.fqn">Fqn</th>
+                    <th translate="kevoreeRegistryApp.namespace.name">Name</th>
                     <th translate="kevoreeRegistryApp.namespace.owner">Owner</th>
                     <th translate="kevoreeRegistryApp.namespace.members">Members</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="namespace in namespaces">
-                    <td><a ui-sref="namespaceDetail({fqn:namespace.fqn})">{{namespace.fqn}}</a></td>
-                    <td>{{namespace.owner}}</td>
-                    <td>
-                        <ul class="list-unstyled">
-                            <li ng-repeat="member in namespace.members">{{member}}</li>
-                        </ul>
-                    </td>
+                <tr ng-repeat="ns in namespaces">
+                    <td><a ui-sref="namespaceDetail({name:ns.name})">{{ns.name}}</a></td>
+                    <td>{{ns.owner}}</td>
+                    <td>{{ns.members}}</td>
                     <td>
                         <button type="submit"
-                                ui-sref="namespaceDetail({fqn:namespace.fqn})"
+                                ui-sref="namespaceDetail({name:ns.name})"
                                 class="btn btn-info">
                             <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span translate="entity.action.view"> View</span>
                         </button>
                         <button type="submit"
-                                ng-click="delete(namespace.fqn)"
+                                ng-click="delete(ns.name)"
                                 class="btn btn-danger">
                             <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span translate="entity.action.delete"> Delete</span>
+                        </button>
+                        <button type="submit"
+                                ng-click="addMember(ns.name)"
+                                class="btn btn-primary">
+                            <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
+                        </button>
+                        <button type="submit"
+                                ng-click="removeMember(ns.name)"
+                                class="btn btn-warning">
+                            <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.removeMember.action"> Remove a member</span>
                         </button>
                     </td>
                 </tr>

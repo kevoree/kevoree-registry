@@ -46,7 +46,7 @@
         <spring-security-oauth2.version>2.0.1.RELEASE</spring-security-oauth2.version>
         <swagger-springmvc.version>0.8.8</swagger-springmvc.version>
         <usertype-core.version>3.2.0.GA</usertype-core.version>
-        <kevoree-registry-model.version>5.2.2</kevoree-registry-model.version>
+        <kevoree.version>5.2.5</kevoree.version>
     </properties>
 
     <dependencies>
@@ -344,11 +344,6 @@
             <groupId>fr.ippon.spark.metrics</groupId>
             <artifactId>metrics-spark-reporter</artifactId>
             <version>${metrics-spark-reporter.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kevoree</groupId>
-            <artifactId>org.kevoree.registry.model</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>

@@ -7,12 +7,22 @@
                 "createOrEditLabel": "Create or edit a Namespace"
             },
             "delete": {
-                "question": "Are you sure you want to delete Namespace {{ fqn }}?"
+                "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?"
             },
             "detail": {
                 "title": "Namespace"
             },
-            "fqn": "Fqn",
+            "addMember": {
+                "title": "Add a member to <strong>{{ name }}</strong>",
+                "action": "Add a member",
+                "user": "Name the user to add"
+            },
+            "removeMember": {
+                "title": "Remove a member from <strong>{{ name }}</strong>",
+                "action": "Remove a member",
+                "user": "Select the user to remove"
+            },
+            "name": "Name",
             "owner": "Owner",
             "members": "Members"
         }

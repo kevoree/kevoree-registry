@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
-import org.kevoree.registry.repository.UserRepository;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -17,16 +15,13 @@ import java.util.Iterator;
  */
 public class CustomNamespaceDeserializer extends JsonDeserializer<Namespace> {
 
-    @Inject
-    private UserRepository userRepository;
-
     @Override
     public Namespace deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException {
+        throws IOException {
         JsonNode node = jp.getCodec().readTree(jp);
         Namespace ns = new Namespace();
-        if (node.get("fqn") != null) {
-            ns.setFqn(node.get("fqn").asText());
+        if (node.get("name") != null) {
+            ns.setName(node.get("name").asText());
         }
 
         if (node.get("owner") != null) {

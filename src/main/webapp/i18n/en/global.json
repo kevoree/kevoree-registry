@@ -6,6 +6,7 @@
             "home": "Registry",
             "entities": {
                 "main": "Entities",
+                "typeDefinition": "TypeDefinition",
                 "namespace": "Namespace",
                 "additionalEntity": "JHipster will add addtional entities"
             },
@@ -72,8 +73,10 @@
             "back": "Back",
             "cancel": "Cancel",
             "delete": "Delete",
+            "remove": "Remove",
             "edit": "Edit",
             "save": "Save",
+            "add": "Add",
             "view": "View"
         },
         "detail": {

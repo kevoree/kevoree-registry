@@ -18,14 +18,16 @@ public class CustomNamespaceSerializer extends JsonSerializer<Namespace> {
     public void serialize(Namespace namespace, JsonGenerator generator, SerializerProvider serializer)
         throws IOException {
         generator.writeStartObject();
-        if (namespace.getFqn() != null) {
-            generator.writeStringField("fqn", namespace.getFqn());
+        if (namespace.getName() != null) {
+            generator.writeStringField("name", namespace.getName());
         }
+
         if (namespace.getOwner() != null) {
             generator.writeStringField("owner", namespace.getOwner().getLogin());
         } else {
             generator.writeNullField("owner");
         }
+
         generator.writeArrayFieldStart("members");
         for (User u : namespace.getMembers()) {
             generator.writeString(u.getLogin());

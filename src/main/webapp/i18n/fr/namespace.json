@@ -7,14 +7,25 @@
                 "createOrEditLabel": "Créer ou éditer un Namespace"
             },
             "delete": {
-                "question": "Etes-vous certain de vouloir supprimer le Namespace {{ fqn }} ?"
+                "question": "Etes-vous certain de vouloir supprimer le namespace <strong>{{ name }}</strong>?"
             },
             "detail": {
                 "title": "Namespace"
             },
-            "fqn": "Fqn",
+            "addMember": {
+                "title": "Ajouter un membre à <strong>{{ name }}</strong>",
+                "action": "Ajouter un membre",
+                "user": "Nom de l'utilisateur à ajouter"
+            },
+            "removeMember": {
+                "title": "Retirer un membre de <strong>{{ name }}</strong>",
+                "action": "Retirer un membre",
+                "user": "Sélectionner le membre à retirer"
+            },
+            "name": "Nom",
             "owner": "Propriétaire",
-            "members": "Membres"
+            "members": "Membres",
+            "addMember": "Ajouter un membre"
         }
     }
 }

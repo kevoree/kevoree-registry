@@ -1,6 +1,6 @@
 
 <div class="well">
-    <h2><span translate="kevoreeRegistryApp.namespace.detail.title">Namespace</span> {{namespace.name}}</h2>
+    <h2><span translate="kevoreeRegistryApp.typeDefinition.detail.title">Type Definition</span> {{tdef.name}}/{{tdef.version}}</h2>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -12,26 +12,26 @@
             <tbody>
                 <tr>
                     <td>
-                        <span translate="kevoreeRegistryApp.namespace.name">Name</span>
+                        <span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.name}}" readonly>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
-                    </td>
-                    <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.owner}}" readonly>
+                        <input type="text" class="input-sm form-control" value="{{tdef.name}}" readonly>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span translate="kevoreeRegistryApp.namespace.members">Members</span>
+                        <span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.members}}" readonly>
+                        <input type="text" class="input-sm form-control" value="{{tdef.version}}" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.serializedModel">Serialized model</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{tdef.serializedModel}}" readonly>
                     </td>
                 </tr>
             </tbody>
@@ -39,7 +39,7 @@
     </div>
 
     <button type="submit"
-            ui-sref="namespace"
+            ui-sref="tdef"
             class="btn btn-info">
         <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="entity.action.back"> Back</span>
     </button>

@@ -53,6 +53,13 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li ui-sref-active="active">
+                            <a ui-sref="tdef">
+                                <span class="glyphicon glyphicon-th-list"></span>
+                                &#xA0;
+                                <span translate="global.menu.entities.typeDefinition">Type Definition</span>
+                            </a>
+                        </li>
+                        <li ui-sref-active="active">
                             <a ui-sref="namespace">
                                 <span class="glyphicon glyphicon-th-list"></span>
                                 &#xA0;
@@ -83,19 +90,6 @@
                         </li>
                     </ul>
                 </li>
-                <li ui-sref-active="active" class="dropdown pointer" ng-controller="LanguageController">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
-                                <span>
-                                    <span class="glyphicon glyphicon-flag"></span>
-                                    <b class="caret"></b>
-                                </span>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li active-menu="{{language}}" ng-repeat="language in languages">
-                            <a href="" ng-click="changeLanguage(language)">{{'language.' + language| translate}}</a>
-                        </li>
-                    </ul>
-                </li>
                 <li ng-class="{active: $state.includes('admin')}"  ng-switch-when="true" ng-show="isInRole('ROLE_ADMIN')" class="dropdown pointer">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="">
                                 <span>
@@ -119,6 +113,19 @@
                             &#xA0;<span translate="global.menu.account.logs">Logs</span></a></li>
                         <li ui-sref-active="active"><a ui-sref="docs"><span class="glyphicon glyphicon-book"></span>
                             &#xA0;<span translate="global.menu.account.apidocs">API Docs</span></a></li>
+                    </ul>
+                </li>
+                <li ui-sref-active="active" class="dropdown pointer" ng-controller="LanguageController">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                                <span>
+                                    <span class="glyphicon glyphicon-flag"></span>
+                                    <b class="caret"></b>
+                                </span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li active-menu="{{language}}" ng-repeat="language in languages">
+                            <a href="" ng-click="changeLanguage(language)">{{'language.' + language| translate}}</a>
+                        </li>
                     </ul>
                 </li>
             </ul>

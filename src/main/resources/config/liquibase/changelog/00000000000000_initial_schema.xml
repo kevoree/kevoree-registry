@@ -146,41 +146,88 @@
                                  referencedTableName="T_PERSISTENT_AUDIT_EVENT"/>
 
         <createTable tableName="T_NAMESPACE">
-            <column name="fqn" type="varchar(75)">
+            <column name="name" type="varchar(50)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="owner_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
         <addForeignKeyConstraint baseColumnNames="owner_id"
                                  baseTableName="T_NAMESPACE"
-                                 constraintName="fk_namespace_owner_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="T_USER"/>
+                                 constraintName="fk_namespace_user_user_id"
+                                 referencedTableName="T_USER"
+                                 referencedColumnNames="id"/>
+
+        <createTable tableName="T_TYPE_DEFINITION">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serializedModel" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="namespace_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nbDownloads" type="bigserial">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="namespace_name"
+                                 baseTableName="T_TYPE_DEFINITION"
+                                 constraintName="fk_type_definition_namespace_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="T_NAMESPACE"/>
 
         <createTable tableName="T_USER_NAMESPACE">
-            <column name="fqn" type="varchar(75)">
+            <column name="name" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="user_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addPrimaryKey columnNames="fqn, user_id" tableName="T_USER_NAMESPACE"/>
 
-        <addForeignKeyConstraint baseColumnNames="fqn"
+        <addPrimaryKey tableName="T_USER_NAMESPACE" columnNames="name, user_id"/>
+        <addForeignKeyConstraint baseColumnNames="name"
                                  baseTableName="T_USER_NAMESPACE"
-                                 constraintName="fk_user_namespace_namespace_fqn"
-                                 referencedColumnNames="fqn"
+                                 constraintName="fk_user_namespace_namespace_name"
+                                 referencedColumnNames="name"
                                  referencedTableName="T_NAMESPACE"/>
 
-        <addForeignKeyConstraint baseColumnNames="user_id"
-                                 baseTableName="T_USER_NAMESPACE"
-                                 constraintName="fk_user_namespace_user_id"
-                                 referencedColumnNames="id"
-                                 referencedTableName="T_USER"/>
+        <createTable tableName="T_NAMESPACE_TYPE_DEFINITION">
+            <column name="ns_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tdef_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tdef_version" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="ns_name, tdef_name, tdef_version" tableName="T_NAMESPACE_TYPE_DEFINITION"/>
+        <addForeignKeyConstraint baseColumnNames="ns_name"
+                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
+                                 constraintName="fk_namespace_type_definition_namespace_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="T_NAMESPACE"/>
+        <addForeignKeyConstraint baseColumnNames="tdef_name"
+                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
+                                 constraintName="fk_namespace_type_definition_type_definition_name"
+                                 referencedColumnNames="name"
+                                 referencedTableName="T_TYPE_DEFINITION"/>
+        <addForeignKeyConstraint baseColumnNames="tdef_version"
+                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
+                                 constraintName="fk_namespace_type_definition_type_definition_version"
+                                 referencedColumnNames="version"
+                                 referencedTableName="T_TYPE_DEFINITION"/>
     </changeSet>
 
     <!-- Manage the OAuth authentication -->

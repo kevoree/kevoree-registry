@@ -74,7 +74,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @JoinTable(
         name = "T_USER_NAMESPACE",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "fqn", referencedColumnName = "fqn")})
+        inverseJoinColumns = {@JoinColumn(name = "name", referencedColumnName = "name")})
     private Set<Namespace> namespaces = new HashSet<>();
 
     public Long getId() {

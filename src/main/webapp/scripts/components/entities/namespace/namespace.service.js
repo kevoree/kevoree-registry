@@ -1,15 +1,14 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .factory('Namespace', function ($resource) {
-        return $resource('api/namespaces/:fqn', {}, {
-            'query': { method: 'GET', isArray: true },
-            'get': {
-                method: 'GET',
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    return data;
-                }
+    .factory('Namespace', function Namespace($http) {
+        return {
+            addMember: function (nsName, memberName) {
+                return $http.post('api/namespace/'+nsName+'/addMember', { name: memberName });
+            },
+
+            removeMember: function (nsName, memberName) {
+                return $http.post('api/namespace/'+nsName+'/removeMember', { name: memberName });
             }
-        });
+        };
     });
