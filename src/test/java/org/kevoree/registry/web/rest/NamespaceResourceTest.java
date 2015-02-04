@@ -5,8 +5,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.NamespaceRepository;
+import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
@@ -26,6 +28,7 @@ import javax.transaction.Transactional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,6 +50,9 @@ public class NamespaceResourceTest {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private TypeDefinitionRepository typeDefinitionRepository;
 
     private MockMvc restNamespaceMockMvc;
 
@@ -155,5 +161,35 @@ public class NamespaceResourceTest {
         User dbAdmin = userRepository.findOneByLogin(admin.getLogin()).get();
         assertThat(dbAdmin.getNamespaces().iterator().next().getName()).isEqualTo(DEFAULT_NAME);
         assertThat(user.getNamespaces().iterator().next().getName()).isEqualTo(DEFAULT_NAME);
+    }
+
+    @Test
+    @Transactional
+    public void testAddNsAndTdefAndDeleteNs() throws Exception {
+        admin.addNamespace(namespace);
+        namespaceRepository.saveAndFlush(namespace);
+        userRepository.saveAndFlush(admin);
+
+        // add a TypeDefinition to the Namespace
+        TypeDefinition tdef = new TypeDefinition();
+        tdef.setName("MyComp");
+        tdef.setVersion("1.2.3");
+        tdef.setSerializedModel("{}");
+        tdef.setNamespace(namespace);
+        namespace.addTypeDefinition(tdef);
+        typeDefinitionRepository.saveAndFlush(tdef);
+
+        // Add the owner to the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
+
+        restNamespaceMockMvc.perform(delete("/api/namespaces/{name}", DEFAULT_NAME)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+
+        // validate db
+        assertThat(userRepository.findOneByLogin(admin.getLogin()).isPresent()).isTrue();
+        assertThat(namespaceRepository.findOne(namespace.getName())).isNull();
+        assertThat(typeDefinitionRepository.findOneByNamespaceNameAndNameAndVersion(namespace.getName(), tdef.getName(), tdef.getVersion()).isPresent()).isFalse();
     }
 }

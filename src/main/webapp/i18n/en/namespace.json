@@ -24,7 +24,8 @@
             },
             "name": "Name",
             "owner": "Owner",
-            "members": "Members"
+            "members": "Members",
+            "typeDefinitions": "Type Definitions"
         }
     }
 }

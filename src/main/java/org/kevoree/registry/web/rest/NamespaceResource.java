@@ -57,7 +57,7 @@ public class NamespaceResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> getNamespace(@PathVariable String name) {
+    ResponseEntity<Namespace> getNamespace(@PathVariable String name) {
         log.debug("REST request to get namespace: {}", name);
         return Optional.ofNullable(namespaceRepository.findOne(name))
             .map(namespace -> new ResponseEntity<>(namespace,HttpStatus.OK))
@@ -145,7 +145,7 @@ public class NamespaceResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> removeMemberToNamespace(@PathVariable String name, @RequestBody NamedDTO namedDTO) {
+    ResponseEntity<?> removeMemberFromNamespace(@PathVariable String name, @RequestBody NamedDTO namedDTO) {
         log.debug("REST request to remove '{}' from namespace '{}'", namedDTO, name);
         final Namespace ns = namespaceRepository.findOne(name);
         if (ns == null) {
@@ -162,7 +162,7 @@ public class NamespaceResource {
                                 // this user is already a member of the given namespace
                                 .map(n -> {
                                     if (member.equals(user)) {
-                                        return new ResponseEntity<>("namespace owner cannot be removed from its own namespace", HttpStatus.BAD_REQUEST);
+                                        return new ResponseEntity<String>("namespace owner cannot be removed from its own namespace", HttpStatus.BAD_REQUEST);
                                     } else {
                                         // remove member from namespace
                                         ns.removeMember(member);
@@ -190,8 +190,17 @@ public class NamespaceResource {
         method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public void delete(@PathVariable String name) {
+    public ResponseEntity<?> delete(@PathVariable String name) {
         log.debug("REST request to delete Namespace : {}", name);
-        namespaceRepository.delete(name);
+        return namespaceRepository.findOneByNameAndMemberName(name, SecurityUtils.getCurrentLogin())
+            .map(ns -> {
+                if (ns.getOwner().getLogin().equals(SecurityUtils.getCurrentLogin())) {
+                    namespaceRepository.delete(ns);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<String>("you are not the owner of "+name, HttpStatus.UNAUTHORIZED);
+                }
+            })
+            .orElse(new ResponseEntity<String>("unknown namespace", HttpStatus.NOT_FOUND));
     }
 }

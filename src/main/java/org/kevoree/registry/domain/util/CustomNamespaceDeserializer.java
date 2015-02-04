@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 
 import java.io.IOException;
@@ -37,6 +38,18 @@ public class CustomNamespaceDeserializer extends JsonDeserializer<Namespace> {
                 User member = new User();
                 member.setLogin(members.next().asText());
                 ns.addMember(member);
+            }
+        }
+
+        if (node.get("typeDefinitions") != null) {
+            Iterator<JsonNode> tdefNodes = node.get("typeDefinitions").elements();
+            while (tdefNodes.hasNext()) {
+                JsonNode tdefNode = tdefNodes.next();
+                TypeDefinition tdef = new TypeDefinition();
+                tdef.setName(tdefNode.get("name").asText());
+                tdef.setVersion(tdefNode.get("version").asText());
+                tdef.setNamespace(ns);
+                ns.addTypeDefinition(tdef);
             }
         }
 

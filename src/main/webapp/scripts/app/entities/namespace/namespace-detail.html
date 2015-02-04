@@ -34,6 +34,16 @@
                         <input type="text" class="input-sm form-control" value="{{namespace.members}}" readonly>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.namespace.typeDefinitions">Type Definitions</span>
+                    </td>
+                    <td>
+                        <ul class="">
+                            <li ng-repeat="tdef in namespace.typeDefinitions">{{ tdef.name + '/' + tdef.version }}</li>
+                        </ul>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

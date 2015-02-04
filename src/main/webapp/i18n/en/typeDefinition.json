@@ -12,6 +12,8 @@
             "detail": {
                 "title": "Type Definition"
             },
+            "namespace": "Namespace",
+            "selectNamespace": "Select a namespace",
             "name": "Name",
             "version": "Version",
             "name_version": "Name / Version",

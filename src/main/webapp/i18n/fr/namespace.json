@@ -25,7 +25,8 @@
             "name": "Nom",
             "owner": "Propriétaire",
             "members": "Membres",
-            "addMember": "Ajouter un membre"
+            "addMember": "Ajouter un membre",
+            "typeDefinitions": "Type Definitions"
         }
     }
 }

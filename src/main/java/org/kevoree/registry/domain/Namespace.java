@@ -2,10 +2,14 @@ package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.*;
 import org.kevoree.registry.domain.util.CustomNamespaceDeserializer;
 import org.kevoree.registry.domain.util.CustomNamespaceSerializer;
 
 import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -34,16 +38,8 @@ public class Namespace implements Serializable {
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "namespaces")
     private Set<User> members = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "T_NAMESPACE_TYPE_DEFINITION",
-        joinColumns = {@JoinColumn(name = "ns_name", referencedColumnName = "name")},
-        inverseJoinColumns = {
-            @JoinColumn(name = "tdef_name", referencedColumnName = "name"),
-            @JoinColumn(name = "tdef_version", referencedColumnName = "version")
-        })
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "namespace")
     private Set<TypeDefinition> tdefs = new HashSet<>();
-
 
     public String getName() {
         return name;

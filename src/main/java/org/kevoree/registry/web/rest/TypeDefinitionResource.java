@@ -9,6 +9,7 @@ import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -49,13 +50,28 @@ public class TypeDefinitionResource {
     @RolesAllowed(AuthoritiesConstants.USER)
     ResponseEntity<Set<TypeDefinition>> getTypeDefinitions() {
         log.debug("REST request to get type definitions for user: {}", SecurityUtils.getCurrentLogin());
-//        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentLogin()).get();
-//        Set<TypeDefinition> tdefs = new HashSet<>();
-//        for (Namespace ns : user.getNamespaces()) {
-//            tdefs.addAll(ns.getTypeDefinitions());
-//        }
-//        return new ResponseEntity<>(tdefs, HttpStatus.OK);
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
+            .map(user -> {
+                Set<TypeDefinition> tdefs = new HashSet<>();
+                user.getNamespaces().forEach(
+                    n -> tdefs.addAll(n.getTypeDefinitions()));
+                return new ResponseEntity<>(tdefs, HttpStatus.OK);
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+    }
+
+    /**
+     * GET  /tdefs/:namespace/:name/:version -> get a precise type definition
+     */
+    @RequestMapping(value = "/tdefs/{namespace}/{name}/{version:.+}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<TypeDefinition> getNamespace(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
+        log.debug("REST request to get TypeDefinition: {}.{}/{}", namespace, name, version);
+        return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
+            .map(tdef -> new ResponseEntity<>(tdef, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -66,12 +82,23 @@ public class TypeDefinitionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addTypeDefinitions(@RequestBody TypeDefinition tdef) {
-        log.debug("REST request to add a TypeDefinition: {}", tdef);
-//        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentLogin()).get();
-//        Namespace ns = namespaceRepository.findOneByMemberName(user.getLogin()).get();
-//        ns.addTypeDefinition(tdef);
-//        tdefsRepository.save(tdef);
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    ResponseEntity<?> addTypeDefinitions(@RequestBody TypeDefinitionDTO tdefDTO) {
+        log.debug("REST request to add a TypeDefinition: {}", tdefDTO);
+        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
+            .map(user -> namespaceRepository.findOneByNameAndMemberName(tdefDTO.getNamespace(), user.getLogin())
+                .map(ns -> tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
+                    .map(tdef -> new ResponseEntity<>("typeDefinition already exists", HttpStatus.BAD_REQUEST))
+                    .orElseGet(() -> {
+                        TypeDefinition tdef = new TypeDefinition();
+                        tdef.setName(tdefDTO.getName());
+                        tdef.setVersion(tdefDTO.getVersion());
+                        tdef.setSerializedModel(tdefDTO.getSerializedModel());
+                        tdef.setNamespace(ns);
+                        ns.addTypeDefinition(tdef);
+                        tdefsRepository.save(tdef);
+                        return new ResponseEntity<>(HttpStatus.CREATED);
+                    }))
+                .orElse(new ResponseEntity<>("unknown namespace", HttpStatus.BAD_REQUEST)))
+            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
     }
 }

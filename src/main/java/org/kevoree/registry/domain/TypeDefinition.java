@@ -2,6 +2,7 @@ package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.Type;
 import org.kevoree.registry.domain.util.CustomNamespaceDeserializer;
 import org.kevoree.registry.domain.util.CustomNamespaceSerializer;
@@ -9,6 +10,7 @@ import org.kevoree.registry.domain.util.CustomTypeDefinitionDeserializer;
 import org.kevoree.registry.domain.util.CustomTypeDefinitionSerializer;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -26,11 +28,13 @@ public class TypeDefinition implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Pattern(regexp = "^[A-Z][\\w]$")
+    @NotNull
+    @Pattern(regexp = "^[A-Z][\\w]*$")
     @Size(min = 1, max = 50)
     @Column(length = 50)
     private String name;
 
+    @NotNull
     @Pattern(regexp = "^\\bv?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?(?:\\+[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?\\b$")
     @Size(min = 1, max = 50)
     @Column(length = 50)
@@ -39,10 +43,11 @@ public class TypeDefinition implements Serializable {
     @ManyToOne
     private Namespace namespace;
 
+    @NotNull
     @Type(type="org.hibernate.type.StringClobType")
     private String serializedModel;
 
-    private Long nbDownloads;
+    private Long nbDownloads = 0L;
 
     public Long getId() {
         return id;

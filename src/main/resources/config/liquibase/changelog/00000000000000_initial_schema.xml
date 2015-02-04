@@ -159,8 +159,13 @@
                                  referencedTableName="T_USER"
                                  referencedColumnNames="id"/>
 
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/namespaces.csv"
+                  separator=";"
+                  tableName="T_NAMESPACE"/>
+
         <createTable tableName="T_TYPE_DEFINITION">
-            <column name="id" type="bigint">
+            <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(50)">
@@ -179,11 +184,18 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
+        <addUniqueConstraint tableName="T_TYPE_DEFINITION" columnNames="name, version, namespace_name"/>
         <addForeignKeyConstraint baseColumnNames="namespace_name"
                                  baseTableName="T_TYPE_DEFINITION"
                                  constraintName="fk_type_definition_namespace_name"
                                  referencedColumnNames="name"
-                                 referencedTableName="T_NAMESPACE"/>
+                                 referencedTableName="T_NAMESPACE"
+                                 onDelete="CASCADE"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/type_definitions.csv"
+                  separator=";"
+                  tableName="T_TYPE_DEFINITION"/>
 
         <createTable tableName="T_USER_NAMESPACE">
             <column name="name" type="varchar(50)">
@@ -193,41 +205,25 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-
         <addPrimaryKey tableName="T_USER_NAMESPACE" columnNames="name, user_id"/>
         <addForeignKeyConstraint baseColumnNames="name"
                                  baseTableName="T_USER_NAMESPACE"
                                  constraintName="fk_user_namespace_namespace_name"
                                  referencedColumnNames="name"
-                                 referencedTableName="T_NAMESPACE"/>
+                                 referencedTableName="T_NAMESPACE"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="T_USER_NAMESPACE"
+                                 constraintName="fk_user_namespace_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="T_USER"
+                                 onDelete="CASCADE"/>
 
-        <createTable tableName="T_NAMESPACE_TYPE_DEFINITION">
-            <column name="ns_name" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="tdef_name" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="tdef_version" type="varchar(50)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <addPrimaryKey columnNames="ns_name, tdef_name, tdef_version" tableName="T_NAMESPACE_TYPE_DEFINITION"/>
-        <addForeignKeyConstraint baseColumnNames="ns_name"
-                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
-                                 constraintName="fk_namespace_type_definition_namespace_name"
-                                 referencedColumnNames="name"
-                                 referencedTableName="T_NAMESPACE"/>
-        <addForeignKeyConstraint baseColumnNames="tdef_name"
-                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
-                                 constraintName="fk_namespace_type_definition_type_definition_name"
-                                 referencedColumnNames="name"
-                                 referencedTableName="T_TYPE_DEFINITION"/>
-        <addForeignKeyConstraint baseColumnNames="tdef_version"
-                                 baseTableName="T_NAMESPACE_TYPE_DEFINITION"
-                                 constraintName="fk_namespace_type_definition_type_definition_version"
-                                 referencedColumnNames="version"
-                                 referencedTableName="T_TYPE_DEFINITION"/>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/users_namespaces.csv"
+                  separator=";"
+                  tableName="T_USER_NAMESPACE"/>
+
     </changeSet>
 
     <!-- Manage the OAuth authentication -->

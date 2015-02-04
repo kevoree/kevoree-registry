@@ -2,13 +2,13 @@
     <div class="row">
         <h2 class="col-sm-6" translate="kevoreeRegistryApp.typeDefinition.home.title" style="margin: 0">Namespace</h2>
         <div class="col-sm-6">
-            <button class="btn btn-primary btn-md pull-right" data-toggle="modal" data-target="#saveModelModal" ng-click="clear()">
+            <button class="btn btn-primary btn-md pull-right" data-toggle="modal" data-target="#saveTypeDefinitionModal" ng-click="clear()">
                 <span class="glyphicon glyphicon-plus"></span> <span translate="kevoreeRegistryApp.typeDefinition.home.createLabel">Create a new Model</span>
             </button>
         </div>
     </div>
     <hr/>
-    <div class="modal fade" id="saveModelModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel"
+    <div class="modal fade" id="saveTypeDefinitionModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -22,6 +22,10 @@
                         <h4 class="modal-title" id="myModelLabel" translate="kevoreeRegistryApp.typeDefinition.home.createOrEditLabel">Create or edit a Model</h4>
                     </div>
                     <div class="modal-body">
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.typeDefinition.selectNamespace">Select a namespace</label>
+                            <select class="form-control" ng-model="tdef.namespace" ng-options="ns.name as ns.name for (i, ns) in namespaces"></select>
+                        </div>
                         <div class="form-group">
                             <label translate="kevoreeRegistryApp.typeDefinition.name">Name</label>
                             <input type="text" class="form-control" ng-model="tdef.name">
@@ -51,7 +55,7 @@
     <div class="modal fade" id="deleteTypeDefinitionConfirmation">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(tdef.name, tdef.version)">
+                <form name="form" ng-submit="confirmDelete(tdef.namespace.name, tdef.name, tdef.version)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
@@ -77,23 +81,23 @@
         <table class="table table-striped">
             <thead>
                 <tr>
+                    <th translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</th>
                     <th translate="kevoreeRegistryApp.typeDefinition.name_version">Name / Version</th>
-                    <th translate="kevoreeRegistryApp.typeDefinition.serializedModel">Serialized Model</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="tdef in tdefs">
-                    <td><a ui-sref="tdefDetail({name:tdef.name, version: tdef.version})">{{tdef.name}}/{{tdef.version}}</a></td>
-                    <td>{{tdef.serializedModel}}</td>
+                    <td><a ui-sref="namespaceDetail({name:tdef.namespace.name})">{{tdef.namespace.name}}</a></td>
+                    <td><a ui-sref="tdefDetail({namespace: tdef.namespace.name, name:tdef.name, version: tdef.version})">{{tdef.name}}/{{tdef.version}}</a></td>
                     <td>
                         <button type="submit"
-                                ui-sref="tdefDetail({name:tdef.name, version: tdef.version})"
+                                ui-sref="tdefDetail({namespace: tdef.namespace.name, name:tdef.name, version: tdef.version})"
                                 class="btn btn-info">
                             <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span translate="entity.action.view"> View</span>
                         </button>
                         <button type="submit"
-                                ng-click="delete(tdef.name, tdef.version)"
+                                ng-click="delete(tdef.namespace.name, tdef.name, tdef.version)"
                                 class="btn btn-danger">
                             <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span translate="entity.action.delete"> Delete</span>
                         </button>

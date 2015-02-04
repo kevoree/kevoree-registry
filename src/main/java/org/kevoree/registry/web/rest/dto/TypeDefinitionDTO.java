@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TypeDefinitionDTO {
 
-    @Pattern(regexp = "^[a-z0-9]*$")
+    @Pattern(regexp = "^[A-Z][\\w]*$")
     @NotNull
     @Size(min = 1, max = 50)
     private String name;
@@ -28,7 +28,8 @@ public class TypeDefinitionDTO {
 
     public TypeDefinitionDTO() {}
 
-    public TypeDefinitionDTO(String name, String version, String serializedModel) {
+    public TypeDefinitionDTO(String namespace, String name, String version, String serializedModel) {
+        this.namespace = namespace;
         this.name = name;
         this.version = version;
         this.serializedModel = serializedModel;
@@ -47,12 +48,17 @@ public class TypeDefinitionDTO {
         return serializedModel;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
     @Override
     public String toString() {
-        return "ModelDTO{" +
-        "name='" + name + '\'' +
-        ", password='" + version + '\'' +
-        ", firstName='" + serializedModel + '\'' +
+        return "TypeDefinitionDTO{" +
+        "namespace='" + namespace + '\'' +
+        ", name='" + name + '\'' +
+        ", version='" + version + '\'' +
+        ", serializedModel='" + serializedModel + '\'' +
         '}';
     }
 }

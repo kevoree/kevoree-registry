@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 
 import java.io.IOException;
@@ -33,6 +34,16 @@ public class CustomNamespaceSerializer extends JsonSerializer<Namespace> {
             generator.writeString(u.getLogin());
         }
         generator.writeEndArray();
+
+        generator.writeArrayFieldStart("typeDefinitions");
+        for (TypeDefinition tdef : namespace.getTypeDefinitions()) {
+            generator.writeStartObject();
+            generator.writeObjectField("name", tdef.getName());
+            generator.writeObjectField("version", tdef.getVersion());
+            generator.writeEndObject();
+        }
+        generator.writeEndArray();
+
         generator.writeEndObject();
     }
 }

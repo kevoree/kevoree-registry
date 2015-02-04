@@ -46,6 +46,7 @@ public class CustomTypeDefinitionDeserializer extends JsonDeserializer<TypeDefin
         if (node.get("serializedModel") != null) {
             tdef.setSerializedModel(node.get("serializedModel").asText());
         }
+
         return new TypeDefinition();
     }
 }

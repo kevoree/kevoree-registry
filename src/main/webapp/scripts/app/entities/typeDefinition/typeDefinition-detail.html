@@ -1,6 +1,6 @@
 
 <div class="well">
-    <h2><span translate="kevoreeRegistryApp.typeDefinition.detail.title">Type Definition</span> {{tdef.name}}/{{tdef.version}}</h2>
+    <h2><span translate="kevoreeRegistryApp.typeDefinition.detail.title">Type Definition</span></h2>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -10,6 +10,14 @@
                 </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{tdef.namespace.name}}" readonly>
+                    </td>
+                </tr>
                 <tr>
                     <td>
                         <span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>

@@ -1,11 +1,16 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('TypeDefinitionController', function ($scope, TypeDefinition) {
+    .controller('TypeDefinitionController', function ($scope, TypeDefinition, Namespaces) {
         $scope.tdefs = [];
+        $scope.namespaces = [];
+
         $scope.loadAll = function() {
-            TypeDefinition.query(function(result) {
-               $scope.tdefs = result;
+            Namespaces.query(function (namespaces) {
+                $scope.namespaces = namespaces;
+                TypeDefinition.query(function(result) {
+                    $scope.tdefs = result;
+                });
             });
         };
         $scope.loadAll();
@@ -19,18 +24,18 @@ angular.module('kevoreeRegistryApp')
                 });
         };
 
-        $scope.update = function (name, version) {
-            $scope.tdef = TypeDefinition.get({name: name, version: version});
+        $scope.update = function (namespace, name, version) {
+            $scope.tdef = TypeDefinition.get({namespace: namespace, name: name, version: version});
             $('#saveTypeDefinitionModal').modal('show');
         };
 
-        $scope.delete = function (name, version) {
-            $scope.tdef = Namespace.get({name: name, version: version});
+        $scope.delete = function (namespace, name, version) {
+            $scope.tdef = Namespace.get({namespace: namespace, name: name, version: version});
             $('#deleteTypeDefinitionConfirmation').modal('show');
         };
 
-        $scope.confirmDelete = function (name, version) {
-            TypeDefinition.delete({name: name, version: version},
+        $scope.confirmDelete = function (namespace, name, version) {
+            TypeDefinition.delete({namespace: namespace, name: name, version: version},
                 function () {
                     $scope.loadAll();
                     $('#deleteTypeDefinitionConfirmation').modal('hide');
@@ -39,6 +44,6 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.clear = function () {
-            $scope.tdef = {name: null, version: null, serializedTypeDefinition: null};
+            $scope.tdef = {namespace: null, name: null, version: null};
         };
     });

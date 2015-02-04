@@ -24,7 +24,7 @@ angular.module('kevoreeRegistryApp')
             })
             .state('tdefDetail', {
                 parent: 'entity',
-                url: '/tdef/:name/:version',
+                url: '/tdef/:namespace/:name/:version',
                 data: {
                     roles: ['ROLE_USER']
                 },
