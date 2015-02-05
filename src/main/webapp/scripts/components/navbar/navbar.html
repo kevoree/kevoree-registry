@@ -20,13 +20,21 @@
                         <span translate="global.menu.home">Registry</span>
                     </a>
                 </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="namespace">
+                        <span class="glyphicon glyphicon-th-list"></span>
+                        &#xA0;
+                        <span translate="global.menu.entities.namespace">Namespace</span>
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="tdefs">
+                        <span class="glyphicon glyphicon glyphicon-th-large"></span>
+                        &#xA0;
+                        <span translate="global.menu.entities.typeDefinition">TypeDefinition</span>
+                    </a>
+                </li>
             </ul>
-            <form class="navbar-form navbar-left" role="search">
-                <div class="form-group">
-                    <input type="text" class="form-control input-sm" placeholder="Search">
-                </div>
-                <button type="button" class="btn btn-sm btn-default">Search</button>
-            </form>
             <ul class="nav navbar-nav nav-pills navbar-right">
                 <li ui-sref-active="active" ng-switch-when="false">
                     <a ui-sref="login">
@@ -52,20 +60,6 @@
                         </span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li ui-sref-active="active">
-                            <a ui-sref="tdef">
-                                <span class="glyphicon glyphicon glyphicon-th-large"></span>
-                                &#xA0;
-                                <span translate="global.menu.entities.typeDefinition">Type Definition</span>
-                            </a>
-                        </li>
-                        <li ui-sref-active="active">
-                            <a ui-sref="namespace">
-                                <span class="glyphicon glyphicon-th-list"></span>
-                                &#xA0;
-                                <span translate="global.menu.entities.namespace">Namespace</span>
-                            </a>
-                        </li>
                         <li ui-sref-active="active">
                             <a ui-sref="settings">
                                 <span class="glyphicon glyphicon-wrench"></span>

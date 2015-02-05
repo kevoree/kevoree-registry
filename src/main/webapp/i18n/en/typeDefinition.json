@@ -2,12 +2,12 @@
     "kevoreeRegistryApp": {
         "typeDefinition" : {
             "home": {
-                "title": "Type Definitions",
-                "createLabel": "Create a new Type Definition",
-                "createOrEditLabel": "Create or edit a Type Definition"
+                "title": "TypeDefinitions",
+                "createLabel": "New TypeDefinition",
+                "createTitle": "Create a new TypeDefinition"
             },
             "delete": {
-                "question": "Are you sure you want to delete Type Definition {{ name }}/{{ version }}?"
+                "question": "Are you sure you want to delete TypeDefinition <strong>{{ name }}/{{ version }}</strong>?"
             },
             "detail": {
                 "title": "Type Definition"
@@ -17,7 +17,9 @@
             "name": "Name",
             "version": "Version",
             "name_version": "Name / Version",
-            "serializedModel": "Serialized model"
+            "serializedModel": "Serialized model",
+            "filterPlaceholder": "Filter TypeDefinitions...",
+            "filter": "Filter"
         }
     }
 }

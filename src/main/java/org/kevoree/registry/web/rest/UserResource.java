@@ -1,9 +1,11 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
+import org.kevoree.registry.security.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * REST controller for managing users.
@@ -43,5 +46,20 @@ public class UserResource {
         return userRepository.findOneByLogin(login)
                 .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /user/namespaces -> get the user's namespaces
+     */
+    @RequestMapping(value = "/user/namespaces",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
+    ResponseEntity<Set<Namespace>> getUserNamespaces() {
+        log.debug("REST request to get User '{}' namespaces", SecurityUtils.getCurrentLogin());
+        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
+            .map(user -> new ResponseEntity<>(user.getNamespaces(), HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
     }
 }

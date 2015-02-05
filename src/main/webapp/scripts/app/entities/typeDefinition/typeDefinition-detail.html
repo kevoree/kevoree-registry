@@ -1,4 +1,3 @@
-
 <div class="well">
     <h2><span translate="kevoreeRegistryApp.typeDefinition.detail.title">Type Definition</span></h2>
     <div class="table-responsive">
@@ -39,7 +38,7 @@
                         <span translate="kevoreeRegistryApp.typeDefinition.serializedModel">Serialized model</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{tdef.serializedModel}}" readonly>
+                        <textarea class="input-sm form-control" style="height: 250px;" readonly>{{tdef.serializedModel}}</textarea>
                     </td>
                 </tr>
             </tbody>
@@ -47,8 +46,8 @@
     </div>
 
     <button type="submit"
-            ui-sref="tdef"
+            ui-sref="tdefs"
             class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="entity.action.back"> Back</span>
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.typeDefinition.home.title"> Back</span>
     </button>
 </div>

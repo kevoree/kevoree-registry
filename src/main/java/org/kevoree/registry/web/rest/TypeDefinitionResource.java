@@ -9,6 +9,7 @@ import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -41,23 +42,15 @@ public class TypeDefinitionResource {
     private NamespaceRepository namespaceRepository;
 
     /**
-     * GET  /tdefs -> get currently logged in user type definitions
+     * GET  /tdefs -> returns all tdefs
      */
     @RequestMapping(value = "/tdefs",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<Set<TypeDefinition>> getTypeDefinitions() {
-        log.debug("REST request to get type definitions for user: {}", SecurityUtils.getCurrentLogin());
-        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-            .map(user -> {
-                Set<TypeDefinition> tdefs = new HashSet<>();
-                user.getNamespaces().forEach(
-                    n -> tdefs.addAll(n.getTypeDefinitions()));
-                return new ResponseEntity<>(tdefs, HttpStatus.OK);
-            })
-            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+    ResponseEntity<List<TypeDefinition>> getTypeDefinitions() {
+        log.debug("REST request to get all TypeDefinitions");
+        return new ResponseEntity<>(tdefsRepository.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -67,11 +60,35 @@ public class TypeDefinitionResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    ResponseEntity<TypeDefinition> getNamespace(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
+    ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
         log.debug("REST request to get TypeDefinition: {}.{}/{}", namespace, name, version);
         return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
             .map(tdef -> new ResponseEntity<>(tdef, HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /tdefs/:namespace/:name -> get a list of typeDefinitions from a specific namespace and name
+     */
+    @RequestMapping(value = "/tdefs/{namespace}/{name}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace, @PathVariable String name) {
+        log.debug("REST request to get TypeDefinitions: {}.{}", namespace, name);
+        return new ResponseEntity<>(tdefsRepository.findByNamespaceNameAndName(namespace, name), HttpStatus.OK);
+    }
+
+    /**
+     * GET  /tdefs/:namespace -> get a list of typeDefinitions from a specific namespace
+     */
+    @RequestMapping(value = "/tdefs/{namespace}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespace(@PathVariable String namespace) {
+        log.debug("REST request to get TypeDefinitions from Namespace: {}", namespace);
+        return new ResponseEntity<>(tdefsRepository.findByNamespaceName(namespace), HttpStatus.OK);
     }
 
     /**
@@ -85,20 +102,42 @@ public class TypeDefinitionResource {
     ResponseEntity<?> addTypeDefinitions(@RequestBody TypeDefinitionDTO tdefDTO) {
         log.debug("REST request to add a TypeDefinition: {}", tdefDTO);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-            .map(user -> namespaceRepository.findOneByNameAndMemberName(tdefDTO.getNamespace(), user.getLogin())
-                .map(ns -> tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
-                    .map(tdef -> new ResponseEntity<>("typeDefinition already exists", HttpStatus.BAD_REQUEST))
-                    .orElseGet(() -> {
-                        TypeDefinition tdef = new TypeDefinition();
-                        tdef.setName(tdefDTO.getName());
-                        tdef.setVersion(tdefDTO.getVersion());
-                        tdef.setSerializedModel(tdefDTO.getSerializedModel());
-                        tdef.setNamespace(ns);
-                        ns.addTypeDefinition(tdef);
-                        tdefsRepository.save(tdef);
-                        return new ResponseEntity<>(HttpStatus.CREATED);
-                    }))
-                .orElse(new ResponseEntity<>("unknown namespace", HttpStatus.BAD_REQUEST)))
+            .map(user ->
+                namespaceRepository.findOneByNameAndMemberName(tdefDTO.getNamespace(), user.getLogin())
+                    .map(ns ->
+                        tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
+                            .map(tdef -> new ResponseEntity<>(
+                                new ErrorDTO(ns.getName()+"."+tdefDTO.getName()+"/"+tdefDTO.getVersion()+" already exists"),
+                                HttpStatus.BAD_REQUEST))
+                            .orElseGet(() -> {
+                                TypeDefinition tdef = new TypeDefinition();
+                                tdef.setName(tdefDTO.getName());
+                                tdef.setVersion(tdefDTO.getVersion());
+                                tdef.setSerializedModel(tdefDTO.getSerializedModel());
+                                tdef.setNamespace(ns);
+                                ns.addTypeDefinition(tdef);
+                                tdefsRepository.save(tdef);
+                                return new ResponseEntity<>(HttpStatus.CREATED);
+                            }))
+                    .orElse(new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not a member of '"+tdefDTO.getNamespace()+"' namespace"), HttpStatus.BAD_REQUEST)))
             .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+    }
+
+    /**
+     * DELETE  /tdefs/{namespace}/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
+     */
+    @RequestMapping(value = "/tdefs/{namespace}/{name}/{version:.+}",
+        method = RequestMethod.DELETE,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
+    public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
+        log.debug("REST request to delete TypeDefinition : {}.{}/{}", namespace, name, version);
+        return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
+            .map(tdef -> {
+                tdefsRepository.delete(tdef);
+                return new ResponseEntity<>(HttpStatus.OK);
+            })
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

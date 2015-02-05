@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -14,4 +15,8 @@ public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition, 
 
     @Query("select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3")
     Optional<TypeDefinition> findOneByNamespaceNameAndNameAndVersion(String namespaceName, String name, String version);
+
+    Set<TypeDefinition> findByNamespaceNameAndName(String namespaceName, String name);
+
+    Set<TypeDefinition> findByNamespaceName(String namespaceName);
 }

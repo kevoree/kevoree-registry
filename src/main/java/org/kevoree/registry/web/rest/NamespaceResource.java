@@ -6,6 +6,7 @@ import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * REST controller for managing models.
@@ -35,18 +36,15 @@ public class NamespaceResource {
     private UserRepository userRepository;
 
     /**
-     * GET  /namespaces -> get currently logged in user namespaces
+     * GET  /namespaces -> get all namespaces
      */
     @RequestMapping(value = "/namespaces",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<Set<Namespace>> getNamespaces() {
+    ResponseEntity<List<Namespace>> getNamespaces() {
         log.debug("REST request to get namespaces for user: {}", SecurityUtils.getCurrentLogin());
-        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-            .map(user -> new ResponseEntity<>(user.getNamespaces(), HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+        return new ResponseEntity<>(namespaceRepository.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -56,7 +54,6 @@ public class NamespaceResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    @RolesAllowed(AuthoritiesConstants.USER)
     ResponseEntity<Namespace> getNamespace(@PathVariable String name) {
         log.debug("REST request to get namespace: {}", name);
         return Optional.ofNullable(namespaceRepository.findOne(name))
@@ -90,7 +87,7 @@ public class NamespaceResource {
                 .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
 
         } else {
-            return new ResponseEntity<>("name already in use", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -106,7 +103,7 @@ public class NamespaceResource {
         log.debug("REST request to add '{}' to namespace '{}'", namedDTO, name);
         final Namespace ns = namespaceRepository.findOne(name);
         if (ns == null) {
-            return new ResponseEntity<>("unknown namespace", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorDTO("unknown namespace"), HttpStatus.NOT_FOUND);
         } else {
             // retrieve currently logged-in user
             return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
@@ -117,7 +114,7 @@ public class NamespaceResource {
                             // retrieve user to add as a member from the db
                             .map(member -> namespaceRepository.findOneByNameAndMemberName(ns.getName(), member.getLogin())
                                 // this user is already a member of the given namespace
-                                .map(n -> new ResponseEntity<>("already a member of the namespace", HttpStatus.BAD_REQUEST))
+                                .map(n -> new ResponseEntity<>(new ErrorDTO("already a member of the namespace"), HttpStatus.BAD_REQUEST))
                                 .orElseGet(() -> {
                                     // add member to namespace
                                     ns.addMember(member);
@@ -127,9 +124,9 @@ public class NamespaceResource {
                                     return new ResponseEntity<>(HttpStatus.OK);
                                 }))
                                 // cannot add unknown user to a namespace
-                            .orElse(new ResponseEntity<>("unknown user", HttpStatus.BAD_REQUEST));
+                            .orElse(new ResponseEntity<ErrorDTO>(new ErrorDTO("unknown user"), HttpStatus.BAD_REQUEST));
                     } else {
-                        return new ResponseEntity<>("you are not the owner of the namespace", HttpStatus.UNAUTHORIZED);
+                        return new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED);
                     }
                 })
                 // user must be logged-in
@@ -149,7 +146,7 @@ public class NamespaceResource {
         log.debug("REST request to remove '{}' from namespace '{}'", namedDTO, name);
         final Namespace ns = namespaceRepository.findOne(name);
         if (ns == null) {
-            return new ResponseEntity<>("unknown namespace", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new ErrorDTO("unknown namespace"), HttpStatus.NOT_FOUND);
         } else {
             // retrieve currently logged-in user
             return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
@@ -162,7 +159,7 @@ public class NamespaceResource {
                                 // this user is already a member of the given namespace
                                 .map(n -> {
                                     if (member.equals(user)) {
-                                        return new ResponseEntity<String>("namespace owner cannot be removed from its own namespace", HttpStatus.BAD_REQUEST);
+                                        return new ResponseEntity<ErrorDTO>(new ErrorDTO("namespace owner cannot be removed from its own namespace"), HttpStatus.BAD_REQUEST);
                                     } else {
                                         // remove member from namespace
                                         ns.removeMember(member);
@@ -171,11 +168,11 @@ public class NamespaceResource {
                                         userRepository.save(member);
                                         return new ResponseEntity<>(HttpStatus.OK);
                                     }})
-                                .orElse(new ResponseEntity<>("not a member of the namespace", HttpStatus.BAD_REQUEST)))
+                                .orElse(new ResponseEntity<>(new ErrorDTO("not a member of the namespace"), HttpStatus.BAD_REQUEST)))
                                 // cannot add unknown user to a namespace
                             .orElse(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
                     } else {
-                        return new ResponseEntity<>("you are not the owner of the namespace", HttpStatus.UNAUTHORIZED);
+                        return new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED);
                     }
                 })
                 // user must be logged-in
@@ -188,7 +185,7 @@ public class NamespaceResource {
      */
     @RequestMapping(value = "/namespaces/{name}",
         method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+        produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
     public ResponseEntity<?> delete(@PathVariable String name) {
         log.debug("REST request to delete Namespace : {}", name);
@@ -198,9 +195,9 @@ public class NamespaceResource {
                     namespaceRepository.delete(ns);
                     return new ResponseEntity<>(HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<String>("you are not the owner of "+name, HttpStatus.UNAUTHORIZED);
+                    return new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED);
                 }
             })
-            .orElse(new ResponseEntity<String>("unknown namespace", HttpStatus.NOT_FOUND));
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

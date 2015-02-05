@@ -1,11 +1,12 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('NamespaceController', function ($scope, Namespaces, Namespace) {
+    .controller('NamespaceController', function ($scope, Principal, Namespaces) {
+        $scope.isInRole = Principal.isInRole;
         $scope.namespaces = [];
         $scope.loadAll = function() {
             Namespaces.query(function(result) {
-               $scope.namespaces = result;
+                $scope.namespaces = result;
             });
         };
         $scope.loadAll();
@@ -24,39 +25,11 @@ angular.module('kevoreeRegistryApp')
             $('#saveNamespaceModal').modal('show');
         };
 
-        $scope.delete = function (name) {
+        $scope.delete = function (name, event) {
+            event.stopPropagation();
+            event.preventDefault();
             $scope.namespace = Namespaces.get({ name: name });
             $('#deleteNamespaceConfirmation').modal('show');
-        };
-
-        $scope.addMember = function (name) {
-            $scope.namespace = Namespaces.get({ name: name });
-            $('#addMemberModal').modal('show');
-        };
-
-        $scope.confirmAddMember = function (nsName, memberName) {
-            Namespace.addMember(nsName, memberName).then(function () {
-                $scope.loadAll();
-                $('#addMemberModal').modal('hide');
-                $scope.clear();
-            });
-        };
-
-        $scope.removeMember = function (name) {
-            $scope.namespace = Namespaces.get({ name: name }, function () {
-                $scope.namespace.members = $scope.namespace.members.filter(function (login) {
-                    return (login !== $scope.user.login);
-                });
-            });
-            $('#removeMemberModal').modal('show');
-        };
-
-        $scope.confirmRemoveMember = function (nsName, member) {
-            Namespace.removeMember(nsName, member).then(function () {
-                $scope.loadAll();
-                $('#removeMemberModal').modal('hide');
-                $scope.clear();
-            });
         };
 
         $scope.confirmDelete = function (name) {
@@ -65,10 +38,21 @@ angular.module('kevoreeRegistryApp')
                     $scope.loadAll();
                     $('#deleteNamespaceConfirmation').modal('hide');
                     $scope.clear();
+                }, function (resp) {
+                    $scope.deleteError = resp.data.message;
                 });
         };
 
         $scope.clear = function () {
             $scope.namespace = { name: null };
+            $scope.filterText = null;
         };
+
+        $scope.clearDeleteError = function () {
+            $scope.deleteError = null;
+        };
+
+        angular.element('#saveNamespaceModal').on('shown.bs.modal', function () {
+            angular.element('[ng-model="namespace.name"]').focus();
+        });
     });

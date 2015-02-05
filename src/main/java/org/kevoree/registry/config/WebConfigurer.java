@@ -130,7 +130,8 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
         FilterRegistration.Dynamic corsFilter =
             servletContext.addFilter("corsHttpHeadersFilter",
                 new CORSHttpHeadersFilter());
-        corsFilter.addMappingForUrlPatterns(disps, true, "/api/model");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/tdefs");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/namespaces");
     }
 
     /**

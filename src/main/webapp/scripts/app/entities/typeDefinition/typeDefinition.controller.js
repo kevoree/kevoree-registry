@@ -1,49 +1,76 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('TypeDefinitionController', function ($scope, TypeDefinition, Namespaces) {
+    .controller('TypeDefinitionController', function ($scope, $stateParams, TypeDefinitions, Namespaces, User, Principal) {
         $scope.tdefs = [];
         $scope.namespaces = [];
+        $scope.isInRole = Principal.isInRole;
 
         $scope.loadAll = function() {
-            Namespaces.query(function (namespaces) {
-                $scope.namespaces = namespaces;
-                TypeDefinition.query(function(result) {
-                    $scope.tdefs = result;
+            TypeDefinitions.query({
+                namespace: $stateParams.namespace,
+                name: $stateParams.name,
+                version: $stateParams.version
+            }, function(result) {
+                // map tdefs so that they also get a fqn for filtering purposes
+                $scope.tdefs = result.map(function (tdef) {
+                    tdef.fqn = tdef.namespace.name + '.' + tdef.name + '/' + tdef.version;
+                    return tdef;
                 });
             });
         };
         $scope.loadAll();
 
         $scope.create = function () {
-            TypeDefinition.save($scope.tdef,
+            User.getNamespaces().then(function (resp) {
+                $scope.namespaces = resp.data;
+            });
+            $('#createTypeDefinitionModal').modal('show');
+        };
+
+        $scope.confirmCreate = function () {
+            TypeDefinitions.save($scope.tdef,
                 function () {
                     $scope.loadAll();
-                    $('#saveTypeDefinitionModal').modal('hide');
+                    $('#createTypeDefinitionModal').modal('hide');
                     $scope.clear();
+                }, function (resp) {
+                    $scope.createError = resp.data.message;
                 });
         };
 
-        $scope.update = function (namespace, name, version) {
-            $scope.tdef = TypeDefinition.get({namespace: namespace, name: name, version: version});
-            $('#saveTypeDefinitionModal').modal('show');
-        };
-
-        $scope.delete = function (namespace, name, version) {
-            $scope.tdef = Namespace.get({namespace: namespace, name: name, version: version});
+        $scope.delete = function (namespace, name, version, event) {
+            event.stopPropagation();
+            event.preventDefault();
+            $scope.tdef = TypeDefinitions.get({ namespace: namespace, name: name, version: version });
             $('#deleteTypeDefinitionConfirmation').modal('show');
         };
 
         $scope.confirmDelete = function (namespace, name, version) {
-            TypeDefinition.delete({namespace: namespace, name: name, version: version},
+            TypeDefinitions.delete({ namespace: namespace, name: name, version: version },
                 function () {
                     $scope.loadAll();
                     $('#deleteTypeDefinitionConfirmation').modal('hide');
                     $scope.clear();
+                },
+                function (resp) {
+                    $scope.deleteError = resp.data.message;
                 });
         };
 
         $scope.clear = function () {
-            $scope.tdef = {namespace: null, name: null, version: null};
+            $scope.tdef = { namespace: null, name: null, version: null };
+            $scope.filterText = null;
+            Namespaces.query(function (namespaces) {
+                $scope.namespaces = namespaces;
+            });
+        };
+
+        $scope.clearDeleteError = function () {
+            $scope.deleteError = null;
+        };
+
+        $scope.clearCreateError = function () {
+            $scope.createError = null;
         };
     });

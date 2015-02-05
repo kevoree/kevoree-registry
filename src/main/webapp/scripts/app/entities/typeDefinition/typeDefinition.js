@@ -3,11 +3,11 @@
 angular.module('kevoreeRegistryApp')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('tdef', {
+            .state('tdefs', {
                 parent: 'entity',
-                url: '/tdef',
+                url: '/tdefs/:namespace?/:name?',
                 data: {
-                    roles: ['ROLE_USER']
+                    roles: []
                 },
                 views: {
                     'content@': {
@@ -24,9 +24,9 @@ angular.module('kevoreeRegistryApp')
             })
             .state('tdefDetail', {
                 parent: 'entity',
-                url: '/tdef/:namespace/:name/:version',
+                url: '/tdefs/:namespace/:name/:version',
                 data: {
-                    roles: ['ROLE_USER']
+                    roles: []
                 },
                 views: {
                     'content@': {

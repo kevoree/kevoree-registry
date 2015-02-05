@@ -3,7 +3,7 @@
         "namespace" : {
             "home": {
                 "title": "Namespaces",
-                "createLabel": "Créer un nouveau Namespace",
+                "createLabel": "Nouveau namespace",
                 "createOrEditLabel": "Créer ou éditer un Namespace"
             },
             "delete": {
@@ -26,7 +26,9 @@
             "owner": "Propriétaire",
             "members": "Membres",
             "addMember": "Ajouter un membre",
-            "typeDefinitions": "Type Definitions"
+            "typeDefinitions": "Type Definitions",
+            "filterPlaceholder": "Filtrer les namespaces...",
+            "filter": "Filtrer"
         }
     }
 }

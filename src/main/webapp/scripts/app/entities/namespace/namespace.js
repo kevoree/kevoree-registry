@@ -7,7 +7,7 @@ angular.module('kevoreeRegistryApp')
                 parent: 'entity',
                 url: '/ns',
                 data: {
-                    roles: ['ROLE_USER']
+                    roles: []
                 },
                 views: {
                     'content@': {
@@ -26,7 +26,7 @@ angular.module('kevoreeRegistryApp')
                 parent: 'entity',
                 url: '/ns/:name',
                 data: {
-                    roles: ['ROLE_USER']
+                    roles: []
                 },
                 views: {
                     'content@': {
