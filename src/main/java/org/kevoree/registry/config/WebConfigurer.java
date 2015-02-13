@@ -132,6 +132,10 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
                 new CORSHttpHeadersFilter());
         corsFilter.addMappingForUrlPatterns(disps, true, "/api/tdefs");
         corsFilter.addMappingForUrlPatterns(disps, true, "/api/namespaces");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/tdefs/*");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/namespaces/*");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/tdefs/*/*");
+        corsFilter.addMappingForUrlPatterns(disps, true, "/api/namespaces/*/*");
     }
 
     /**

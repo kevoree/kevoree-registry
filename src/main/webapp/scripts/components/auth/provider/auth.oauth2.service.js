@@ -6,12 +6,12 @@ angular.module('kevoreeRegistryApp')
             login: function(credentials) {
                 var data = "username=" + credentials.username + "&password="
                     + credentials.password + "&grant_type=password&scope=read%20write&" +
-                    "client_secret=mySecretOAuthSecret&client_id=kevoree_registryapp";
+                    "client_secret=kevoree_registryapp_secret&client_id=kevoree_registryapp";
                 return $http.post('oauth/token', data, {
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded",
                         "Accept": "application/json",
-                        "Authorization": "Basic " + Base64.encode("kevoree_registryapp" + ':' + "mySecretOAuthSecret")
+                        "Authorization": "Basic " + Base64.encode("kevoree_registryapp" + ':' + "kevoree_registryapp_secret")
                     }
                 }).success(function (response) {
                     var expiredAt = new Date();

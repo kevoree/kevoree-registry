@@ -1,8 +1,10 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.Authority;
+import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.AuthorityRepository;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.util.RandomUtil;
@@ -35,6 +37,9 @@ public class UserService {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private NamespaceRepository namespaceRepository;
 
     @Inject
     private AuthorityRepository authorityRepository;
@@ -73,6 +78,14 @@ public class UserService {
         authorities.add(authority);
         newUser.setAuthorities(authorities);
         userRepository.save(newUser);
+
+        // new user gets its own namespace
+        Namespace ns = new Namespace();
+        ns.setName(newUser.getLogin());
+        ns.setOwner(newUser);
+        ns.addMember(newUser);
+        namespaceRepository.save(ns);
+
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
@@ -116,7 +129,7 @@ public class UserService {
         DateTime now = new DateTime();
         List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
         for (User user : users) {
-            log.debug("Deleting not activated user {}", user.getLogin());
+            log.debug("Deleting not activated user and namespace {}", user.getLogin());
             userRepository.delete(user);
         }
     }

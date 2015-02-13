@@ -2,8 +2,10 @@ package org.kevoree.registry.web.rest;
 
 import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.Authority;
+import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.AuthorityRepository;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.MailService;
@@ -57,6 +59,9 @@ public class AccountResourceTest {
     private AuthorityRepository authorityRepository;
 
     @Inject
+    private NamespaceRepository namespaceRepository;
+
+    @Inject
     private UserService userService;
 
     @Mock
@@ -76,11 +81,13 @@ public class AccountResourceTest {
 
         AccountResource accountResource = new AccountResource();
         ReflectionTestUtils.setField(accountResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(accountResource, "namespaceRepository", namespaceRepository);
         ReflectionTestUtils.setField(accountResource, "userService", userService);
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
 
         AccountResource accountUserMockResource = new AccountResource();
         ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(accountUserMockResource, "namespaceRepository", namespaceRepository);
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);
         ReflectionTestUtils.setField(accountUserMockResource, "mailService", mockMailService);
 
@@ -165,6 +172,8 @@ public class AccountResourceTest {
 
         Optional<User> user = userRepository.findOneByLogin("joe");
         assertThat(user.isPresent()).isTrue();
+        Namespace namespace = namespaceRepository.findOne("joe");
+        assertThat(namespace).isNotNull();
     }
 
     @Test

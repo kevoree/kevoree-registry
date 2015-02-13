@@ -2,6 +2,7 @@ package org.kevoree.registry.service;
 
 import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;

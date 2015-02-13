@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class TypeDefinitionResourceTest {
 
-    private static final String DEFAULT_NAME = "kevoree";
+    private static final String DEFAULT_NAME = "testnamespace";
 
     @Inject
     private TypeDefinitionRepository tdefsRepository;
@@ -82,7 +82,7 @@ public class TypeDefinitionResourceTest {
         userRepository.saveAndFlush(admin);
 
         tdef = new TypeDefinition();
-        tdef.setName("MyComp");
+        tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
         tdef.setSerializedModel("{}");
     }
@@ -158,7 +158,7 @@ public class TypeDefinitionResourceTest {
 
         // create a new namespace
         Namespace newNs = new Namespace();
-        newNs.setName("braindead");
+        newNs.setName("anothernamespace");
         newNs.setOwner(admin);
         newNs.addMember(admin);
         namespaceRepository.saveAndFlush(newNs);
@@ -170,7 +170,6 @@ public class TypeDefinitionResourceTest {
         // validate db
         Namespace dbNewNs = namespaceRepository.findOne(newNs.getName());
         assertThat(dbNewNs).isNotNull();
-        assertThat(namespaceRepository.findAll()).hasSize(2);
 
         // create a new TypeDefinition with same name and version but using the newNs
         restTdefsMockMvc.perform(post("/api/tdefs")

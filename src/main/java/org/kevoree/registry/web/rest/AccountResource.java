@@ -3,6 +3,7 @@ package org.kevoree.registry.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.Authority;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.MailService;
@@ -38,6 +39,9 @@ public class AccountResource {
     private UserRepository userRepository;
 
     @Inject
+    private NamespaceRepository namespaceRepository;
+
+    @Inject
     private UserService userService;
 
     @Inject
@@ -53,22 +57,24 @@ public class AccountResource {
     public ResponseEntity<?> registerAccount(@Valid @RequestBody UserDTO userDTO, HttpServletRequest request) {
         return userRepository.findOneByLogin(userDTO.getLogin())
             .map(user -> new ResponseEntity<>(new ErrorDTO("login already in use"), HttpStatus.BAD_REQUEST))
-            .orElseGet(() -> userRepository.findOneByEmail(userDTO.getEmail())
-                .map(user -> new ResponseEntity<>(new ErrorDTO("e-mail address already in use"), HttpStatus.BAD_REQUEST))
-                .orElseGet(() -> {
-                    User user = userService.createUserInformation(userDTO.getLogin(), userDTO.getPassword(),
-                    userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail().toLowerCase(),
-                    userDTO.getLangKey());
-                    String baseUrl = request.getScheme() + // "http"
-                    "://" +                                // "://"
-                    request.getServerName() +              // "myhost"
-                    ":" +                                  // ":"
-                    request.getServerPort();               // "80"
+            .orElseGet(() -> Optional.ofNullable(namespaceRepository.findOne(userDTO.getLogin()))
+                .map(ns -> new ResponseEntity<>(new ErrorDTO("login already in use"), HttpStatus.BAD_REQUEST))
+                .orElseGet(() -> userRepository.findOneByEmail(userDTO.getEmail())
+                    .map(user -> new ResponseEntity<>(new ErrorDTO("e-mail address already in use"), HttpStatus.BAD_REQUEST))
+                    .orElseGet(() -> {
+                        User user = userService.createUserInformation(userDTO.getLogin(), userDTO.getPassword(),
+                            userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail().toLowerCase(),
+                            userDTO.getLangKey());
+                        String baseUrl = request.getScheme() + // "http"
+                            "://" +                                // "://"
+                            request.getServerName() +              // "myhost"
+                            ":" +                                  // ":"
+                            request.getServerPort();               // "80"
 
-                    mailService.sendActivationEmail(user, baseUrl);
-                    return new ResponseEntity<>(HttpStatus.CREATED);
-                })
-        );
+                        mailService.sendActivationEmail(user, baseUrl);
+                        return new ResponseEntity<>(HttpStatus.CREATED);
+                    }))
+            );
     }
     /**
      * GET  /activate -> activate the registered user.

@@ -13,8 +13,11 @@ import java.util.Set;
  */
 public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition, Long> {
 
-    @Query("select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3")
-    Optional<TypeDefinition> findOneByNamespaceNameAndNameAndVersion(String namespaceName, String name, String version);
+    Optional<TypeDefinition> findOneByNamespaceNameAndNameAndVersion(String ns, String name, String version);
+
+    Optional<TypeDefinition> findOneByNamespaceNameAndNamespaceMembersLoginAndNameAndVersion(String ns, String memberLogin, String name, String version);
+
+    Set<TypeDefinition> findByNamespaceNameAndNamespaceMembersLoginAndName(String ns, String memberLogin, String name);
 
     Set<TypeDefinition> findByNamespaceNameAndName(String namespaceName, String name);
 

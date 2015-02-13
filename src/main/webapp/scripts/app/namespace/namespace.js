@@ -3,40 +3,40 @@
 angular.module('kevoreeRegistryApp')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('tdefs', {
-                parent: 'entity',
-                url: '/tdefs/:namespace?/:name?',
+            .state('namespaces', {
+                parent: 'site',
+                url: '/ns',
                 data: {
                     roles: []
                 },
                 views: {
                     'content@': {
-                        templateUrl: 'scripts/app/entities/typeDefinition/typeDefinitions.html',
-                        controller: 'TypeDefinitionController'
+                        templateUrl: 'scripts/app/namespace/namespaces.html',
+                        controller: 'NamespaceController'
                     }
                 },
                 resolve: {
                     translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-                        $translatePartialLoader.addPart('typeDefinition');
+                        $translatePartialLoader.addPart('namespace');
                         return $translate.refresh();
                     }]
                 }
             })
-            .state('tdefDetail', {
+            .state('namespaceDetail', {
                 parent: 'entity',
-                url: '/tdefs/:namespace/:name/:version',
+                url: '/ns/:name',
                 data: {
                     roles: []
                 },
                 views: {
                     'content@': {
-                        templateUrl: 'scripts/app/entities/typeDefinition/typeDefinition-detail.html',
-                        controller: 'TypeDefinitionDetailController'
+                        templateUrl: 'scripts/app/namespace/namespace-detail.html',
+                        controller: 'NamespaceDetailController'
                     }
                 },
                 resolve: {
                     translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-                        $translatePartialLoader.addPart('typeDefinition');
+                        $translatePartialLoader.addPart('namespace');
                         return $translate.refresh();
                     }]
                 }

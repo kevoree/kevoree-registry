@@ -133,11 +133,28 @@ public class TypeDefinitionResource {
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
         log.debug("REST request to delete TypeDefinition : {}.{}/{}", namespace, name, version);
-        return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
-            .map(tdef -> {
-                tdefsRepository.delete(tdef);
-                return new ResponseEntity<>(HttpStatus.OK);
-            })
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return tdefsRepository
+            .findOneByNamespaceNameAndNamespaceMembersLoginAndNameAndVersion(namespace, SecurityUtils.getCurrentLogin(), name, version)
+                .map(tdef -> {
+                    tdefsRepository.delete(tdef);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                })
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * DELETE  /tdefs/{namespace}/{name} -> delete all namespace.Name TypeDefinitions
+     */
+    @RequestMapping(value = "/tdefs/{namespace}/{name}",
+        method = RequestMethod.DELETE,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
+    public ResponseEntity<?> deleteAll(@PathVariable String namespace, @PathVariable String name) {
+        log.debug("REST request to delete all TypeDefinitions : {}.{}", namespace, name);
+        Set<TypeDefinition> tdefs = tdefsRepository
+            .findByNamespaceNameAndNamespaceMembersLoginAndName(namespace, SecurityUtils.getCurrentLogin(), name);
+        tdefs.forEach(tdefsRepository::delete);
+        return new ResponseEntity<>(tdefs, HttpStatus.OK);
     }
 }

@@ -12,7 +12,7 @@ public class TypeDefinitionDTO {
     @Size(min = 1, max = 50)
     private String name;
 
-    @Pattern(regexp = "^\\bv?(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)(?:-[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?(?:\\+[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*)?\\b$")
+    @Pattern(regexp = "/^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$/")
     @NotNull
     @Size(min = 6, max = 50)
     private String version;

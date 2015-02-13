@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 
 /**
  * Test class for the UserResource REST controller.
@@ -43,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @IntegrationTest
 public class NamespaceResourceTest {
 
-    private static final String DEFAULT_NAME = "kevoree";
+    private static final String DEFAULT_NAME = "testnamespace";
 
     @Inject
     private NamespaceRepository namespaceRepository;
@@ -84,16 +85,11 @@ public class NamespaceResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
 
-        admin.addNamespace(namespace);
-        namespaceRepository.saveAndFlush(namespace);
-        userRepository.saveAndFlush(admin);
-
         restNamespaceMockMvc.perform(get("/api/namespaces")
             .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-            .andExpect(jsonPath("$.[0].name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.[0].members.[0]").value(admin.getLogin()));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$", hasSize(namespaceRepository.findAll().size())));
     }
 
     @Test
@@ -159,8 +155,8 @@ public class NamespaceResourceTest {
         assertThat(dbNs.getOwner().getLogin()).isEqualTo(admin.getLogin());
         // Validate the user in db
         User dbAdmin = userRepository.findOneByLogin(admin.getLogin()).get();
-        assertThat(dbAdmin.getNamespaces().iterator().next().getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(user.getNamespaces().iterator().next().getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(dbAdmin.getNamespaces()).contains(namespace);
+        assertThat(user.getNamespaces()).contains(namespace);
     }
 
     @Test
@@ -172,7 +168,7 @@ public class NamespaceResourceTest {
 
         // add a TypeDefinition to the Namespace
         TypeDefinition tdef = new TypeDefinition();
-        tdef.setName("MyComp");
+        tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
         tdef.setSerializedModel("{}");
         tdef.setNamespace(namespace);

@@ -17,7 +17,10 @@ angular.module('kevoreeRegistryApp')
                     $scope.loadAll();
                     $('#saveNamespaceModal').modal('hide');
                     $scope.clear();
-                });
+                }, function (resp) {
+                    $scope.saveError = resp.data.message;
+                }
+            );
         };
 
         $scope.update = function (name) {
@@ -50,6 +53,10 @@ angular.module('kevoreeRegistryApp')
 
         $scope.clearDeleteError = function () {
             $scope.deleteError = null;
+        };
+
+        $scope.clearSaveError = function () {
+            $scope.saveError = null;
         };
 
         angular.element('#saveNamespaceModal').on('shown.bs.modal', function () {

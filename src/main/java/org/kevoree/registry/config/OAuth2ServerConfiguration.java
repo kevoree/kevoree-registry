@@ -107,7 +107,6 @@ public class OAuth2ServerConfiguration {
         @Override
         public void configure(AuthorizationServerEndpointsConfigurer endpoints)
                 throws Exception {
-
             endpoints
                     .tokenStore(tokenStore())
                     .authenticationManager(authenticationManager);

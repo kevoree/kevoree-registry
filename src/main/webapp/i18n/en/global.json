@@ -7,8 +7,8 @@
             "search": "Search",
             "entities": {
                 "main": "Entities",
-                "typeDefinition": "TypeDefinition",
-                "namespace": "Namespace",
+                "typeDefinitions": "TypeDefinitions",
+                "namespaces": "Namespaces",
                 "additionalEntity": "JHipster will add addtional entities"
             },
             "account": {

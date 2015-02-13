@@ -30,7 +30,7 @@ spring:
 authentication:
     oauth:
         clientid: kevoree_registryapp
-        secret: mySecretOAuthSecret
+        secret: kevoree_registryapp_secret
         # Token is valid 30 minutes
         tokenValidityInSeconds: 1800
 

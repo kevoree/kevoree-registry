@@ -23,9 +23,9 @@ angular.module('kevoreeRegistryApp')
                     $scope.success = 'OK';
                 }).catch(function (response) {
                     $scope.success = null;
-                    if (response.status === 400 && response.data === 'login already in use') {
+                    if (response.status === 400 && response.data.message === 'login already in use') {
                         $scope.errorUserExists = 'ERROR';
-                    } else if (response.status === 400 && response.data === 'e-mail address already in use') {
+                    } else if (response.status === 400 && response.data.message === 'e-mail address already in use') {
                         $scope.errorEmailExists = 'ERROR';
                     } else {
                         $scope.error = 'ERROR';

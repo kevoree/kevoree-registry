@@ -2,6 +2,7 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
@@ -71,24 +72,22 @@ public class NamespaceResource {
     @RolesAllowed(AuthoritiesConstants.USER)
     ResponseEntity<?> addNamespaces(@RequestBody NamedDTO namedDTO) {
         log.debug("REST request to add a namespace: {}", namedDTO);
-        Namespace dbNs = namespaceRepository.findOne(namedDTO.getName());
-        if (dbNs == null) {
-            return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-                .map(user -> {
-                    Namespace newNs = new Namespace();
-                    newNs.setName(namedDTO.getName());
-                    newNs.setOwner(user);
-                    newNs.addMember(user);
-                    user.addNamespace(newNs);
-                    namespaceRepository.save(newNs);
-                    userRepository.save(user);
-                    return new ResponseEntity<>(HttpStatus.CREATED);
-                })
-                .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
-
-        } else {
-            return new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST);
-        }
+        return Optional.ofNullable(namespaceRepository.findOne(namedDTO.getName()))
+            .map(ns -> new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST))
+            .orElseGet(() -> userRepository.findOneByLogin(namedDTO.getName())
+                .map(user -> new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST))
+                .orElseGet(() -> userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
+                    .map(user -> {
+                        Namespace newNs = new Namespace();
+                        newNs.setName(namedDTO.getName());
+                        newNs.setOwner(user);
+                        newNs.addMember(user);
+                        user.addNamespace(newNs);
+                        namespaceRepository.save(newNs);
+                        userRepository.save(user);
+                        return new ResponseEntity(HttpStatus.CREATED);
+                    })
+                    .orElse(new ResponseEntity(HttpStatus.FORBIDDEN))));
     }
 
     /**
@@ -129,7 +128,7 @@ public class NamespaceResource {
                         return new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED);
                     }
                 })
-                // user must be logged-in
+                    // user must be logged-in
                 .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
         }
     }
@@ -175,7 +174,7 @@ public class NamespaceResource {
                         return new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED);
                     }
                 })
-                // user must be logged-in
+                    // user must be logged-in
                 .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
         }
     }

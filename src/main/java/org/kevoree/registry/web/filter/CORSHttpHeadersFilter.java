@@ -23,7 +23,7 @@ public class CORSHttpHeadersFilter implements Filter {
         String originHeader = request.getHeader("Origin");
         if (originHeader != null) {
             response.setHeader("Access-Control-Allow-Origin", originHeader);
-            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            response.setHeader("Access-Control-Allow-Methods", "GET");
             response.setHeader("Access-Control-Max-Age", "3600");
         }
         chain.doFilter(req, res);

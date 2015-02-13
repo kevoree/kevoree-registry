@@ -1,6 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import org.kevoree.registry.Application;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
