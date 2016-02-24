@@ -83,6 +83,9 @@ public class DeployHandler implements HttpHandler {
                             ts.applyOn(currentRoot);
                         }
 
+                        // update model id to the latest modification timestamp
+                        currentRoot.setGenerated_KMF_ID(String.valueOf(System.currentTimeMillis()));
+
                         tempTransaction.close();
                         tempMemoryManager.close();
                         currentTransaction.commit();
