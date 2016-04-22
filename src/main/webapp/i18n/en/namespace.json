@@ -1,0 +1,24 @@
+{
+    "kevoreeRegistryApp": {
+        "namespace" : {
+            "home": {
+                "title": "Namespaces",
+                "createLabel": "Create a new Namespace",
+                "createOrEditLabel": "Create or edit a Namespace",
+                "search": "Search for Namespace"
+            },
+            "created": "A new Namespace is created with identifier {{ param }}",
+            "updated": "A Namespace is updated with identifier {{ param }}",
+            "deleted": "A Namespace is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Namespace {{ id }}?"
+            },
+            "detail": {
+                "title": "Namespace"
+            },
+            "name": "Name",
+            "owner": "Owner",
+            "members": "Members"
+        }
+    }
+}
