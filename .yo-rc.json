@@ -1,0 +1,24 @@
+{
+  "generator-jhipster": {
+    "baseName": "kevoree_registry",
+    "packageName": "org.kevoree.registry",
+    "packageFolder": "org/kevoree/registry",
+    "authenticationType": "xauth",
+    "hibernateCache": "ehcache",
+    "clusteredHttpSession": "no",
+    "websocket": "spring-websocket",
+    "databaseType": "sql",
+    "devDatabaseType": "h2Memory",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": "no",
+    "useSass": false,
+    "buildTool": "maven",
+    "frontendBuilder": "grunt",
+    "enableTranslation": true,
+    "enableSocialSignIn": false,
+    "rememberMeKey": "6284163aa289746ef3397cf5cfbff55ecf7b40de",
+    "testFrameworks": [
+      "gatling"
+    ]
+  }
+}

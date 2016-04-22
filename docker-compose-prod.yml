@@ -1,0 +1,10 @@
+kevoree_registry-postgresql:
+  container_name: kevoree_registry-postgresql
+  image: postgres:9.4.5
+  # volumes:
+  #   - ~/volumes/jhipster/kevoree_registry/postgresql/:/var/lib/postgresql/
+  environment:
+    - POSTGRES_USER=kevoree_registry
+    - POSTGRES_PASSWORD=
+  ports:
+    - "5432:5432"
