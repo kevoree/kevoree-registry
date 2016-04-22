@@ -1,0 +1,25 @@
+{
+    "kevoreeRegistryApp": {
+        "typeDefinition" : {
+            "home": {
+                "title": "Type Definitions",
+                "createLabel": "Create a new Type Definition",
+                "createOrEditLabel": "Create or edit a Type Definition",
+                "search": "Search for Type Definition"
+            },
+            "created": "A new Type Definition is created with identifier {{ param }}",
+            "updated": "A Type Definition is updated with identifier {{ param }}",
+            "deleted": "A Type Definition is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Type Definition {{ id }}?"
+            },
+            "detail": {
+                "title": "Type Definition"
+            },
+            "name": "Name",
+            "version": "Version",
+            "serializedModel": "Serialized Model",
+            "namespace": "Namespace"
+        }
+    }
+}

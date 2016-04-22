@@ -1,0 +1,44 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "namespace",
+            "otherEntityName": "namespace",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "pattern"
+            ],
+            "fieldValidateRulesPattern": "^[A-Z][\\w]*$",
+            "fieldValidateRulesPatternJava": "^[A-Z][\\\\w]*$"
+        },
+        {
+            "fieldName": "version",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "pattern"
+            ],
+            "fieldValidateRulesPattern": "^[0-9]+$",
+            "fieldValidateRulesPatternJava": "^[0-9]+$"
+        },
+        {
+            "fieldName": "serializedModel",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20160422143027",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "type_definition",
+    "pagination": "pager"
+}

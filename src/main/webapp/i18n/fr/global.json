@@ -8,6 +8,7 @@
             "entities": {
                 "main": "Entités",
                 "namespace": "Namespace",
+                "typeDefinition": "Type Definition",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
