@@ -1,0 +1,15 @@
+version: '2'
+services:
+    kevoree_registry-app:
+        image: kevoree_registry
+        external_links:
+            - kevoree_registry-postgresql:postgresql
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod
+            - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/kevoree_registry
+        ports:
+            - 8080:8080
+    kevoree_registry-postgresql:
+        extends:
+            file: postgresql.yml
+            service: kevoree_registry-postgresql
