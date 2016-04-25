@@ -41,8 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class NamespaceResourceIntTest {
 
-    private static final String DEFAULT_NAME = "AAAAA";
-    private static final String UPDATED_NAME = "BBBBB";
+    private static final String DEFAULT_NAME = "aaaaa";
+    private static final String UPDATED_NAME = "bbbbb";
 
     @Inject
     private NamespaceRepository namespaceRepository;

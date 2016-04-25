@@ -43,10 +43,10 @@ public class TypeDefinitionResourceIntTest {
 
     private static final String DEFAULT_NAME = "AAAAA";
     private static final String UPDATED_NAME = "BBBBB";
-    private static final String DEFAULT_VERSION = "AAAAA";
-    private static final String UPDATED_VERSION = "BBBBB";
-    private static final String DEFAULT_SERIALIZED_MODEL = "AAAAA";
-    private static final String UPDATED_SERIALIZED_MODEL = "BBBBB";
+    private static final String DEFAULT_VERSION = "1";
+    private static final String UPDATED_VERSION = "2";
+    private static final String DEFAULT_SERIALIZED_MODEL = "{}";
+    private static final String UPDATED_SERIALIZED_MODEL = "{a:\"b\"}";
 
     @Inject
     private TypeDefinitionRepository typeDefinitionRepository;
