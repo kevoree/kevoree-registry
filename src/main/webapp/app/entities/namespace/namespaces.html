@@ -4,7 +4,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-xs-4 no-padding-left">
-                <button class="btn btn-primary" ui-sref="namespace.new" >
+                <button ng-show="isInRole('ROLE_USER')" class="btn btn-primary" ui-sref="namespace.new" >
                     <span class="glyphicon glyphicon-plus"></span>
                     <span  translate="kevoreeRegistryApp.namespace.home.createLabel">
                         Create new Namespace

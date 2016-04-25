@@ -13,7 +13,6 @@
             parent: 'entity',
             url: '/namespace',
             data: {
-                authorities: ['ROLE_USER'],
                 pageTitle: 'kevoreeRegistryApp.namespace.home.title'
             },
             views: {
@@ -35,7 +34,6 @@
             parent: 'entity',
             url: '/namespace/{id}',
             data: {
-                authorities: ['ROLE_USER'],
                 pageTitle: 'kevoreeRegistryApp.namespace.detail.title'
             },
             views: {
