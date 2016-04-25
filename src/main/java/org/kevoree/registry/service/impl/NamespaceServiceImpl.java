@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing Namespace.
@@ -19,13 +20,13 @@ import java.util.List;
 public class NamespaceServiceImpl implements NamespaceService{
 
     private final Logger log = LoggerFactory.getLogger(NamespaceServiceImpl.class);
-    
+
     @Inject
     private NamespaceRepository namespaceRepository;
-    
+
     /**
      * Save a namespace.
-     * 
+     *
      * @param namespace the entity to save
      * @return the persisted entity
      */
@@ -37,10 +38,10 @@ public class NamespaceServiceImpl implements NamespaceService{
 
     /**
      *  Get all the namespaces.
-     *  
+     *
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public List<Namespace> findAll() {
         log.debug("Request to get all Namespaces");
         List<Namespace> result = namespaceRepository.findAllWithEagerRelationships();
@@ -53,7 +54,7 @@ public class NamespaceServiceImpl implements NamespaceService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Namespace findOne(Long id) {
         log.debug("Request to get Namespace : {}", id);
         Namespace namespace = namespaceRepository.findOneWithEagerRelationships(id);
@@ -62,11 +63,17 @@ public class NamespaceServiceImpl implements NamespaceService{
 
     /**
      *  Delete the  namespace by id.
-     *  
+     *
      *  @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete Namespace : {}", id);
         namespaceRepository.delete(id);
+    }
+
+    @Override
+    public Optional<Namespace> findOneByName(String login) {
+        final Namespace oneByName = namespaceRepository.findOneByName(login);
+        return Optional.ofNullable(oneByName);
     }
 }

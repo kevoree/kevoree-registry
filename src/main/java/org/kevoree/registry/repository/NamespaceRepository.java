@@ -21,4 +21,5 @@ public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
     @Query("select namespace from Namespace namespace left join fetch namespace.members where namespace.id =:id")
     Namespace findOneWithEagerRelationships(@Param("id") Long id);
 
+    Namespace findOneByName(String name);
 }

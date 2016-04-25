@@ -6,6 +6,7 @@ import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.MailService;
+import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.KeyAndPasswordDTO;
 import org.kevoree.registry.web.rest.dto.ManagedUserDTO;
@@ -27,6 +28,7 @@ import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * REST controller for managing the current user's account.
@@ -46,6 +48,10 @@ public class AccountResource {
     @Inject
     private MailService mailService;
 
+
+    @Inject
+    private NamespaceService namespaceService;
+
     /**
      * POST  /register : register the user.
      *
@@ -62,25 +68,34 @@ public class AccountResource {
         HttpHeaders textPlainHeaders = new HttpHeaders();
         textPlainHeaders.setContentType(MediaType.TEXT_PLAIN);
 
+        final Supplier<ResponseEntity<String>> finalAction = () -> {
+            createUser(managedUserDTO, request);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        };
+
         return userRepository.findOneByLogin(managedUserDTO.getLogin())
             .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
             .orElseGet(() -> userRepository.findOneByEmail(managedUserDTO.getEmail())
                 .map(user -> new ResponseEntity<>("e-mail address already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
-                .orElseGet(() -> {
-                    User user = userService.createUserInformation(managedUserDTO.getLogin(), managedUserDTO.getPassword(),
-                    managedUserDTO.getFirstName(), managedUserDTO.getLastName(), managedUserDTO.getEmail().toLowerCase(),
-                    managedUserDTO.getLangKey());
-                    String baseUrl = request.getScheme() + // "http"
-                    "://" +                                // "://"
-                    request.getServerName() +              // "myhost"
-                    ":" +                                  // ":"
-                    request.getServerPort() +              // "80"
-                    request.getContextPath();              // "/myContextPath" or "" if deployed in root context
-
-                    mailService.sendActivationEmail(user, baseUrl);
-                    return new ResponseEntity<>(HttpStatus.CREATED);
-                })
+                .orElseGet(() -> namespaceService.findOneByName(managedUserDTO.getLogin())
+                    .map((namespace) -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
+                    .orElseGet(finalAction)
+                )
         );
+    }
+
+    private void createUser(@Valid @RequestBody ManagedUserDTO managedUserDTO, HttpServletRequest request) {
+        User user = userService.createUserInformation(managedUserDTO.getLogin(), managedUserDTO.getPassword(),
+        managedUserDTO.getFirstName(), managedUserDTO.getLastName(), managedUserDTO.getEmail().toLowerCase(),
+        managedUserDTO.getLangKey());
+        String baseUrl = request.getScheme() + // "http"
+        "://" +                                // "://"
+        request.getServerName() +              // "myhost"
+        ":" +                                  // ":"
+        request.getServerPort() +              // "80"
+        request.getContextPath();              // "/myContextPath" or "" if deployed in root context
+
+        mailService.sendActivationEmail(user, baseUrl);
     }
 
     /**
