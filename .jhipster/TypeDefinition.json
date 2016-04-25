@@ -1,0 +1,61 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "namespace",
+            "otherEntityName": "namespace",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "name"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "minlength",
+                "maxlength",
+                "pattern"
+            ],
+            "fieldValidateRulesMinlength": "1",
+            "fieldValidateRulesMaxlength": "50",
+            "fieldValidateRulesPattern": "^[A-Z]\\w*$",
+            "fieldValidateRulesPatternJava": "^[A-Z]\\\\w*$"
+        },
+        {
+            "fieldName": "serializedModel",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "version",
+            "fieldType": "Long",
+            "fieldValidateRules": [
+                "required",
+                "min"
+            ],
+            "fieldValidateRulesMin": "0"
+        },
+        {
+            "fieldName": "platform",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "minlength",
+                "maxlength",
+                "pattern"
+            ],
+            "fieldValidateRulesMinlength": "1",
+            "fieldValidateRulesMaxlength": "50",
+            "fieldValidateRulesPattern": "^[a-z]+$",
+            "fieldValidateRulesPatternJava": "^[a-z]+$"
+        }
+    ],
+    "changelogDate": "20160425150748",
+    "dto": "no",
+    "service": "serviceImpl",
+    "entityTableName": "type_definition",
+    "pagination": "pager"
+}

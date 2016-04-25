@@ -77,9 +77,11 @@ public class AccountResource {
             .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
             .orElseGet(() -> userRepository.findOneByEmail(managedUserDTO.getEmail())
                 .map(user -> new ResponseEntity<>("e-mail address already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
-                .orElseGet(() -> namespaceService.findOneByName(managedUserDTO.getLogin())
-                    .map((namespace) -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
-                    .orElseGet(finalAction)
+                .orElseGet(() -> {
+                        return namespaceService.findOneByName(managedUserDTO.getLogin())
+                            .map((namespace) -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
+                            .orElseGet(finalAction);
+                    }
                 )
         );
     }

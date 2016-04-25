@@ -1,0 +1,112 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myTypeDefinitionLabel" translate="kevoreeRegistryApp.typeDefinition.home.createOrEditLabel">Create or edit a Type Definition</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.typeDefinition.id">
+            <label for="id" translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.typeDefinition.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.typeDefinition.name" for="field_name">Name</label>
+            <input type="text" class="form-control" name="name" id="field_name"
+                    ng-model="vm.typeDefinition.name"
+                    required ng-minlength="1" ng-maxlength="50" ng-pattern="/^[A-Z]\w*$/" />
+            <div ng-show="editForm.name.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.name.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.name.$error.minlength" translate="entity.validation.minlength" translate-value-min="1">
+                    This field is required to be at least 1 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.name.$error.maxlength" translate="entity.validation.maxlength" translate-value-max="50">
+                    This field cannot be longer than 50 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.name.$error.pattern" translate="entity.validation.pattern" translate-value-pattern="^[A-Z]\w*$">
+                    This field should follow pattern "^[A-Z]\w*$".
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.typeDefinition.serializedModel" for="field_serializedModel">Serialized Model</label>
+            <input type="text" class="form-control" name="serializedModel" id="field_serializedModel"
+                    ng-model="vm.typeDefinition.serializedModel"
+                    required />
+            <div ng-show="editForm.serializedModel.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.serializedModel.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.typeDefinition.version" for="field_version">Version</label>
+            <input type="number" class="form-control" name="version" id="field_version"
+                    ng-model="vm.typeDefinition.version"
+                    required min="0" />
+            <div ng-show="editForm.version.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.version.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.version.$error.min" translate="entity.validation.min" translate-value-min="0">
+                    This field should be more than 0.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.version.$error.number" translate="entity.validation.number">
+                    This field should be a number.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.typeDefinition.platform" for="field_platform">Platform</label>
+            <input type="text" class="form-control" name="platform" id="field_platform"
+                    ng-model="vm.typeDefinition.platform"
+                    required ng-minlength="1" ng-maxlength="50" ng-pattern="/^[a-z]+$/" />
+            <div ng-show="editForm.platform.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.minlength" translate="entity.validation.minlength" translate-value-min="1">
+                    This field is required to be at least 1 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.maxlength" translate="entity.validation.maxlength" translate-value-max="50">
+                    This field cannot be longer than 50 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.pattern" translate="entity.validation.pattern" translate-value-pattern="^[a-z]+$">
+                    This field should follow pattern "^[a-z]+$".
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label translate="kevoreeRegistryApp.typeDefinition.namespace" for="field_namespace">Namespace</label>
+            <select class="form-control" id="field_namespace" name="namespace" ng-model="vm.typeDefinition.namespace" ng-options="namespace as namespace.name for namespace in vm.namespaces track by namespace.id">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>

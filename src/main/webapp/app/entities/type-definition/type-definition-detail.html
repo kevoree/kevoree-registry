@@ -1,0 +1,38 @@
+
+<div>
+    <h2><span translate="kevoreeRegistryApp.typeDefinition.detail.title">Type Definition</span> {{vm.typeDefinition.id}}</h2>
+    <hr>
+    <dl class="dl-horizontal">
+        <dt><span translate="kevoreeRegistryApp.typeDefinition.name">Name</span></dt>
+        <dd>
+            <span>{{vm.typeDefinition.name}}</span>
+        </dd>
+        <hr>
+        <dt><span translate="kevoreeRegistryApp.typeDefinition.serializedModel">Serialized Model</span></dt>
+        <dd>
+            <span>{{vm.typeDefinition.serializedModel}}</span>
+        </dd>
+        <hr>
+        <dt><span translate="kevoreeRegistryApp.typeDefinition.version">Version</span></dt>
+        <dd>
+            <span>{{vm.typeDefinition.version}}</span>
+        </dd>
+        <hr>
+        <dt><span translate="kevoreeRegistryApp.typeDefinition.platform">Platform</span></dt>
+        <dd>
+            <span>{{vm.typeDefinition.platform}}</span>
+        </dd>
+        <hr>
+        <dt><span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span></dt>
+        <dd>
+            <a ui-sref="namespace-detail({id:vm.typeDefinition.namespace.id})">{{vm.typeDefinition.namespace.name}}</a>
+        </dd>
+        <hr>
+    </dl>
+
+    <button type="submit"
+            onclick="window.history.back()"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="entity.action.back"> Back</span>
+    </button>
+</div>
