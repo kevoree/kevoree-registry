@@ -54,10 +54,6 @@ public class JWTFilter extends GenericFilterBean {
             return jwt;
         }
         
-        String jwt = request.getParameter(JWTConfigurer.AUTHORIZATION_TOKEN);
-        if(StringUtils.hasText(jwt)) {
-            return jwt;
-        }
         return null;
     }
 }
