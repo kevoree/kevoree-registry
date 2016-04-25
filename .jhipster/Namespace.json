@@ -1,0 +1,38 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "owner",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "login"
+        },
+        {
+            "relationshipName": "members",
+            "otherEntityName": "user",
+            "relationshipType": "many-to-many",
+            "otherEntityField": "login",
+            "ownerSide": true
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "minlength",
+                "maxlength",
+                "pattern"
+            ],
+            "fieldValidateRulesMinlength": "1",
+            "fieldValidateRulesMaxlength": "50",
+            "fieldValidateRulesPattern": "^[a-z][a-z0-9]*$",
+            "fieldValidateRulesPatternJava": "^[a-z][a-z0-9]*$"
+        }
+    ],
+    "changelogDate": "20160425131316",
+    "dto": "no",
+    "service": "serviceImpl",
+    "entityTableName": "namespace",
+    "pagination": "no"
+}
