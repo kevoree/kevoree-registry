@@ -84,7 +84,6 @@ public class TypeDefinitionResourceIntTest {
         typeDefinition.setName(DEFAULT_NAME);
         typeDefinition.setSerializedModel(DEFAULT_SERIALIZED_MODEL);
         typeDefinition.setVersion(DEFAULT_VERSION);
-        typeDefinition.setPlatform(DEFAULT_PLATFORM);
     }
 
     @Test
@@ -106,7 +105,6 @@ public class TypeDefinitionResourceIntTest {
         assertThat(testTypeDefinition.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testTypeDefinition.getSerializedModel()).isEqualTo(DEFAULT_SERIALIZED_MODEL);
         assertThat(testTypeDefinition.getVersion()).isEqualTo(DEFAULT_VERSION);
-        assertThat(testTypeDefinition.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
     }
 
     @Test
@@ -168,7 +166,6 @@ public class TypeDefinitionResourceIntTest {
     public void checkPlatformIsRequired() throws Exception {
         int databaseSizeBeforeTest = typeDefinitionRepository.findAll().size();
         // set the field null
-        typeDefinition.setPlatform(null);
 
         // Create the TypeDefinition, which fails.
 
@@ -237,7 +234,6 @@ public class TypeDefinitionResourceIntTest {
         updatedTypeDefinition.setName(UPDATED_NAME);
         updatedTypeDefinition.setSerializedModel(UPDATED_SERIALIZED_MODEL);
         updatedTypeDefinition.setVersion(UPDATED_VERSION);
-        updatedTypeDefinition.setPlatform(UPDATED_PLATFORM);
 
         restTypeDefinitionMockMvc.perform(put("/api/type-definitions")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -251,7 +247,6 @@ public class TypeDefinitionResourceIntTest {
         assertThat(testTypeDefinition.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testTypeDefinition.getSerializedModel()).isEqualTo(UPDATED_SERIALIZED_MODEL);
         assertThat(testTypeDefinition.getVersion()).isEqualTo(UPDATED_VERSION);
-        assertThat(testTypeDefinition.getPlatform()).isEqualTo(UPDATED_PLATFORM);
     }
 
     @Test

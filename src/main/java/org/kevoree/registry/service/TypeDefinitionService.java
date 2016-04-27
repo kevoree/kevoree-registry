@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Interface for managing TypeDefinition.
@@ -13,15 +14,15 @@ public interface TypeDefinitionService {
 
     /**
      * Save a typeDefinition.
-     * 
+     *
      * @param typeDefinition the entity to save
      * @return the persisted entity
      */
-    TypeDefinition save(TypeDefinition typeDefinition);
+    Optional<TypeDefinition> save(TypeDefinition typeDefinition);
 
     /**
      *  Get all the typeDefinitions.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
@@ -29,7 +30,7 @@ public interface TypeDefinitionService {
 
     /**
      *  Get the "id" typeDefinition.
-     *  
+     *
      *  @param id the id of the entity
      *  @return the entity
      */
@@ -37,7 +38,7 @@ public interface TypeDefinitionService {
 
     /**
      *  Delete the "id" typeDefinition.
-     *  
+     *
      *  @param id the id of the entity
      */
     void delete(Long id);

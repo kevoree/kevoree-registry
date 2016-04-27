@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing TypeDefinition.
@@ -21,32 +22,39 @@ import java.util.List;
 public class TypeDefinitionServiceImpl implements TypeDefinitionService{
 
     private final Logger log = LoggerFactory.getLogger(TypeDefinitionServiceImpl.class);
-    
+
     @Inject
     private TypeDefinitionRepository typeDefinitionRepository;
-    
+
     /**
      * Save a typeDefinition.
-     * 
+     *
      * @param typeDefinition the entity to save
      * @return the persisted entity
      */
-    public TypeDefinition save(TypeDefinition typeDefinition) {
+    public Optional<TypeDefinition> save(TypeDefinition typeDefinition) {
         log.debug("Request to save TypeDefinition : {}", typeDefinition);
-        TypeDefinition result = typeDefinitionRepository.save(typeDefinition);
-        return result;
+        Long count = typeDefinitionRepository.countSimilar(typeDefinition.getNamespace().getId(), typeDefinition.getName(), typeDefinition.getVersion());
+        Optional<TypeDefinition> ret;
+        if(count == 0) {
+            TypeDefinition result = typeDefinitionRepository.save(typeDefinition);
+            ret = Optional.of(result);
+        } else {
+            ret = Optional.empty();
+        }
+        return ret;
     }
 
     /**
      *  Get all the typeDefinitions.
-     *  
+     *
      *  @param pageable the pagination information
      *  @return the list of entities
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public Page<TypeDefinition> findAll(Pageable pageable) {
         log.debug("Request to get all TypeDefinitions");
-        Page<TypeDefinition> result = typeDefinitionRepository.findAll(pageable); 
+        Page<TypeDefinition> result = typeDefinitionRepository.findAll(pageable);
         return result;
     }
 
@@ -56,7 +64,7 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
      *  @param id the id of the entity
      *  @return the entity
      */
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public TypeDefinition findOne(Long id) {
         log.debug("Request to get TypeDefinition : {}", id);
         TypeDefinition typeDefinition = typeDefinitionRepository.findOne(id);
@@ -65,7 +73,7 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
 
     /**
      *  Delete the  typeDefinition by id.
-     *  
+     *
      *  @param id the id of the entity
      */
     public void delete(Long id) {

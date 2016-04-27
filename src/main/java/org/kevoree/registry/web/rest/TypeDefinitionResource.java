@@ -1,6 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.h2.jdbc.JdbcSQLException;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
@@ -11,6 +12,7 @@ import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -75,10 +77,15 @@ public class TypeDefinitionResource {
             if (!linkedNamespace.map(ns -> ns.getActivated()).orElse(false)) {
                 ret = new ResponseEntity<>(HttpStatus.LOCKED);
             } else {
-                final TypeDefinition result = typeDefinitionService.save(typeDefinition);
-                ret = ResponseEntity.created(new URI("/api/type-definitions/" + result.getId()))
-                    .headers(HeaderUtil.createEntityCreationAlert("typeDefinition", result.getId().toString()))
-                    .body(result);
+                final Optional<TypeDefinition> resultOpt = typeDefinitionService.save(typeDefinition);
+                if(resultOpt.isPresent()) {
+                    TypeDefinition result = resultOpt.get();
+                    ret = ResponseEntity.created(new URI("/api/type-definitions/" + result.getId()))
+                        .headers(HeaderUtil.createEntityCreationAlert("typeDefinition", result.getId().toString()))
+                        .body(result);
+                } else {
+                    ret = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
             }
         }
         return ret;
