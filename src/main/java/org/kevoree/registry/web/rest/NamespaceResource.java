@@ -2,7 +2,9 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.User;
 import org.kevoree.registry.service.NamespaceService;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,9 @@ public class NamespaceResource {
 
     @Inject
     private NamespaceService namespaceService;
+
+    @Inject
+    private UserService userService;
 
     /**
      * POST  /namespaces : Create a new namespace.
@@ -96,8 +101,15 @@ public class NamespaceResource {
         final Namespace namespace = namespaceService.findOne(id);
         return Optional.ofNullable(namespace)
             .map((result) -> {
-                final Namespace res2 = namespaceService.deactivate(result);
-                return new ResponseEntity<>(res2, HttpStatus.OK);
+                final ResponseEntity<Namespace> ret;
+                final User currentUser = userService.getUserWithAuthorities();
+                if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+                    final Namespace res2 = namespaceService.deactivate(result);
+                    ret =  new ResponseEntity<>(res2, HttpStatus.OK);
+                } else {
+                    ret = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                }
+                return ret;
             }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
