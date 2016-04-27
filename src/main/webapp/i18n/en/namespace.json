@@ -18,7 +18,10 @@
             },
             "name": "Name",
             "owner": "Owner",
-            "members": "Members"
+            "members": "Members",
+            "action": {
+                "deactivate": "Deactivate"
+            }
         }
     }
 }

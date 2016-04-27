@@ -1,8 +1,12 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.domain.User;
+import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.TypeDefinitionService;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -19,8 +23,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing TypeDefinition.
@@ -33,6 +36,12 @@ public class TypeDefinitionResource {
 
     @Inject
     private TypeDefinitionService typeDefinitionService;
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private NamespaceService namespaceService;
 
     /**
      * POST  /type-definitions : Create a new typeDefinition.
@@ -50,10 +59,29 @@ public class TypeDefinitionResource {
         if (typeDefinition.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("typeDefinition", "idexists", "A new typeDefinition cannot already have an ID")).body(null);
         }
-        TypeDefinition result = typeDefinitionService.save(typeDefinition);
-        return ResponseEntity.created(new URI("/api/type-definitions/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("typeDefinition", result.getId().toString()))
-            .body(result);
+
+        final User currentUser = userService.getUserWithAuthorities();
+
+        final Optional<Namespace> linkedNamespace = Optional.ofNullable(namespaceService.findOne(typeDefinition.getNamespace().getId()));
+        final Set<User> members = linkedNamespace.map(Namespace::getMembers).orElse(Collections.emptySet());
+        final Long currentUserId = currentUser.getId();
+
+        // we check is the current user is a member of the namespace choose for the TD.
+        final ResponseEntity<TypeDefinition> ret;
+        final long count = members.stream().map((member) -> member.getId()).filter((id) -> Objects.equals(id, currentUserId)).count();
+        if(count != 1) {
+            ret = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        } else {
+            if (!linkedNamespace.map(ns -> ns.getActivated()).orElse(false)) {
+                ret = new ResponseEntity<>(HttpStatus.LOCKED);
+            } else {
+                final TypeDefinition result = typeDefinitionService.save(typeDefinition);
+                ret = ResponseEntity.created(new URI("/api/type-definitions/" + result.getId()))
+                    .headers(HeaderUtil.createEntityCreationAlert("typeDefinition", result.getId().toString()))
+                    .body(result);
+            }
+        }
+        return ret;
     }
 
     /**
