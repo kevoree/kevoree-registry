@@ -6,7 +6,6 @@ import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,33 +47,10 @@ public class NamespaceResource {
         if (namespace.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("namespace", "idexists", "A new namespace cannot already have an ID")).body(null);
         }
-        Namespace result = namespaceService.save(namespace);
+
+        final Namespace result = namespaceService.save(namespace);
         return ResponseEntity.created(new URI("/api/namespaces/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("namespace", result.getId().toString()))
-            .body(result);
-    }
-
-    /**
-     * PUT  /namespaces : Updates an existing namespace.
-     *
-     * @param namespace the namespace to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated namespace,
-     * or with status 400 (Bad Request) if the namespace is not valid,
-     * or with status 500 (Internal Server Error) if the namespace couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/namespaces",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Namespace> updateNamespace(@Valid @RequestBody Namespace namespace) throws URISyntaxException {
-        log.debug("REST request to update Namespace : {}", namespace);
-        if (namespace.getId() == null) {
-            return createNamespace(namespace);
-        }
-        Namespace result = namespaceService.update(namespace);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("namespace", namespace.getId().toString()))
             .body(result);
     }
 
@@ -112,29 +88,16 @@ public class NamespaceResource {
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * DELETE  /namespaces/:id : delete the "id" namespace.
-     *
-     * @param id the id of the namespace to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/namespaces/{id}",
-        method = RequestMethod.DELETE,
+    @RequestMapping(value = "/namespaces/{id}/deactivate",
+        method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Void> deleteNamespace(@PathVariable Long id) {
-        log.debug("REST request to delete Namespace : {}", id);
-        return Optional.ofNullable(namespaceService.findOne(id)).map(namespace -> {
-            final ResponseEntity<Void> ret;
-            if(Objects.equals(namespace.getOwner().getId(), id)) {
-                namespaceService.delete(id);
-                ret = ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("namespace", id.toString())).build();
-            } else {
-                ret = new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-            return ret;
-        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-
+    public ResponseEntity<Namespace> deactivateNamespace(@PathVariable Long id) {
+        log.debug("REST request to deactive Namespace : {}", id);
+        final Namespace namespace = namespaceService.findOne(id);
+        return Optional.ofNullable(namespace)
+            .map((result) -> {
+                final Namespace res2 = namespaceService.deactivate(result);
+                return new ResponseEntity<>(res2, HttpStatus.OK);
+            }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
 }

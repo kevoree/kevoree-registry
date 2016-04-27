@@ -22,4 +22,6 @@ public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
     Namespace findOneWithEagerRelationships(@Param("id") Long id);
 
     Namespace findOneByName(String name);
+
+
 }

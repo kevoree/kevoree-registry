@@ -31,6 +31,9 @@ The name must be in CamelCase.
 The version must be a positive integer
 The serialized model must be a valid json serialization of a type definition (no validation is done in the current version).
 
+### Typedef/DU update
+Nothing published can be updated
+
 ### Typedef/DU removal
 Nothing publicly available can be deleted.
  * Namespace can be deactivated

@@ -40,6 +40,7 @@ public class NamespaceServiceImpl implements NamespaceService{
         log.debug("Request to save Namespace : {}", namespace);
         final Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
         namespace.setOwner(currentUser.get());
+        namespace.setActivated(true);
         return namespaceRepository.save(namespace);
     }
 
@@ -51,6 +52,13 @@ public class NamespaceServiceImpl implements NamespaceService{
         // the owner is always a member of the namespace.
         fromDB.getMembers().add(fromDB.getOwner());
         return null;
+    }
+
+    @Override
+    public Namespace deactivate(Namespace namespace) {
+        namespace.setActivated(false);
+        final Namespace ret = this.namespaceRepository.save(namespace);
+        return ret;
     }
 
 

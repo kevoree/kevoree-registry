@@ -12,19 +12,19 @@ import java.util.Optional;
 public interface NamespaceService {
 
     /**
+     *  Get all the namespaces.
+     *
+     *  @return the list of entities
+     */
+    List<Namespace> findAll();
+
+    /**
      * Save a namespace.
      *
      * @param namespace the entity to save
      * @return the persisted entity
      */
     Namespace save(Namespace namespace);
-
-    /**
-     *  Get all the namespaces.
-     *
-     *  @return the list of entities
-     */
-    List<Namespace> findAll();
 
     /**
      *  Get the "id" namespace.
@@ -44,4 +44,6 @@ public interface NamespaceService {
     Optional<Namespace> findOneByName(String login);
 
     Namespace update(Namespace namespace);
+
+    Namespace deactivate(Namespace namespace);
 }

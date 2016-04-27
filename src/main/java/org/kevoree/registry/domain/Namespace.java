@@ -1,5 +1,6 @@
 package org.kevoree.registry.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -29,6 +30,11 @@ public class Namespace implements Serializable {
     @Pattern(regexp = "^[a-z][a-z0-9]*$")
     @Column(name = "name", length = 50, nullable = false)
     private String name;
+
+
+    @Column(name = "activated", nullable = false)
+    @JsonIgnore
+    private Boolean activated;
 
     @ManyToOne
     private User owner;
@@ -98,5 +104,13 @@ public class Namespace implements Serializable {
             "id=" + id +
             ", name='" + name + "'" +
             '}';
+    }
+
+    public Boolean getActivated() {
+        return activated;
+    }
+
+    public void setActivated(Boolean activated) {
+        this.activated = activated;
     }
 }
