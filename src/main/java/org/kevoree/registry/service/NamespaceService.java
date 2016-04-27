@@ -42,4 +42,6 @@ public interface NamespaceService {
     void delete(Long id);
 
     Optional<Namespace> findOneByName(String login);
+
+    Namespace update(Namespace namespace);
 }

@@ -1,5 +1,8 @@
 package org.kevoree.registry.service.impl;
 
+import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.UserRepository;
+import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.repository.NamespaceRepository;
@@ -24,17 +27,32 @@ public class NamespaceServiceImpl implements NamespaceService{
     @Inject
     private NamespaceRepository namespaceRepository;
 
+    @Inject
+    private UserRepository userRepository;
+
     /**
      * Save a namespace.
      *
      * @param namespace the entity to save
      * @return the persisted entity
      */
-    public Namespace save(Namespace namespace) {
+    public Namespace save(final Namespace namespace) {
         log.debug("Request to save Namespace : {}", namespace);
-        Namespace result = namespaceRepository.save(namespace);
-        return result;
+        final Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+        namespace.setOwner(currentUser.get());
+        return namespaceRepository.save(namespace);
     }
+
+    @Override
+    public Namespace update(Namespace namespace) {
+        final Namespace fromDB = this.findOne(namespace.getId());
+        fromDB.setMembers(namespace.getMembers());
+
+        // the owner is always a member of the namespace.
+        fromDB.getMembers().add(fromDB.getOwner());
+        return null;
+    }
+
 
     /**
      *  Get all the namespaces.
@@ -76,4 +94,6 @@ public class NamespaceServiceImpl implements NamespaceService{
         final Namespace oneByName = namespaceRepository.findOneByName(login);
         return Optional.ofNullable(oneByName);
     }
+
+
 }

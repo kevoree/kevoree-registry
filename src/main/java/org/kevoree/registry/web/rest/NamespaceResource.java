@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -27,10 +28,10 @@ import java.util.Optional;
 public class NamespaceResource {
 
     private final Logger log = LoggerFactory.getLogger(NamespaceResource.class);
-        
+
     @Inject
     private NamespaceService namespaceService;
-    
+
     /**
      * POST  /namespaces : Create a new namespace.
      *
@@ -71,7 +72,7 @@ public class NamespaceResource {
         if (namespace.getId() == null) {
             return createNamespace(namespace);
         }
-        Namespace result = namespaceService.save(namespace);
+        Namespace result = namespaceService.update(namespace);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("namespace", namespace.getId().toString()))
             .body(result);
@@ -123,8 +124,17 @@ public class NamespaceResource {
     @Timed
     public ResponseEntity<Void> deleteNamespace(@PathVariable Long id) {
         log.debug("REST request to delete Namespace : {}", id);
-        namespaceService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("namespace", id.toString())).build();
+        return Optional.ofNullable(namespaceService.findOne(id)).map(namespace -> {
+            final ResponseEntity<Void> ret;
+            if(Objects.equals(namespace.getOwner().getId(), id)) {
+                namespaceService.delete(id);
+                ret = ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("namespace", id.toString())).build();
+            } else {
+                ret = new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
+            return ret;
+        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
     }
 
 }

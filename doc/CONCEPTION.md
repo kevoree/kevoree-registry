@@ -30,3 +30,6 @@ The user can select any namespace when he is a member.
 The name must be in CamelCase.
 The version must be a positive integer
 The serialized model must be a valid json serialization of a type definition (no validation is done in the current version).
+
+# Technical rules
+creating data domain with services
