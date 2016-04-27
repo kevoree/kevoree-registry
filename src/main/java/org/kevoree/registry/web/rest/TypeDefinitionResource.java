@@ -30,10 +30,10 @@ import java.util.Optional;
 public class TypeDefinitionResource {
 
     private final Logger log = LoggerFactory.getLogger(TypeDefinitionResource.class);
-        
+
     @Inject
     private TypeDefinitionService typeDefinitionService;
-    
+
     /**
      * POST  /type-definitions : Create a new typeDefinition.
      *
@@ -57,30 +57,6 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * PUT  /type-definitions : Updates an existing typeDefinition.
-     *
-     * @param typeDefinition the typeDefinition to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated typeDefinition,
-     * or with status 400 (Bad Request) if the typeDefinition is not valid,
-     * or with status 500 (Internal Server Error) if the typeDefinition couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/type-definitions",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<TypeDefinition> updateTypeDefinition(@Valid @RequestBody TypeDefinition typeDefinition) throws URISyntaxException {
-        log.debug("REST request to update TypeDefinition : {}", typeDefinition);
-        if (typeDefinition.getId() == null) {
-            return createTypeDefinition(typeDefinition);
-        }
-        TypeDefinition result = typeDefinitionService.save(typeDefinition);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("typeDefinition", typeDefinition.getId().toString()))
-            .body(result);
-    }
-
-    /**
      * GET  /type-definitions : get all the typeDefinitions.
      *
      * @param pageable the pagination information
@@ -94,7 +70,7 @@ public class TypeDefinitionResource {
     public ResponseEntity<List<TypeDefinition>> getAllTypeDefinitions(Pageable pageable)
         throws URISyntaxException {
         log.debug("REST request to get a page of TypeDefinitions");
-        Page<TypeDefinition> page = typeDefinitionService.findAll(pageable); 
+        Page<TypeDefinition> page = typeDefinitionService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/type-definitions");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -117,22 +93,6 @@ public class TypeDefinitionResource {
                 result,
                 HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    /**
-     * DELETE  /type-definitions/:id : delete the "id" typeDefinition.
-     *
-     * @param id the id of the typeDefinition to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/type-definitions/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Void> deleteTypeDefinition(@PathVariable Long id) {
-        log.debug("REST request to delete TypeDefinition : {}", id);
-        typeDefinitionService.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("typeDefinition", id.toString())).build();
     }
 
 }

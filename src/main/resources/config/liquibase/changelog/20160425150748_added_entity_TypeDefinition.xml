@@ -24,22 +24,24 @@
             <column name="name" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            
+
             <column name="serialized_model" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            
+
             <column name="version" type="bigint">
                 <constraints nullable="false" />
             </column>
-            
-            <column name="platform" type="varchar(50)">
-                <constraints nullable="false" />
-            </column>
-            
+
             <column name="namespace_id" type="bigint"/>
+
+
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
-        
+
+        <addUniqueConstraint columnNames="name, version, namespace_id"
+                             constraintName="unique_name_version"
+                             tableName="type_definition" />
+
     </changeSet>
 </databaseChangeLog>

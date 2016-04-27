@@ -12,7 +12,7 @@ import java.util.Objects;
  * A TypeDefinition.
  */
 @Entity
-@Table(name = "type_definition")
+@Table(name = "type_definition", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "version", "namespace_id" }))
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class TypeDefinition implements Serializable {
 
@@ -37,13 +37,8 @@ public class TypeDefinition implements Serializable {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    @NotNull
-    @Size(min = 1, max = 50)
-    @Pattern(regexp = "^[a-z]+$")
-    @Column(name = "platform", length = 50, nullable = false)
-    private String platform;
-
     @ManyToOne
+    @JoinColumn(name="namespace_id")
     private Namespace namespace;
 
     public Long getId() {
@@ -76,14 +71,6 @@ public class TypeDefinition implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
-    }
-
-    public String getPlatform() {
-        return platform;
-    }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
     }
 
     public Namespace getNamespace() {
@@ -121,7 +108,6 @@ public class TypeDefinition implements Serializable {
             ", name='" + name + "'" +
             ", serializedModel='" + serializedModel + "'" +
             ", version='" + version + "'" +
-            ", platform='" + platform + "'" +
             '}';
     }
 }
