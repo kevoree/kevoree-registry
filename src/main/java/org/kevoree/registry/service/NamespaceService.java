@@ -1,6 +1,7 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public interface NamespaceService {
      * @param namespace the entity to save
      * @return the persisted entity
      */
-    Namespace save(Namespace namespace);
+    Optional<Namespace> save(Namespace namespace);
 
     /**
      *  Get the "id" namespace.

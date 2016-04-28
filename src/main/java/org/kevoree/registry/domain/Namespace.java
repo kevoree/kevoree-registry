@@ -15,7 +15,7 @@ import java.util.Objects;
  * A Namespace.
  */
 @Entity
-@Table(name = "namespace")
+@Table(name = "namespace", uniqueConstraints = @UniqueConstraint(columnNames = { "name" }))
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Namespace implements Serializable {
 

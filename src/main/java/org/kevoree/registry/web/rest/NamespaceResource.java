@@ -58,10 +58,21 @@ public class NamespaceResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("namespace", "idexists", "A new namespace cannot already have an ID")).body(null);
         }
 
-        final Namespace result = namespaceService.save(namespace);
-        return ResponseEntity.created(new URI("/api/namespaces/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("namespace", result.getId().toString()))
-            .body(result);
+        final Optional<Namespace> newNamespace = namespaceService.save(namespace);
+
+        ResponseEntity<Namespace> ret;
+        if (newNamespace.isPresent()) {
+            final Namespace result = newNamespace.get();
+            ret = ResponseEntity.created(new URI("/api/namespaces/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert("namespace", result.getId().toString()))
+                .body(result);
+        } else {
+            ret = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return ret;
+
+
     }
 
     /**
@@ -108,9 +119,9 @@ public class NamespaceResource {
             .map((result) -> {
                 final User currentUser = userService.getUserWithAuthorities();
                 final ResponseEntity<Namespace> ret;
-                if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+                if (Objects.equals(currentUser.getId(), result.getOwner().getId())) {
                     final Namespace res2 = namespaceService.deactivate(result);
-                    ret =  new ResponseEntity<>(res2, HttpStatus.OK);
+                    ret = new ResponseEntity<>(res2, HttpStatus.OK);
                 } else {
                     ret = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                 }
@@ -126,9 +137,9 @@ public class NamespaceResource {
         return Optional.ofNullable(namespace).map(result -> {
             final User currentUser = userService.getUserWithAuthorities();
             final ResponseEntity ret;
-            if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+            if (Objects.equals(currentUser.getId(), result.getOwner().getId())) {
                 final List<User> userEntities = userService.findByIds(membersId);
-                if(userEntities.size() == membersId.size()) {
+                if (userEntities.size() == membersId.size()) {
                     result.getMembers().addAll(userEntities);
                     final Namespace res = this.namespaceService.update(result);
                     ret = new ResponseEntity<>(res, HttpStatus.OK);
@@ -156,9 +167,9 @@ public class NamespaceResource {
         return Optional.ofNullable(namespace).map(result -> {
             final User currentUser = userService.getUserWithAuthorities();
             final ResponseEntity ret;
-            if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+            if (Objects.equals(currentUser.getId(), result.getOwner().getId())) {
                 final List<User> userEntities = userService.findByIds(membersId);
-                if(userEntities.size() == membersId.size()) {
+                if (userEntities.size() == membersId.size()) {
                     final Set<User> remainingMembers = result.getMembers().stream().filter(m -> !membersId.contains(m.getId())).collect(Collectors.toSet());
                     result.setMembers(remainingMembers);
                     final Namespace res = this.namespaceService.update(result);

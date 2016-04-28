@@ -31,4 +31,7 @@ public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
     List<Namespace> findAllByNameEndingWith(String search);
 
     List<Namespace> findAllByNameLike(String namespace);
+
+    @Query("select count(namespace.id) from Namespace namespace where namespace.name = :name")
+    Long countSimilar(@Param("name") String name);
 }

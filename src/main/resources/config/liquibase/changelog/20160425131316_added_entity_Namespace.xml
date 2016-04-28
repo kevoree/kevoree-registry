@@ -24,11 +24,11 @@
             <column name="name" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            
+
             <column name="owner_id" type="bigint"/>
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
-        
+
         <createTable tableName="namespace_members">
             <column name="members_id" type="bigint">
                 <constraints nullable="false"/>
@@ -39,6 +39,10 @@
         </createTable>
 
         <addPrimaryKey columnNames="namespaces_id, members_id" tableName="namespace_members"/>
-        
+
+        <addUniqueConstraint columnNames="name"
+                             constraintName="unique_name"
+                             tableName="namespace" />
+
     </changeSet>
 </databaseChangeLog>

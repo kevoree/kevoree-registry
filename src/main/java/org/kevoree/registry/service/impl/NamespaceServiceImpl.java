@@ -1,5 +1,6 @@
 package org.kevoree.registry.service.impl;
 
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
@@ -37,12 +38,23 @@ public class NamespaceServiceImpl implements NamespaceService{
      * @param namespace the entity to save
      * @return the persisted entity
      */
-    public Namespace save(final Namespace namespace) {
+    public Optional<Namespace> save(final Namespace namespace) {
         log.debug("Request to save Namespace : {}", namespace);
-        final Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
-        namespace.setOwner(currentUser.get());
-        namespace.setActivated(true);
-        return namespaceRepository.save(namespace);
+
+        final Long count = namespaceRepository.countSimilar(namespace.getName());
+        final Optional<Namespace> ret;
+        if(count == 0) {
+            final Optional<User> currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+            namespace.setOwner(currentUser.get());
+            namespace.setActivated(true);
+            namespace.getMembers().add(currentUser.get());
+            ret = Optional.of(namespaceRepository.save(namespace));
+        } else {
+            ret = Optional.empty();
+        }
+
+        return ret;
+
     }
 
     @Override
