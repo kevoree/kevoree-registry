@@ -1,7 +1,7 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.Namespace;
-import org.springframework.http.ResponseEntity;
+import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,4 +46,6 @@ public interface NamespaceService {
     Namespace update(Namespace namespace);
 
     Namespace deactivate(Namespace namespace);
+
+    List<Namespace> search(NamespaceSearchDTO namespaceSearch);
 }

@@ -7,6 +7,7 @@ import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,5 +177,14 @@ public class NamespaceResource {
             }
             return ret;
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(value = "/search",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<Namespace>> searchNamespaces(@Valid @RequestBody NamespaceSearchDTO namespaceSearch) {
+        log.debug("REST request to search namespaces by name");
+        return new ResponseEntity<>(namespaceService.search(namespaceSearch), HttpStatus.OK);
     }
 }

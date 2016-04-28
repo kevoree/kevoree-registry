@@ -6,6 +6,7 @@ import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.repository.NamespaceRepository;
+import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,25 @@ public class NamespaceServiceImpl implements NamespaceService{
     public Namespace deactivate(Namespace namespace) {
         namespace.setActivated(false);
         final Namespace ret = this.namespaceRepository.save(namespace);
+        return ret;
+    }
+
+    @Override
+    public List<Namespace> search(NamespaceSearchDTO namespaceSearch) {
+        final String namespace = namespaceSearch.getNamespace();
+        final boolean startWith = namespace.startsWith("*");
+        final boolean endWith = namespace.endsWith("*");
+
+        final List<Namespace> ret;
+        if(startWith && endWith) {
+            ret = namespaceRepository.findAllByNameContaining(namespace.substring(1, namespace.length()-1));
+        } else if (startWith) {
+            ret = namespaceRepository.findAllByNameEndingWith(namespace.substring(1, namespace.length()));
+        } else if (endWith) {
+            ret = namespaceRepository.findAllByNameStartingWith(namespace.substring(0, namespace.length()-1));
+        } else {
+            ret = namespaceRepository.findAllByNameLike(namespace);
+        }
         return ret;
     }
 

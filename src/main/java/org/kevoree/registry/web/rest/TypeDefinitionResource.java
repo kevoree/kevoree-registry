@@ -74,6 +74,9 @@ public class TypeDefinitionResource {
         if(count != 1) {
             ret = new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } else {
+            /*
+            TD can only be added to activated namespaces.
+             */
             if (!linkedNamespace.map(ns -> ns.getActivated()).orElse(false)) {
                 ret = new ResponseEntity<>(HttpStatus.LOCKED);
             } else {

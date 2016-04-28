@@ -9,7 +9,6 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.MailService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.ManagedUserDTO;
-import org.kevoree.registry.web.rest.dto.UserDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
@@ -25,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -166,7 +167,7 @@ public class UserResource {
 
     /**
      * GET  /users : get all users.
-     * 
+     *
      * @param pageable the pagination information
      * @return the ResponseEntity with status 200 (OK) and with body all users
      * @throws URISyntaxException if the pagination headers couldnt be generated

@@ -24,4 +24,11 @@ public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
     Namespace findOneByName(String name);
 
 
+    List<Namespace> findAllByNameContaining(String search);
+
+    List<Namespace> findAllByNameStartingWith(String search);
+
+    List<Namespace> findAllByNameEndingWith(String search);
+
+    List<Namespace> findAllByNameLike(String namespace);
 }
