@@ -1,6 +1,8 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.service.NamespaceService;
@@ -20,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * REST controller for managing Namespace.
@@ -101,8 +104,8 @@ public class NamespaceResource {
         final Namespace namespace = namespaceService.findOne(id);
         return Optional.ofNullable(namespace)
             .map((result) -> {
-                final ResponseEntity<Namespace> ret;
                 final User currentUser = userService.getUserWithAuthorities();
+                final ResponseEntity<Namespace> ret;
                 if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
                     final Namespace res2 = namespaceService.deactivate(result);
                     ret =  new ResponseEntity<>(res2, HttpStatus.OK);
@@ -111,5 +114,35 @@ public class NamespaceResource {
                 }
                 return ret;
             }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(value = "/namespaces/{id}/add-members",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity addMembers(@PathVariable("id") final Long namespaceId, @RequestBody final Set<Long> membersId) {
+        final Namespace namespace = namespaceService.findOne(namespaceId);
+        return Optional.ofNullable(namespace).map(result -> {
+            final User currentUser = userService.getUserWithAuthorities();
+            final ResponseEntity ret;
+            if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+                final List<User> userEntities = userService.findByIds(membersId);
+                if(userEntities.size() == membersId.size()) {
+                    result.getMembers().addAll(userEntities);
+                    final Namespace res = this.namespaceService.update(result);
+                    ret = new ResponseEntity<>(res, HttpStatus.OK);
+                } else {
+                    final JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.append("error", "Some members does not exists");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    ret = new ResponseEntity<>(jsonObject, HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                ret = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            return ret;
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

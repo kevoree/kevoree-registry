@@ -10,7 +10,7 @@ import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.util.RandomUtil;
 import org.kevoree.registry.web.rest.dto.ManagedUserDTO;
 import java.time.ZonedDateTime;
-import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZonedDateTime;
 import javax.inject.Inject;
 import java.util.*;
 
@@ -209,5 +208,9 @@ public class UserService {
             log.debug("Deleting not activated user {}", user.getLogin());
             userRepository.delete(user);
         }
+    }
+
+    public List<User> findByIds(Collection<Long> membersId) {
+        return userRepository.findAllByIdIn(membersId);
     }
 }
