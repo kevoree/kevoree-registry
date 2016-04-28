@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Namespace.
@@ -116,7 +117,7 @@ public class NamespaceResource {
             }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @RequestMapping(value = "/namespaces/{id}/add-members",
+    @RequestMapping(value = "/namespaces/{id}/members",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addMembers(@PathVariable("id") final Long namespaceId, @RequestBody final Set<Long> membersId) {
@@ -128,6 +129,37 @@ public class NamespaceResource {
                 final List<User> userEntities = userService.findByIds(membersId);
                 if(userEntities.size() == membersId.size()) {
                     result.getMembers().addAll(userEntities);
+                    final Namespace res = this.namespaceService.update(result);
+                    ret = new ResponseEntity<>(res, HttpStatus.OK);
+                } else {
+                    final JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.append("error", "Some members does not exists");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    ret = new ResponseEntity<>(jsonObject, HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                ret = new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+            return ret;
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @RequestMapping(value = "/namespaces/{id}/members",
+        method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity removeMembers(@PathVariable("id") final Long namespaceId, @RequestBody final Set<Long> membersId) {
+        final Namespace namespace = namespaceService.findOne(namespaceId);
+        return Optional.ofNullable(namespace).map(result -> {
+            final User currentUser = userService.getUserWithAuthorities();
+            final ResponseEntity ret;
+            if(Objects.equals(currentUser.getId(), result.getOwner().getId())) {
+                final List<User> userEntities = userService.findByIds(membersId);
+                if(userEntities.size() == membersId.size()) {
+                    final Set<User> remainingMembers = result.getMembers().stream().filter(m -> !membersId.contains(m.getId())).collect(Collectors.toSet());
+                    result.setMembers(remainingMembers);
                     final Namespace res = this.namespaceService.update(result);
                     ret = new ResponseEntity<>(res, HttpStatus.OK);
                 } else {
