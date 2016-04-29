@@ -1,13 +1,12 @@
 package org.kevoree.registry.service.impl;
 
-import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.repository.NamespaceRepository;
-import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
+import org.kevoree.registry.web.rest.dto.search.NamespaceSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,15 +76,15 @@ public class NamespaceServiceImpl implements NamespaceService{
     @Override
     public List<Namespace> search(NamespaceSearchDTO namespaceSearch) {
         final String namespace = namespaceSearch.getNamespace();
-        final boolean startWith = namespace.startsWith("*");
-        final boolean endWith = namespace.endsWith("*");
+        final boolean leftJoker = namespace.startsWith("*");
+        final boolean rightJoker = namespace.endsWith("*");
 
         final List<Namespace> ret;
-        if(startWith && endWith) {
+        if(leftJoker && rightJoker) {
             ret = namespaceRepository.findAllByNameContaining(namespace.substring(1, namespace.length()-1));
-        } else if (startWith) {
+        } else if (leftJoker) {
             ret = namespaceRepository.findAllByNameEndingWith(namespace.substring(1, namespace.length()));
-        } else if (endWith) {
+        } else if (rightJoker) {
             ret = namespaceRepository.findAllByNameStartingWith(namespace.substring(0, namespace.length()-1));
         } else {
             ret = namespaceRepository.findAllByNameLike(namespace);

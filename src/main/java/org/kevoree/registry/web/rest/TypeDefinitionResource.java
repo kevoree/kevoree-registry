@@ -1,18 +1,17 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.h2.jdbc.JdbcSQLException;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.TypeDefinitionService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.web.rest.dto.search.TypeDefinitionSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -131,6 +130,17 @@ public class TypeDefinitionResource {
                 result,
                 HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+
+    }
+
+    @RequestMapping(value = "/search",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<TypeDefinition>> searchTypeDefinitions(@Valid @RequestBody TypeDefinitionSearchDTO namespaceSearch) {
+        log.debug("REST request to search typedefinition by namespace, name and version");
+        return new ResponseEntity<List<TypeDefinition>>(typeDefinitionService.search(namespaceSearch), HttpStatus.OK);
     }
 
 }

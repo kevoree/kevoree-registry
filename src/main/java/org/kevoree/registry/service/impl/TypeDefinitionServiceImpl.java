@@ -1,16 +1,24 @@
 package org.kevoree.registry.service.impl;
 
+import org.kevoree.registry.domain.TypeDefinition_;
 import org.kevoree.registry.service.TypeDefinitionService;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
+import org.kevoree.registry.web.rest.dto.search.TypeDefinitionSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,10 +40,10 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
      * @param typeDefinition the entity to save
      * @return the persisted entity
      */
-    public Optional<TypeDefinition> save(TypeDefinition typeDefinition) {
+    public Optional<TypeDefinition> save(final TypeDefinition typeDefinition) {
         log.debug("Request to save TypeDefinition : {}", typeDefinition);
-        Long count = typeDefinitionRepository.countSimilar(typeDefinition.getNamespace().getId(), typeDefinition.getName(), typeDefinition.getVersion());
-        Optional<TypeDefinition> ret;
+        final Long count = typeDefinitionRepository.countSimilar(typeDefinition.getNamespace().getId(), typeDefinition.getName(), typeDefinition.getVersion());
+        final Optional<TypeDefinition> ret;
         if(count == 0) {
             TypeDefinition result = typeDefinitionRepository.save(typeDefinition);
             ret = Optional.of(result);
@@ -52,10 +60,9 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
      *  @return the list of entities
      */
     @Transactional(readOnly = true)
-    public Page<TypeDefinition> findAll(Pageable pageable) {
+    public Page<TypeDefinition> findAll(final Pageable pageable) {
         log.debug("Request to get all TypeDefinitions");
-        Page<TypeDefinition> result = typeDefinitionRepository.findAll(pageable);
-        return result;
+        return typeDefinitionRepository.findAll(pageable);
     }
 
     /**
@@ -65,10 +72,9 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
      *  @return the entity
      */
     @Transactional(readOnly = true)
-    public TypeDefinition findOne(Long id) {
+    public TypeDefinition findOne(final Long id) {
         log.debug("Request to get TypeDefinition : {}", id);
-        TypeDefinition typeDefinition = typeDefinitionRepository.findOne(id);
-        return typeDefinition;
+        return typeDefinitionRepository.findOne(id);
     }
 
     /**
@@ -79,5 +85,32 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
     public void delete(Long id) {
         log.debug("Request to delete TypeDefinition : {}", id);
         typeDefinitionRepository.delete(id);
+    }
+
+    @Override
+    public List<TypeDefinition> search(final TypeDefinitionSearchDTO typeDefSearch) {
+        final String namespace = typeDefSearch.getNamespace();
+        final boolean namespaceLeftJoker = namespace.startsWith("*");
+        final boolean namespaceRightJoker = namespace.endsWith("*");
+        if(namespaceLeftJoker && namespaceRightJoker) {
+
+        } else if(namespaceLeftJoker) {
+
+        } else if (namespaceRightJoker) {
+
+        } else {
+
+        }
+        return typeDefinitionRepository.findAll(Specifications.where(nameEquals(typeDefSearch.getName())));
+    }
+
+    private Specification<TypeDefinition> nameEquals(String name) {
+        return new Specification<TypeDefinition>() {
+            @Override
+            public Predicate toPredicate(Root<TypeDefinition> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+                return cb.equal(root.get(TypeDefinition_.name), name);
+
+            }
+        };
     }
 }

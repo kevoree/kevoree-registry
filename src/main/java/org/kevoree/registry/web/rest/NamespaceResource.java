@@ -7,7 +7,7 @@ import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
+import org.kevoree.registry.web.rest.dto.search.NamespaceSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,7 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.web.rest.dto.search.TypeDefinitionSearchDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -42,4 +43,6 @@ public interface TypeDefinitionService {
      *  @param id the id of the entity
      */
     void delete(Long id);
+
+    List<TypeDefinition> search(TypeDefinitionSearchDTO typeDefSearch);
 }

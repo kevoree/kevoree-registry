@@ -9,6 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import static org.hamcrest.Matchers.hasItem;
+
+import org.kevoree.registry.service.UserService;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -52,6 +54,9 @@ public class NamespaceResourceIntTest {
     private NamespaceService namespaceService;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -66,6 +71,7 @@ public class NamespaceResourceIntTest {
         MockitoAnnotations.initMocks(this);
         NamespaceResource namespaceResource = new NamespaceResource();
         ReflectionTestUtils.setField(namespaceResource, "namespaceService", namespaceService);
+        ReflectionTestUtils.setField(namespaceResource, "userService", userService);
         this.restNamespaceMockMvc = MockMvcBuilders.standaloneSetup(namespaceResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();

@@ -1,8 +1,7 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.Namespace;
-import org.kevoree.registry.domain.TypeDefinition;
-import org.kevoree.registry.web.rest.dto.NamespaceSearchDTO;
+import org.kevoree.registry.web.rest.dto.search.NamespaceSearchDTO;
 
 import java.util.List;
 import java.util.Optional;
