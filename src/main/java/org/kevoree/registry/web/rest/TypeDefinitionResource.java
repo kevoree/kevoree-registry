@@ -134,7 +134,7 @@ public class TypeDefinitionResource {
 
     }
 
-    @RequestMapping(value = "/search",
+    @RequestMapping(value = "/type-definitions/search",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed

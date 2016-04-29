@@ -25,6 +25,10 @@
                   file="config/liquibase/namespaces_members.csv"
                   separator=";"
                   tableName="namespace_members"/>
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/type_definitions.csv"
+                  separator=";"
+                  tableName="type_definition"/>
 
     </changeSet>
 </databaseChangeLog>

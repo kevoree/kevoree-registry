@@ -1,9 +1,11 @@
 package org.kevoree.registry.service.impl;
 
-import org.kevoree.registry.domain.TypeDefinition_;
-import org.kevoree.registry.service.TypeDefinitionService;
+import org.apache.commons.lang3.StringUtils;
+import org.kevoree.registry.domain.Namespace_;
 import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.domain.TypeDefinition_;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
+import org.kevoree.registry.service.TypeDefinitionService;
 import org.kevoree.registry.web.rest.dto.search.TypeDefinitionSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +13,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +25,7 @@ import java.util.Optional;
  */
 @Service
 @Transactional
-public class TypeDefinitionServiceImpl implements TypeDefinitionService{
+public class TypeDefinitionServiceImpl implements TypeDefinitionService {
 
     private final Logger log = LoggerFactory.getLogger(TypeDefinitionServiceImpl.class);
 
@@ -44,7 +42,7 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
         log.debug("Request to save TypeDefinition : {}", typeDefinition);
         final Long count = typeDefinitionRepository.countSimilar(typeDefinition.getNamespace().getId(), typeDefinition.getName(), typeDefinition.getVersion());
         final Optional<TypeDefinition> ret;
-        if(count == 0) {
+        if (count == 0) {
             TypeDefinition result = typeDefinitionRepository.save(typeDefinition);
             ret = Optional.of(result);
         } else {
@@ -54,10 +52,10 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
     }
 
     /**
-     *  Get all the typeDefinitions.
+     * Get all the typeDefinitions.
      *
-     *  @param pageable the pagination information
-     *  @return the list of entities
+     * @param pageable the pagination information
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public Page<TypeDefinition> findAll(final Pageable pageable) {
@@ -66,10 +64,10 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
     }
 
     /**
-     *  Get one typeDefinition by id.
+     * Get one typeDefinition by id.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public TypeDefinition findOne(final Long id) {
@@ -78,9 +76,9 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
     }
 
     /**
-     *  Delete the  typeDefinition by id.
+     * Delete the  typeDefinition by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete TypeDefinition : {}", id);
@@ -92,25 +90,89 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService{
         final String namespace = typeDefSearch.getNamespace();
         final boolean namespaceLeftJoker = namespace.startsWith("*");
         final boolean namespaceRightJoker = namespace.endsWith("*");
-        if(namespaceLeftJoker && namespaceRightJoker) {
 
-        } else if(namespaceLeftJoker) {
 
+        // filtering by namespace.
+        final Specifications<TypeDefinition> whereNamespace;
+        if (namespaceLeftJoker && namespaceRightJoker) {
+            whereNamespace = Specifications.where(namespaceContaining(namespace));
+        } else if (namespaceLeftJoker) {
+            whereNamespace = Specifications.where(namespaceEndingWith(namespace));
         } else if (namespaceRightJoker) {
-
+            whereNamespace = Specifications.where(namespaceStartingWith(namespace));
         } else {
-
+            whereNamespace = Specifications.where(namespaceEqual(namespace));
         }
-        return typeDefinitionRepository.findAll(Specifications.where(nameEquals(typeDefSearch.getName())));
+
+        // filtering by typedef
+        final String name = typeDefSearch.getName();
+        final Optional<Specification<TypeDefinition>> nameSpecification;
+        if (name != null && StringUtils.isNotBlank(name)) {
+            final boolean nameLeftJoker = name.startsWith("*");
+            final boolean nameRightJoker = name.endsWith("*");
+            final Specification<TypeDefinition> val;
+            if (nameLeftJoker && nameRightJoker) {
+                val = nameContaining(name);
+            } else if (nameLeftJoker) {
+                val = nameEndingWith(name);
+            } else if (nameRightJoker) {
+                val = nameStartingWith(name);
+            } else {
+                val = nameEqual(name);
+            }
+            nameSpecification = Optional.of(val);
+        } else {
+            nameSpecification = Optional.empty();
+        }
+
+
+        final Optional<Specification<TypeDefinition>> versionSpecification;
+        final Long version = typeDefSearch.getVersion();
+        if (version != null) {
+            versionSpecification = Optional.of(versionEqual(version));
+        } else {
+            versionSpecification = Optional.empty();
+        }
+
+        final Specifications<TypeDefinition> step1 = nameSpecification.map(tmp -> whereNamespace.and(tmp)).orElse(whereNamespace);
+        final Specifications<TypeDefinition> step2 = versionSpecification.map(tmp -> step1.and(tmp)).orElse(step1);
+        return typeDefinitionRepository.findAll(step2);
     }
 
-    private Specification<TypeDefinition> nameEquals(String name) {
-        return new Specification<TypeDefinition>() {
-            @Override
-            public Predicate toPredicate(Root<TypeDefinition> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-                return cb.equal(root.get(TypeDefinition_.name), name);
 
-            }
-        };
+    private Specification<TypeDefinition> versionEqual(final Long version) {
+        return (root, query, cb) -> cb.equal(root.get(TypeDefinition_.version), version);
+    }
+
+    private Specification<TypeDefinition> namespaceEqual(String namespace) {
+        return (root, query, cb) -> cb.equal(cb.lower(root.get(TypeDefinition_.namespace).get(Namespace_.name)), namespace);
+    }
+
+    private Specification<TypeDefinition> namespaceStartingWith(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.namespace).get(Namespace_.name)), namespace.substring(0, namespace.length()-1) + "%");
+    }
+
+    private Specification<TypeDefinition> namespaceEndingWith(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.namespace).get(Namespace_.name)), "%" + namespace.substring(1));
+    }
+
+    private Specification<TypeDefinition> namespaceContaining(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.namespace).get(Namespace_.name)), "%" + namespace.substring(1,namespace.length()-1) + "%");
+    }
+
+    private Specification<TypeDefinition> nameStartingWith(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.name)), namespace.substring(0, namespace.length() - 1) + "%");
+    }
+
+    private Specification<TypeDefinition> nameEndingWith(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.name)), "%" + namespace.substring(1) + "%");
+    }
+
+    private Specification<TypeDefinition> nameContaining(String namespace) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.name)), "%" + namespace.substring(1,namespace.length()-1) + "%");
+    }
+
+    private Specification<TypeDefinition> nameEqual(String name) {
+        return (root, query, cb) -> cb.equal(cb.lower(root.get(TypeDefinition_.name)), name.toLowerCase());
     }
 }

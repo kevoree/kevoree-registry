@@ -11,7 +11,8 @@ import java.util.List;
 /**
  * Spring Data JPA repository for the TypeDefinition entity.
  */
-public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition,Long>, JpaSpecificationExecutor<TypeDefinition> {
+public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition,Long>, JpaSpecificationExecutor<TypeDefinition>
+ {
 
     //@Query("select namespace from Namespace namespace left join fetch namespace.members where namespace.id =:id")
     //Namespace findOneWithEagerRelationships(@Param("id") Long id);

@@ -190,7 +190,7 @@ public class NamespaceResource {
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @RequestMapping(value = "/search",
+    @RequestMapping(value = "/namespaces/search",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
