@@ -1,0 +1,64 @@
+<div>
+    <h2 translate="kevoreeRegistryApp.deployUnit.home.title">Deploy Units</h2>
+    <jhi-alert></jhi-alert>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-4 no-padding-left">
+                <button class="btn btn-primary" ui-sref="deploy-unit.new" >
+                    <span class="glyphicon glyphicon-plus"></span>
+                    <span  translate="kevoreeRegistryApp.deployUnit.home.createLabel">
+                        Create new Deploy Unit
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="table-responsive">
+        <table class="jh-table table table-striped">
+            <thead>
+                <tr>
+                    <th><span translate="global.field.id">ID</span></th>
+                    <th><span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span></th>
+                    <th><span translate="kevoreeRegistryApp.deployUnit.path">Path</span></th>
+                    <th><span translate="kevoreeRegistryApp.deployUnit.priority">Priority</span></th>
+                    <th><span translate="kevoreeRegistryApp.deployUnit.typeDefinition">Type Definition</span></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="deployUnit in vm.deployUnits track by deployUnit.id">
+                    <td><a ui-sref="deploy-unit-detail({id:deployUnit.id})">{{deployUnit.id}}</a></td>
+                    <td>{{deployUnit.platform}}</td>
+                    <td>{{deployUnit.path}}</td>
+                    <td>{{deployUnit.priority}}</td>
+                    <td>
+                        <a ui-sref="type-definition-detail({id:deployUnit.typeDefinition.id})">{{deployUnit.typeDefinition.id}}</a>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group flex-btn-group-container">
+                            <button type="submit"
+                                    ui-sref="deploy-unit-detail({id:deployUnit.id})"
+                                    class="btn btn-info btn-sm">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                                <span class="hidden-xs hidden-sm" translate="entity.action.view"></span>
+                            </button>
+                            <button type="submit"
+                                    ui-sref="deploy-unit.edit({id:deployUnit.id})"
+                                    class="btn btn-primary btn-sm">
+                                <span class="glyphicon glyphicon-pencil"></span>
+                                <span class="hidden-xs hidden-sm" translate="entity.action.edit"></span>
+                            </button>
+                            <button type="submit"
+                                    ui-sref="deploy-unit.delete({id:deployUnit.id})"
+                                    class="btn btn-danger btn-sm">
+                                <span class="glyphicon glyphicon-remove-circle"></span>
+                                <span class="hidden-xs hidden-sm" translate="entity.action.delete"></span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

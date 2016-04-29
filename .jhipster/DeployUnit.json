@@ -1,0 +1,42 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "typeDefinition",
+            "otherEntityName": "typeDefinition",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "platform",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "minlength",
+                "maxlength",
+                "pattern"
+            ],
+            "fieldValidateRulesMinlength": "1",
+            "fieldValidateRulesMaxlength": "50",
+            "fieldValidateRulesPattern": "^[a-z0-9]+$",
+            "fieldValidateRulesPatternJava": "^[a-z0-9]+$"
+        },
+        {
+            "fieldName": "path",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "priority",
+            "fieldType": "Long"
+        }
+    ],
+    "changelogDate": "20160429143508",
+    "dto": "no",
+    "service": "serviceImpl",
+    "entityTableName": "deploy_unit",
+    "pagination": "no"
+}

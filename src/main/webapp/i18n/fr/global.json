@@ -9,6 +9,7 @@
                 "main": "Entités",
                 "namespace": "Namespace",
                 "typeDefinition": "Type Definition",
+                "deployUnit": "Deploy Unit",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {

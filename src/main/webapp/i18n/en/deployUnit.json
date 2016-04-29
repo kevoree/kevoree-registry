@@ -1,0 +1,25 @@
+{
+    "kevoreeRegistryApp": {
+        "deployUnit" : {
+            "home": {
+                "title": "Deploy Units",
+                "createLabel": "Create a new Deploy Unit",
+                "createOrEditLabel": "Create or edit a Deploy Unit",
+                "search": "Search for Deploy Unit"
+            },
+            "created": "A new Deploy Unit is created with identifier {{ param }}",
+            "updated": "A Deploy Unit is updated with identifier {{ param }}",
+            "deleted": "A Deploy Unit is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Deploy Unit {{ id }}?"
+            },
+            "detail": {
+                "title": "Deploy Unit"
+            },
+            "platform": "Platform",
+            "path": "Path",
+            "priority": "Priority",
+            "typeDefinition": "Type Definition"
+        }
+    }
+}

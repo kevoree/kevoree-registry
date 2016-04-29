@@ -1,0 +1,74 @@
+
+<form name="editForm" role="form" novalidate ng-submit="vm.save()" show-validation>
+
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h4 class="modal-title" id="myDeployUnitLabel" translate="kevoreeRegistryApp.deployUnit.home.createOrEditLabel">Create or edit a Deploy Unit</h4>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" ng-show="vm.deployUnit.id">
+            <label for="id" translate="global.field.id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                    ng-model="vm.deployUnit.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.deployUnit.platform" for="field_platform">Platform</label>
+            <input type="text" class="form-control" name="platform" id="field_platform"
+                    ng-model="vm.deployUnit.platform"
+                    required ng-minlength="1" ng-maxlength="50" ng-pattern="/^[a-z0-9]+$/" />
+            <div ng-show="editForm.platform.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.minlength" translate="entity.validation.minlength" translate-value-min="1">
+                    This field is required to be at least 1 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.maxlength" translate="entity.validation.maxlength" translate-value-max="50">
+                    This field cannot be longer than 50 characters.
+                </p>
+                <p class="help-block"
+                    ng-show="editForm.platform.$error.pattern" translate="entity.validation.pattern" translate-value-pattern="^[a-z0-9]+$">
+                    This field should follow pattern "^[a-z0-9]+$".
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.deployUnit.path" for="field_path">Path</label>
+            <input type="text" class="form-control" name="path" id="field_path"
+                    ng-model="vm.deployUnit.path"
+                    required />
+            <div ng-show="editForm.path.$invalid">
+                <p class="help-block"
+                    ng-show="editForm.path.$error.required" translate="entity.validation.required">
+                    This field is required.
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label" translate="kevoreeRegistryApp.deployUnit.priority" for="field_priority">Priority</label>
+            <input type="number" class="form-control" name="priority" id="field_priority"
+                    ng-model="vm.deployUnit.priority"
+                     />
+        </div>
+
+        <div class="form-group">
+            <label translate="kevoreeRegistryApp.deployUnit.typeDefinition" for="field_typeDefinition">Type Definition</label>
+            <select class="form-control" id="field_typeDefinition" name="typeDefinition" ng-model="vm.deployUnit.typeDefinition" ng-options="typeDefinition as typeDefinition.id for typeDefinition in vm.typedefinitions track by typeDefinition.id">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span translate="entity.action.save">Save</span>
+        </button>
+    </div>
+</form>
