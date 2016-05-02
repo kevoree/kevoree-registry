@@ -9,6 +9,6 @@ import java.util.List;
 /**
  * Spring Data JPA repository for the DeployUnit entity.
  */
-public interface DeployUnitRepository extends JpaRepository<DeployUnit,Long> {
+public interface DeployUnitRepository extends JpaRepository<DeployUnit,Long>, JpaSpecificationExecutor<DeployUnit> {
 
 }

@@ -2,16 +2,15 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.DeployUnit;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.web.rest.dto.search.DeployUnitSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -93,8 +92,13 @@ public class DeployUnitResource {
         return deployUnitService.findAll();
     }
 
-    public ResponseEntity<List<DeployUnit>> search(@Valid @RequestBody DeployUnitSearchDTO deployUnitSearchDTO ) {
-        return null;
+    @RequestMapping(value = "/deploy-units/search",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<List<DeployUnit>> search(@Valid @RequestBody final DeployUnitSearchDTO deployUnitSearch) {
+        log.debug("REST request to search typedefinition by namespace, name and version");
+        return new ResponseEntity<List<DeployUnit>>(deployUnitService.search(deployUnitSearch), HttpStatus.OK);
     }
 
     /**
