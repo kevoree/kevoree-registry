@@ -1,8 +1,10 @@
 package org.kevoree.registry.repository;
 
 import org.kevoree.registry.domain.Namespace;
-
-import org.springframework.data.jpa.repository.*;
+import org.kevoree.registry.domain.TypeDefinition;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -10,7 +12,7 @@ import java.util.List;
 /**
  * Spring Data JPA repository for the Namespace entity.
  */
-public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
+public interface NamespaceRepository extends JpaRepository<Namespace, Long>, JpaSpecificationExecutor<Namespace> {
 
     @Query("select namespace from Namespace namespace where namespace.owner.login = ?#{principal}")
     List<Namespace> findByOwnerIsCurrentUser();
@@ -22,7 +24,6 @@ public interface NamespaceRepository extends JpaRepository<Namespace,Long> {
     Namespace findOneWithEagerRelationships(@Param("id") Long id);
 
     Namespace findOneByName(String name);
-
 
     List<Namespace> findAllByNameContaining(String search);
 

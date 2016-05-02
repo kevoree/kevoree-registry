@@ -3,6 +3,7 @@ package org.kevoree.registry.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.service.DeployUnitService;
+import org.kevoree.registry.web.rest.dto.search.DeployUnitSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -27,10 +29,10 @@ import java.util.Optional;
 public class DeployUnitResource {
 
     private final Logger log = LoggerFactory.getLogger(DeployUnitResource.class);
-        
+
     @Inject
     private DeployUnitService deployUnitService;
-    
+
     /**
      * POST  /deploy-units : Create a new deployUnit.
      *
@@ -91,6 +93,10 @@ public class DeployUnitResource {
         return deployUnitService.findAll();
     }
 
+    public ResponseEntity<List<DeployUnit>> search(@Valid @RequestBody DeployUnitSearchDTO deployUnitSearchDTO ) {
+        return null;
+    }
+
     /**
      * GET  /deploy-units/:id : get the "id" deployUnit.
      *
@@ -126,5 +132,7 @@ public class DeployUnitResource {
         deployUnitService.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("deployUnit", id.toString())).build();
     }
+
+
 
 }

@@ -133,6 +133,4 @@ public class NamespaceServiceImpl implements NamespaceService{
         final Namespace oneByName = namespaceRepository.findOneByName(login);
         return Optional.ofNullable(oneByName);
     }
-
-
 }
