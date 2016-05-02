@@ -18,4 +18,7 @@ id;platform;path;priority;type_definition_id
 17;dotnet;WebGroup:7.11;2;5
 18;c;mychan:3.0.0;3;6
 19;java;com.test.poc:4.32;4;7
-110;javascript;LastConnector-7.4;3;8
+20;javascript;LastConnector-7.3;2;8
+21;javascript;LastConnector-7.4;3;8
+22;java;LastConnector-7.4;3;8
+23;java;LastConnector-7.4;4;8

@@ -1,35 +1,40 @@
 package org.kevoree.registry.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kevoree.registry.domain.*;
-import org.kevoree.registry.service.DeployUnitService;
+import org.kevoree.registry.domain.DeployUnit;
+import org.kevoree.registry.domain.DeployUnit_;
+import org.kevoree.registry.domain.Namespace_;
+import org.kevoree.registry.domain.TypeDefinition_;
 import org.kevoree.registry.repository.DeployUnitRepository;
+import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.web.rest.dto.search.DeployUnitSearchDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.domain.Specifications;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.persistence.Tuple;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.domain.Sort.*;
+import static org.springframework.data.domain.Sort.Direction;
 
 /**
  * Service Implementation for managing DeployUnit.
  */
 @Service
 @Transactional
-public class DeployUnitServiceImpl implements DeployUnitService{
+public class DeployUnitServiceImpl implements DeployUnitService {
 
     private final Logger log = LoggerFactory.getLogger(DeployUnitServiceImpl.class);
     private final Sort defaultSort = new Sort(new Sort.Order(Direction.ASC, DeployUnit_.typeDefinition.getName()),
+        new Sort.Order(Direction.ASC, DeployUnit_.platform.getName()),
         new Sort.Order(Direction.DESC, DeployUnit_.priority.getName()));
 
     @Inject
@@ -48,9 +53,9 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     /**
-     *  Get all the deployUnits.
+     * Get all the deployUnits.
      *
-     *  @return the list of entities
+     * @return the list of entities
      */
     @Transactional(readOnly = true)
     public List<DeployUnit> findAll() {
@@ -60,10 +65,10 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     /**
-     *  Get one deployUnit by id.
+     * Get one deployUnit by id.
      *
-     *  @param id the id of the entity
-     *  @return the entity
+     * @param id the id of the entity
+     * @return the entity
      */
     @Transactional(readOnly = true)
     public DeployUnit findOne(Long id) {
@@ -73,9 +78,9 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     /**
-     *  Delete the  deployUnit by id.
+     * Delete the  deployUnit by id.
      *
-     *  @param id the id of the entity
+     * @param id the id of the entity
      */
     public void delete(Long id) {
         log.debug("Request to delete DeployUnit : {}", id);
@@ -124,11 +129,11 @@ public class DeployUnitServiceImpl implements DeployUnitService{
 
         final String platform = deployUnitSearch.getPlatform();
         final Optional<Specification<DeployUnit>> platformSpecification;
-        if(platform != null && StringUtils.isNotBlank(platform)) {
+        if (platform != null && StringUtils.isNotBlank(platform)) {
             final boolean platformLeftJoker = platform.startsWith("*");
             final boolean platformRightJoker = platform.endsWith("*");
             final Specification<DeployUnit> val;
-            if(platformLeftJoker && platformRightJoker) {
+            if (platformLeftJoker && platformRightJoker) {
                 val = platformContaining(platform);
             } else if (platformLeftJoker) {
                 val = platformEndingWith(platform);
@@ -152,15 +157,13 @@ public class DeployUnitServiceImpl implements DeployUnitService{
         }
 
 
-
-
         final Optional<Specification<DeployUnit>> deployUnitSpecification;
-        if(deployUnitSearch.getLatest() != null && deployUnitSearch.getLatest()) {
+        if (deployUnitSearch.getLatest() != null && deployUnitSearch.getLatest()) {
             final Specification<DeployUnit> dus = getOnlyLastVersionByDU();
             deployUnitSpecification = Optional.of(dus);
         } else {
             deployUnitSpecification = Optional.empty();
-            }
+        }
 
         final Specifications<DeployUnit> step1 = nameSpecification.map(tmp -> whereNamespace.and(tmp)).orElse(whereNamespace);
         final Specifications<DeployUnit> step2 = versionSpecification.map(tmp -> step1.and(tmp)).orElse(step1);
@@ -171,30 +174,36 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     private Specification<DeployUnit> getOnlyLastVersionByDU() {
+        /*
+        Select the element with the highest priority by Deploy Unit and platform (the newest implementation of a Type Definition).
+        If two DU are found with the same priority for a given TD, we keep the one with the highest id.
+         */
         return (root, query, cb) -> {
 
-                final Subquery<Long> subQuery1 = query.subquery(Long.class);
-                final Root<DeployUnit> deployUnitSub1 = subQuery1.from(DeployUnit.class);
+            final Subquery<String> subQuery1 = query.subquery(String.class);
+            final Root<DeployUnit> deployUnitSub1 = subQuery1.from(DeployUnit.class);
 
-                final Expression<Long> expr = deployUnitSub1.get(DeployUnit_.id);
-                subQuery1.select(cb.max(expr));
-                subQuery1.groupBy(deployUnitSub1.get(DeployUnit_.typeDefinition));
-                Subquery<String> subQuery2 = subQuery1.subquery(String.class);
-                final Root<DeployUnit> deployUnitSub2 = subQuery2.from(DeployUnit.class);
+            final Expression<Long> expr = deployUnitSub1.get(DeployUnit_.id);
+            subQuery1.select(cb.concat(cb.concat(cb.max(expr).as(String.class), " "), deployUnitSub1.get(DeployUnit_.platform)));
+            subQuery1.groupBy(deployUnitSub1.get(DeployUnit_.typeDefinition), deployUnitSub1.get(DeployUnit_.platform));
+            Subquery<String> subQuery2 = subQuery1.subquery(String.class);
+            final Root<DeployUnit> deployUnitSub2 = subQuery2.from(DeployUnit.class);
 
-                final Expression<String> se1 = deployUnitSub2.get(DeployUnit_.typeDefinition ).get(TypeDefinition_.id).as(String.class);
-                final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
+            final Expression<String> se1 = deployUnitSub2.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
+            final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
+            final Expression<String> se3 = deployUnitSub2.get(DeployUnit_.platform);
 
-                subQuery2.select(cb.concat(cb.concat(se1, cb.literal("_")), se2));
-                subQuery2.groupBy(deployUnitSub2.get(DeployUnit_.typeDefinition));
 
-                final Expression<String> e1 = deployUnitSub1.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
-                final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
-                final Expression<String> col = cb.concat(cb.concat(e1, cb.literal("_")), e2);
-                subQuery1.where(cb.in(col).value(subQuery2));
+            subQuery2.select(cb.concat(cb.concat(cb.concat(cb.concat(se1, "_"), se2), " "), se3));
+            subQuery2.groupBy(deployUnitSub2.get(DeployUnit_.typeDefinition), deployUnitSub2.get(DeployUnit_.platform));
 
-                return cb.in(root.get(DeployUnit_.id)).value(subQuery1);
-            };
+            final Expression<String> e1 = deployUnitSub1.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
+            final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
+            final Expression<String> e3 = deployUnitSub1.get(DeployUnit_.platform);
+            subQuery1.where(cb.in(cb.concat(cb.concat(cb.concat(cb.concat(e1, "_"), e2), " "), e3)).value(subQuery2));
+
+            return cb.in(cb.concat(cb.concat(root.get(DeployUnit_.id).as(String.class), " "), root.get(DeployUnit_.platform))).value(subQuery1);
+        };
     }
 
     private Specification<DeployUnit> versionEqual(final Long version) {
@@ -206,7 +215,7 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     private Specification<DeployUnit> namespaceStartingWith(String namespace) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.namespace).get(Namespace_.name)), namespace.substring(0, namespace.length()-1) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.namespace).get(Namespace_.name)), namespace.substring(0, namespace.length() - 1) + "%");
     }
 
     private Specification<DeployUnit> namespaceEndingWith(String namespace) {
@@ -214,7 +223,7 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     private Specification<DeployUnit> namespaceContaining(String namespace) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.namespace).get(Namespace_.name)), "%" + namespace.substring(1,namespace.length()-1) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.namespace).get(Namespace_.name)), "%" + namespace.substring(1, namespace.length() - 1) + "%");
     }
 
     private Specification<DeployUnit> nameStartingWith(String namespace) {
@@ -226,7 +235,7 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     private Specification<DeployUnit> nameContaining(String namespace) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.name)), "%" + namespace.substring(1,namespace.length()-1) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.name)), "%" + namespace.substring(1, namespace.length() - 1) + "%");
     }
 
     private Specification<DeployUnit> nameEqual(String name) {
@@ -242,7 +251,7 @@ public class DeployUnitServiceImpl implements DeployUnitService{
     }
 
     private Specification<DeployUnit> platformContaining(String platform) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.platform)), "%" + platform.substring(1, platform.length()-1) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(DeployUnit_.platform)), "%" + platform.substring(1, platform.length() - 1) + "%");
     }
 
     private Specification<DeployUnit> platformEqual(String platform) {
