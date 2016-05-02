@@ -9,3 +9,13 @@ id;platform;path;priority;type_definition_id
 8;c;mychan:3.0.0;3;1
 9;java;com.test.poc:4.32;4;2
 10;javascript;LastConnector-7.4;3;3
+11;java;fr.test.Impl1:3.1.2;1;5
+12;javascript;impl1-3.1;1;6
+13;dotnet;Impl:3.0;3;7
+14;c;mycom:7.1;3;5
+15;java;fr.test2.Implem3:1.0.0;2;6
+16;javascript;Component7-11.4.3;1;7
+17;dotnet;WebGroup:7.11;2;5
+18;c;mychan:3.0.0;3;6
+19;java;com.test.poc:4.32;4;7
+110;javascript;LastConnector-7.4;3;8

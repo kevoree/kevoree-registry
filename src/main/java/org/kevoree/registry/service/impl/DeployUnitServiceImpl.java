@@ -151,40 +151,50 @@ public class DeployUnitServiceImpl implements DeployUnitService{
             versionSpecification = Optional.empty();
         }
 
+
+
+
+        final Optional<Specification<DeployUnit>> deployUnitSpecification;
+        if(deployUnitSearch.getLatest() != null && deployUnitSearch.getLatest()) {
+            final Specification<DeployUnit> dus = getOnlyLastVersionByDU();
+            deployUnitSpecification = Optional.of(dus);
+        } else {
+            deployUnitSpecification = Optional.empty();
+            }
+
         final Specifications<DeployUnit> step1 = nameSpecification.map(tmp -> whereNamespace.and(tmp)).orElse(whereNamespace);
         final Specifications<DeployUnit> step2 = versionSpecification.map(tmp -> step1.and(tmp)).orElse(step1);
         final Specifications<DeployUnit> step3 = platformSpecification.map(tmp -> step2.and(tmp)).orElse(step2);
+        final Specifications<DeployUnit> step4 = deployUnitSpecification.map(tmp -> step3.and(tmp)).orElse(step3);
 
-        /*
-        SELECT du4.*
-FROM type_definition du4
-INNER JOIN
-  (SELECT max(du.id) id
-   FROM deploy_unit du
-   INNER JOIN
-     (SELECT max(du3.priority) priority,
-             du3.type_definition_id
-      FROM deploy_unit du3
-      GROUP BY du3.type_definition_id) du2
-   WHERE du2.priority = du.priority
-     AND du.type_definition_id = du2.type_definition_id
-   GROUP BY du.type_definition_id) du5
-WHERE du4.id = du5.id
-         */
+        return deployUnitRepository.findAll(step4, defaultSort);
+    }
 
-        final Specification<DeployUnit> deployUnitSpecification = (root, query, cb) -> {
+    private Specification<DeployUnit> getOnlyLastVersionByDU() {
+        return (root, query, cb) -> {
 
-            final Subquery<Long> subquery1 = query.subquery(Long.class);
-            final Root<DeployUnit> project = subquery1.from(DeployUnit.class);
+                final Subquery<Long> subQuery1 = query.subquery(Long.class);
+                final Root<DeployUnit> deployUnitSub1 = subQuery1.from(DeployUnit.class);
 
-            final Expression<Long> expr = project.get(DeployUnit_.id);
-            subquery1.select(cb.max(expr));
+                final Expression<Long> expr = deployUnitSub1.get(DeployUnit_.id);
+                subQuery1.select(cb.max(expr));
+                subQuery1.groupBy(deployUnitSub1.get(DeployUnit_.typeDefinition));
+                Subquery<String> subQuery2 = subQuery1.subquery(String.class);
+                final Root<DeployUnit> deployUnitSub2 = subQuery2.from(DeployUnit.class);
 
-            return cb.in(root.get(DeployUnit_.id)).value(subquery1);
-        };
-        //deployUnitRepository.findAll(deployUnitSpecification);
+                final Expression<String> se1 = deployUnitSub2.get(DeployUnit_.typeDefinition ).get(TypeDefinition_.id).as(String.class);
+                final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
 
-        return deployUnitRepository.findAll(step3.and(deployUnitSpecification), defaultSort);
+                subQuery2.select(cb.concat(cb.concat(se1, cb.literal("_")), se2));
+                subQuery2.groupBy(deployUnitSub2.get(DeployUnit_.typeDefinition));
+
+                final Expression<String> e1 = deployUnitSub1.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
+                final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
+                final Expression<String> col = cb.concat(cb.concat(e1, cb.literal("_")), e2);
+                subQuery1.where(cb.in(col).value(subQuery2));
+
+                return cb.in(root.get(DeployUnit_.id)).value(subQuery1);
+            };
     }
 
     private Specification<DeployUnit> versionEqual(final Long version) {
