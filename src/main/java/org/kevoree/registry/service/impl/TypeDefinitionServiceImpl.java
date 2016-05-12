@@ -165,7 +165,7 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService {
     }
 
     private Specification<TypeDefinition> nameEndingWith(String namespace) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.name)), "%" + namespace.substring(1) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(TypeDefinition_.name)), "%" + namespace.substring(1));
     }
 
     private Specification<TypeDefinition> nameContaining(String namespace) {

@@ -36,9 +36,11 @@ public class Namespace implements Serializable {
     @JsonIgnore
     private Boolean activated;
 
+    @JsonIgnore
     @ManyToOne
     private User owner;
 
+    @JsonIgnore
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JoinTable(name = "namespace_members",
