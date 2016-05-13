@@ -1,10 +1,7 @@
 package org.kevoree.registry.service.impl;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kevoree.registry.domain.DeployUnit;
-import org.kevoree.registry.domain.DeployUnit_;
-import org.kevoree.registry.domain.Namespace_;
-import org.kevoree.registry.domain.TypeDefinition_;
+import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.DeployUnitRepository;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.web.rest.dto.search.DeployUnitSearchDTO;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.util.List;
@@ -158,7 +156,7 @@ public class DeployUnitServiceImpl implements DeployUnitService {
 
         final Optional<Specification<DeployUnit>> deployUnitSpecification;
         if (deployUnitSearch.getLatest() != null && deployUnitSearch.getLatest()) {
-            final Specification<DeployUnit> dus = getOnlyLastVersionByDU();
+            final Specification<DeployUnit> dus = getOnlyLatestVersionByTypeDef();
             deployUnitSpecification = Optional.of(dus);
         } else {
             deployUnitSpecification = Optional.empty();
@@ -172,36 +170,28 @@ public class DeployUnitServiceImpl implements DeployUnitService {
         return deployUnitRepository.findAll(step4, defaultSort);
     }
 
-    private Specification<DeployUnit> getOnlyLastVersionByDU() {
-        /*
-        Select the element with the highest priority by Deploy Unit and platform (the newest implementation of a Type Definition).
-        If two DU are found with the same priority for a given TD, we keep the one with the highest id.
-         */
+    private Specification<DeployUnit> getOnlyLatestVersionByTypeDef() {
         return (root, query, cb) -> {
+            final Path<Long> namespaceIdPath = root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.namespace).get(Namespace_.id);
+            final Path<String> namePath = root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.name);
+            final Path<Long> versionPath = root.get(DeployUnit_.typeDefinition).get(TypeDefinition_.version);
 
-            final Subquery<String> subQuery1 = query.subquery(String.class);
-            final Root<DeployUnit> deployUnitSub1 = subQuery1.from(DeployUnit.class);
+            // NOTE : this concatenation is a ugly hack. What I really want to do is defining a tuple (namespace_id, name, version)
+            final Expression<String> namespaceNameVersionConcat = cb.concat(cb.concat(cb.concat(cb.concat(namespaceIdPath.as(String.class), "_"), namePath), "_"), versionPath.as(String.class));
 
-            final Expression<Long> expr = deployUnitSub1.get(DeployUnit_.id);
-            subQuery1.select(cb.concat(cb.concat(cb.max(expr).as(String.class), " "), deployUnitSub1.get(DeployUnit_.platform)));
-            subQuery1.groupBy(deployUnitSub1.get(DeployUnit_.typeDefinition), deployUnitSub1.get(DeployUnit_.platform));
-            Subquery<String> subQuery2 = subQuery1.subquery(String.class);
-            final Root<DeployUnit> deployUnitSub2 = subQuery2.from(DeployUnit.class);
+            final Subquery<String> subQuery = query.subquery(String.class);
+            final Root<TypeDefinition> subqueryRoot = subQuery.from(TypeDefinition.class);
 
-            final Expression<String> se1 = deployUnitSub2.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
-            //final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
-            final Expression<String> se3 = deployUnitSub2.get(DeployUnit_.platform);
+            final Path<Long> sqNamespaceIdPath = subqueryRoot.get(TypeDefinition_.namespace).get(Namespace_.id);
+            final Path<String> sqNamePath = subqueryRoot.get(TypeDefinition_.name);
+            final Expression<Long> sqMaxVersion = cb.max(subqueryRoot.get(TypeDefinition_.version));
 
+            final Expression<String> sqNamespaceNameVersionConcat = cb.concat(cb.concat(cb.concat(cb.concat(sqNamespaceIdPath.as(String.class), "_"), sqNamePath), "_"), sqMaxVersion.as(String.class));
 
-            //subQuery2.select(cb.concat(cb.concat(cb.concat(cb.concat(se1, "_"), se2), " "), se3));
-            subQuery2.groupBy(deployUnitSub2.get(DeployUnit_.typeDefinition), deployUnitSub2.get(DeployUnit_.platform));
+            subQuery.select(sqNamespaceNameVersionConcat);
+            subQuery.groupBy(sqNamespaceIdPath, sqNamePath);
 
-            final Expression<String> e1 = deployUnitSub1.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
-            //final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
-            final Expression<String> e3 = deployUnitSub1.get(DeployUnit_.platform);
-            //subQuery1.where(cb.in(cb.concat(cb.concat(cb.concat(cb.concat(e1, "_"), e2), " "), e3)).value(subQuery2));
-
-            return cb.in(cb.concat(cb.concat(root.get(DeployUnit_.id).as(String.class), " "), root.get(DeployUnit_.platform))).value(subQuery1);
+            return namespaceNameVersionConcat.in(subQuery);
         };
     }
 
