@@ -10,6 +10,8 @@ import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.search.TypeDefinitionSearchDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
+import org.kevoree.registry.web.rest.validator.NamespaceValidator;
+import org.kevoree.registry.web.rest.validator.TypeDefinitionValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
@@ -34,6 +38,11 @@ import java.util.*;
 public class TypeDefinitionResource {
 
     private final Logger log = LoggerFactory.getLogger(TypeDefinitionResource.class);
+
+    @InitBinder
+    protected void initBinder(WebDataBinder binder) {
+        binder.setValidator(new TypeDefinitionValidator(typeDefinitionService));
+    }
 
     @Inject
     private TypeDefinitionService typeDefinitionService;
@@ -55,6 +64,7 @@ public class TypeDefinitionResource {
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
+    @Transactional
     public ResponseEntity<TypeDefinition> createTypeDefinition(@Valid @RequestBody TypeDefinition typeDefinition) throws URISyntaxException {
         log.debug("REST request to save TypeDefinition : {}", typeDefinition);
         if (typeDefinition.getId() != null) {
@@ -63,7 +73,7 @@ public class TypeDefinitionResource {
 
         final User currentUser = userService.getUserWithAuthorities();
 
-        final Optional<Namespace> linkedNamespace = Optional.ofNullable(namespaceService.findOne(typeDefinition.getNamespace().getId()));
+        final Optional<Namespace> linkedNamespace = namespaceService.findOneByName(typeDefinition.getNamespace().getName());
         final Set<User> members = linkedNamespace.map(Namespace::getMembers).orElse(Collections.emptySet());
         final Long currentUserId = currentUser.getId();
 
@@ -79,9 +89,10 @@ public class TypeDefinitionResource {
             if (!linkedNamespace.map(ns -> ns.getActivated()).orElse(false)) {
                 ret = new ResponseEntity<>(HttpStatus.LOCKED);
             } else {
+                typeDefinition.setNamespace(linkedNamespace.get());
                 final Optional<TypeDefinition> resultOpt = typeDefinitionService.save(typeDefinition);
                 if(resultOpt.isPresent()) {
-                    TypeDefinition result = resultOpt.get();
+                    final TypeDefinition result = resultOpt.get();
                     ret = ResponseEntity.created(new URI("/api/type-definitions/" + result.getId()))
                         .headers(HeaderUtil.createEntityCreationAlert("typeDefinition", result.getId().toString()))
                         .body(result);

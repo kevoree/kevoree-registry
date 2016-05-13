@@ -13,4 +13,7 @@ public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition, 
 
     @Query("select count(typeDef.id) from TypeDefinition typeDef inner join typeDef.namespace namespace where namespace.id = :namespaceId and typeDef.name = :name and typeDef.version = :version")
     Long countSimilar(@Param("namespaceId") Long namespaceId, @Param("name") String name, @Param("version") Long version);
+
+    @Query("select count(typeDef.id) from TypeDefinition typeDef inner join typeDef.namespace namespace where namespace.name = :namespaceName and typeDef.name = :name and typeDef.version = :version")
+    Long countSimilar(@Param("namespaceName") String namespaceName, @Param("name") String name, @Param("version") Long version);
 }

@@ -45,4 +45,6 @@ public interface TypeDefinitionService {
     void delete(Long id);
 
     List<TypeDefinition> search(TypeDefinitionSearchDTO typeDefSearch);
+
+    Long countSimilar(TypeDefinition typeDefinition);
 }

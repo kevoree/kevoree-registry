@@ -9,7 +9,6 @@ import javax.validation.constraints.Size;
  */
 public class TypeDefinitionSearchDTO {
     @Pattern(regexp = "^\\*?[a-z0-9]*\\*?$")
-    @NotNull
     @Size(min = 1, max = 52)
     private String namespace;
 
@@ -19,7 +18,6 @@ public class TypeDefinitionSearchDTO {
 
     private Long version;
 
-    @NotNull
     private Boolean latest;
 
     public String getNamespace() {

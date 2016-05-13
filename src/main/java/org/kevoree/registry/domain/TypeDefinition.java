@@ -4,7 +4,6 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -22,18 +21,12 @@ public class TypeDefinition implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    @Size(min = 1, max = 50)
-    @Pattern(regexp = "^[A-Z]\\w*$")
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @NotNull
     @Column(name = "serialized_model", nullable = false)
     private String serializedModel;
 
-    @NotNull
-    @Min(value = 0)
     @Column(name = "version", nullable = false)
     private Long version;
 

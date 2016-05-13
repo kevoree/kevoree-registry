@@ -111,9 +111,14 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService {
         return typeDefinitionRepository.findAll(step3);
     }
 
+    @Override
+    public Long countSimilar(TypeDefinition typeDefinition) {
+        return typeDefinitionRepository.countSimilar(typeDefinition.getNamespace().getName(), typeDefinition.getName(), typeDefinition.getVersion());
+    }
+
     private Optional<Specification<TypeDefinition>> searchLatestCriteria(Boolean latest) {
         Optional<Specification<TypeDefinition>> ret;
-        if(latest) {
+        if(latest != null && latest) {
             ret = Optional.of((root, query, cb) -> {
                 final Path<Long> namespaceIdPath = root.get(TypeDefinition_.namespace).get(Namespace_.id);
                 final Path<String> namePath = root.get(TypeDefinition_.name);
