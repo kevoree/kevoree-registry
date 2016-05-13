@@ -92,6 +92,11 @@ public class NamespaceServiceImpl implements NamespaceService{
         return ret;
     }
 
+    @Override
+    public Long countSimilar(Namespace namespace) {
+        return namespaceRepository.countSimilar(namespace.getName());
+    }
+
 
     /**
      *  Get all the namespaces.

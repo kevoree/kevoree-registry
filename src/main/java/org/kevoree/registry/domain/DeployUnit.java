@@ -32,9 +32,6 @@ public class DeployUnit implements Serializable {
     @Column(name = "path", nullable = false)
     private String path;
 
-    @Column(name = "priority")
-    private Long priority;
-
     @ManyToOne
     private TypeDefinition typeDefinition;
 
@@ -60,14 +57,6 @@ public class DeployUnit implements Serializable {
 
     public void setPath(String path) {
         this.path = path;
-    }
-
-    public Long getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Long priority) {
-        this.priority = priority;
     }
 
     public TypeDefinition getTypeDefinition() {
@@ -104,7 +93,6 @@ public class DeployUnit implements Serializable {
             "id=" + id +
             ", platform='" + platform + "'" +
             ", path='" + path + "'" +
-            ", priority='" + priority + "'" +
             '}';
     }
 }

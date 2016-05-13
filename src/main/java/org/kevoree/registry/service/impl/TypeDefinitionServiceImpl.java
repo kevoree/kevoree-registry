@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,18 +95,64 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService {
 
 
         // filtering by namespace.
-        final Specifications<TypeDefinition> whereNamespace;
-        if (namespaceLeftJoker && namespaceRightJoker) {
-            whereNamespace = Specifications.where(namespaceContaining(namespace));
-        } else if (namespaceLeftJoker) {
-            whereNamespace = Specifications.where(namespaceEndingWith(namespace));
-        } else if (namespaceRightJoker) {
-            whereNamespace = Specifications.where(namespaceStartingWith(namespace));
-        } else {
-            whereNamespace = Specifications.where(namespaceEqual(namespace));
-        }
+        final Specifications<TypeDefinition> whereNamespace = searchNamespaceCriteria(namespace, namespaceLeftJoker, namespaceRightJoker);
 
         // filtering by typedef
+        final Optional<Specification<TypeDefinition>> nameSpecification = searchTypeDefCriteria(typeDefSearch);
+
+        // filtering by version
+        final Optional<Specification<TypeDefinition>> versionSpecification = searchTypeDefinitionCriteria(typeDefSearch);
+
+        final Optional<Specification<TypeDefinition>> latestSpecification = searchLatestCriteria(typeDefSearch.getLatest());
+
+        final Specifications<TypeDefinition> step1 = nameSpecification.map(tmp -> whereNamespace.and(tmp)).orElse(whereNamespace);
+        final Specifications<TypeDefinition> step2 = versionSpecification.map(tmp -> step1.and(tmp)).orElse(step1);
+        final Specifications<TypeDefinition> step3 = latestSpecification.map(tmp -> step2.and(tmp)).orElse(step2);
+        return typeDefinitionRepository.findAll(step3);
+    }
+
+    private Optional<Specification<TypeDefinition>> searchLatestCriteria(Boolean latest) {
+        Optional<Specification<TypeDefinition>> ret;
+        if(latest) {
+            ret = Optional.of((root, query, cb) -> {
+                final Path<Long> namespaceIdPath = root.get(TypeDefinition_.namespace).get(Namespace_.id);
+                final Path<String> namePath = root.get(TypeDefinition_.name);
+                final Path<Long> versionPath = root.get(TypeDefinition_.version);
+
+                final Expression<String> namespaceNameVersionConcat = cb.concat(cb.concat(cb.concat(cb.concat(namespaceIdPath.as(String.class), "_"), namePath), "_"), versionPath.as(String.class));
+
+                final Subquery<String> subQuery = query.subquery(String.class);
+                final Root<TypeDefinition> subqueryRoot = subQuery.from(TypeDefinition.class);
+
+                final Path<Long> sqNamespaceIdPath = subqueryRoot.get(TypeDefinition_.namespace).get(Namespace_.id);
+                final Path<String> sqNamePath = subqueryRoot.get(TypeDefinition_.name);
+                final Expression<Long> sqMaxVersion = cb.max(subqueryRoot.get(TypeDefinition_.version));
+
+                final Expression<String> sqNamespaceNameVersionConcat = cb.concat(cb.concat(cb.concat(cb.concat(sqNamespaceIdPath.as(String.class), "_"), sqNamePath), "_"), sqMaxVersion.as(String.class));
+
+                subQuery.select(sqNamespaceNameVersionConcat);
+                subQuery.groupBy(sqNamespaceIdPath, sqNamePath);
+
+                return namespaceNameVersionConcat.in(subQuery);
+            });
+        } else {
+            ret = Optional.empty();
+        }
+        return ret;
+    }
+
+    private Optional<Specification<TypeDefinition>> searchTypeDefinitionCriteria(TypeDefinitionSearchDTO typeDefSearch) {
+        final Optional<Specification<TypeDefinition>> versionSpecification;
+        final Long version = typeDefSearch.getVersion();
+        if (version != null) {
+            versionSpecification = Optional.of(versionEqual(version));
+        } else {
+            versionSpecification = Optional.empty();
+        }
+        return versionSpecification;
+    }
+
+    private Optional<Specification<TypeDefinition>> searchTypeDefCriteria(TypeDefinitionSearchDTO typeDefSearch) {
         final String name = typeDefSearch.getName();
         final Optional<Specification<TypeDefinition>> nameSpecification;
         if (name != null && StringUtils.isNotBlank(name)) {
@@ -124,19 +172,21 @@ public class TypeDefinitionServiceImpl implements TypeDefinitionService {
         } else {
             nameSpecification = Optional.empty();
         }
+        return nameSpecification;
+    }
 
-
-        final Optional<Specification<TypeDefinition>> versionSpecification;
-        final Long version = typeDefSearch.getVersion();
-        if (version != null) {
-            versionSpecification = Optional.of(versionEqual(version));
+    private Specifications<TypeDefinition> searchNamespaceCriteria(String namespace, boolean namespaceLeftJoker, boolean namespaceRightJoker) {
+        final Specifications<TypeDefinition> whereNamespace;
+        if (namespaceLeftJoker && namespaceRightJoker) {
+            whereNamespace = Specifications.where(namespaceContaining(namespace));
+        } else if (namespaceLeftJoker) {
+            whereNamespace = Specifications.where(namespaceEndingWith(namespace));
+        } else if (namespaceRightJoker) {
+            whereNamespace = Specifications.where(namespaceStartingWith(namespace));
         } else {
-            versionSpecification = Optional.empty();
+            whereNamespace = Specifications.where(namespaceEqual(namespace));
         }
-
-        final Specifications<TypeDefinition> step1 = nameSpecification.map(tmp -> whereNamespace.and(tmp)).orElse(whereNamespace);
-        final Specifications<TypeDefinition> step2 = versionSpecification.map(tmp -> step1.and(tmp)).orElse(step1);
-        return typeDefinitionRepository.findAll(step2);
+        return whereNamespace;
     }
 
 

@@ -24,18 +24,14 @@
             <column name="platform" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            
+
             <column name="path" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
-            
-            <column name="priority" type="bigint">
-                <constraints nullable="true" />
-            </column>
-            
+
             <column name="type_definition_id" type="bigint"/>
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
-        
+
     </changeSet>
 </databaseChangeLog>

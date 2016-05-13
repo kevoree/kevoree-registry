@@ -48,4 +48,6 @@ public interface NamespaceService {
     Namespace deactivate(Namespace namespace);
 
     List<Namespace> search(NamespaceSearchDTO namespaceSearch);
+
+    Long countSimilar(Namespace namespace);
 }

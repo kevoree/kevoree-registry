@@ -34,8 +34,7 @@ public class DeployUnitServiceImpl implements DeployUnitService {
 
     private final Logger log = LoggerFactory.getLogger(DeployUnitServiceImpl.class);
     private final Sort defaultSort = new Sort(new Sort.Order(Direction.ASC, DeployUnit_.typeDefinition.getName()),
-        new Sort.Order(Direction.ASC, DeployUnit_.platform.getName()),
-        new Sort.Order(Direction.DESC, DeployUnit_.priority.getName()));
+        new Sort.Order(Direction.ASC, DeployUnit_.platform.getName()));
 
     @Inject
     private DeployUnitRepository deployUnitRepository;
@@ -190,17 +189,17 @@ public class DeployUnitServiceImpl implements DeployUnitService {
             final Root<DeployUnit> deployUnitSub2 = subQuery2.from(DeployUnit.class);
 
             final Expression<String> se1 = deployUnitSub2.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
-            final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
+            //final Expression<String> se2 = cb.max(deployUnitSub2.get(DeployUnit_.priority)).as(String.class);
             final Expression<String> se3 = deployUnitSub2.get(DeployUnit_.platform);
 
 
-            subQuery2.select(cb.concat(cb.concat(cb.concat(cb.concat(se1, "_"), se2), " "), se3));
+            //subQuery2.select(cb.concat(cb.concat(cb.concat(cb.concat(se1, "_"), se2), " "), se3));
             subQuery2.groupBy(deployUnitSub2.get(DeployUnit_.typeDefinition), deployUnitSub2.get(DeployUnit_.platform));
 
             final Expression<String> e1 = deployUnitSub1.get(DeployUnit_.typeDefinition).get(TypeDefinition_.id).as(String.class);
-            final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
+            //final Expression<String> e2 = deployUnitSub1.get(DeployUnit_.priority).as(String.class);
             final Expression<String> e3 = deployUnitSub1.get(DeployUnit_.platform);
-            subQuery1.where(cb.in(cb.concat(cb.concat(cb.concat(cb.concat(e1, "_"), e2), " "), e3)).value(subQuery2));
+            //subQuery1.where(cb.in(cb.concat(cb.concat(cb.concat(cb.concat(e1, "_"), e2), " "), e3)).value(subQuery2));
 
             return cb.in(cb.concat(cb.concat(root.get(DeployUnit_.id).as(String.class), " "), root.get(DeployUnit_.platform))).value(subQuery1);
         };

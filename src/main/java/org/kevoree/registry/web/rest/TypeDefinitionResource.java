@@ -140,7 +140,7 @@ public class TypeDefinitionResource {
     @Timed
     public ResponseEntity<List<TypeDefinition>> searchTypeDefinitions(@Valid @RequestBody TypeDefinitionSearchDTO namespaceSearch) {
         log.debug("REST request to search typedefinition by namespace, name and version");
-        return new ResponseEntity<List<TypeDefinition>>(typeDefinitionService.search(namespaceSearch), HttpStatus.OK);
+        return new ResponseEntity<>(typeDefinitionService.search(namespaceSearch), HttpStatus.OK);
     }
 
 }

@@ -81,7 +81,6 @@ public class DeployUnitResourceIntTest {
         deployUnit = new DeployUnit();
         deployUnit.setPlatform(DEFAULT_PLATFORM);
         deployUnit.setPath(DEFAULT_PATH);
-        deployUnit.setPriority(DEFAULT_PRIORITY);
     }
 
     @Test
@@ -102,7 +101,6 @@ public class DeployUnitResourceIntTest {
         DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
         assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
         assertThat(testDeployUnit.getPath()).isEqualTo(DEFAULT_PATH);
-        assertThat(testDeployUnit.getPriority()).isEqualTo(DEFAULT_PRIORITY);
     }
 
     @Test
@@ -194,7 +192,6 @@ public class DeployUnitResourceIntTest {
         updatedDeployUnit.setId(deployUnit.getId());
         updatedDeployUnit.setPlatform(UPDATED_PLATFORM);
         updatedDeployUnit.setPath(UPDATED_PATH);
-        updatedDeployUnit.setPriority(UPDATED_PRIORITY);
 
         restDeployUnitMockMvc.perform(put("/api/deploy-units")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -207,7 +204,6 @@ public class DeployUnitResourceIntTest {
         DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
         assertThat(testDeployUnit.getPlatform()).isEqualTo(UPDATED_PLATFORM);
         assertThat(testDeployUnit.getPath()).isEqualTo(UPDATED_PATH);
-        assertThat(testDeployUnit.getPriority()).isEqualTo(UPDATED_PRIORITY);
     }
 
     @Test

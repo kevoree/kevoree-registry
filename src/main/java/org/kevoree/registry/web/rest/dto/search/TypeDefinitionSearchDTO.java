@@ -19,6 +19,9 @@ public class TypeDefinitionSearchDTO {
 
     private Long version;
 
+    @NotNull
+    private Boolean latest;
+
     public String getNamespace() {
         return namespace;
     }
@@ -41,5 +44,13 @@ public class TypeDefinitionSearchDTO {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public Boolean getLatest() {
+        return latest;
+    }
+
+    public void setLatest(Boolean latest) {
+        this.latest = latest;
     }
 }

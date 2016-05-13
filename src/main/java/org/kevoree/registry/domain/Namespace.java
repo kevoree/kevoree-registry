@@ -5,7 +5,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+//import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +25,9 @@ public class Namespace implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotNull
-    @Size(min = 1, max = 50)
-    @Pattern(regexp = "^[a-z][a-z0-9]*$")
+    //@NotNull
+    //@Size(min = 1, max = 50)
+    //@Pattern(regexp = "^[a-z][a-z0-9]*$")
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
