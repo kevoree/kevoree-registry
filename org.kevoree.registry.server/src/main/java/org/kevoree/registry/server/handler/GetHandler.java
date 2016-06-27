@@ -36,8 +36,8 @@ public class GetHandler implements HttpHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         exchange.getResponseHeaders().put(new HttpString("Access-Control-Allow-Origin"), "*");
-
         KevoreeTransaction trans = manager.createTransaction();
+        
         try {
             String[] paths = exchange.getRequestPath().split("/");
             StringBuilder pathBuilder = new StringBuilder();

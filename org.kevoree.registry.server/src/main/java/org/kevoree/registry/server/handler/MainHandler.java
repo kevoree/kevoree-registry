@@ -19,22 +19,29 @@ public class MainHandler implements HttpHandler {
     private GetHandler getHandler;
     private SearchHandler searchHandler;
     private HttpHandler staticHandler;
+    private TimestampHandler timestampHandler;
 
     public MainHandler(KevoreeTransactionManager ma, Configuration config, String kevoreeVersion) {
         this.manager = ma;
         this.deployHandler = new DeployHandler(manager);
         this.getHandler = new GetHandler(manager, config, kevoreeVersion);
         this.searchHandler = new SearchHandler(manager);
+        this.timestampHandler = new TimestampHandler(manager);
         this.staticHandler = new ResourceHandler(new ClassPathResourceManager(getClass().getClassLoader()));
     }
 
     @Override
     public void handleRequest(final HttpServerExchange exchange) throws Exception {
         if (exchange.getRequestMethod().equals(HttpString.tryFromString("GET"))) {
-            if (exchange.getRequestPath().startsWith("/static/")) {
-                String path = exchange.getRelativePath();
-                exchange.setRelativePath(path.replace("/static/", "/WEB-INF/"));
-                staticHandler.handleRequest(exchange);
+            if (exchange.getRequestPath().startsWith("/_/")) {
+            	// XXX if someone creates a package called "_" then he is doomed
+            	String path = exchange.getRelativePath();
+                if (path.startsWith("/_/static/")) {
+                	exchange.setRelativePath(path.replace("/_/static/", "/WEB-INF/"));
+                    staticHandler.handleRequest(exchange);
+                } else if (path.startsWith("/_/timestamp")) {
+                	timestampHandler.handleRequest(exchange);
+                }
             } else {
                 getHandler.handleRequest(exchange);
             }

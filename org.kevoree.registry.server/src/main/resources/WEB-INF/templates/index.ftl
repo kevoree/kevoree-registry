@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="description" content=""/>
     <meta name="author" content=""/>
-    <link rel="icon" href="/static/favicon.ico"/>
+    <link rel="icon" href="/_/static/favicon.ico"/>
 
     <title>Kevoree Registry ${version}</title>
 
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="/static/css/style.css" rel="stylesheet"/>
+    <link href="/_/static/css/style.css" rel="stylesheet"/>
 </head>
 
 <body>
@@ -24,8 +24,8 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="navbar-logo" class="navbar-brand" href="#">
-                    <img src="/static/images/logo.png" alt="Kevoree logo"/>
+                <a id="navbar-logo" class="navbar-brand" href="/">
+                    <img src="/_/static/images/logo.png" alt="Kevoree logo"/>
                 </a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
@@ -63,9 +63,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
 </body>

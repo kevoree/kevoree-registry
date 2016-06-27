@@ -8,3 +8,6 @@ release.properties
 kev_db_*/
 /*.iml
 *.log
+.project
+.classpath
+.settings
