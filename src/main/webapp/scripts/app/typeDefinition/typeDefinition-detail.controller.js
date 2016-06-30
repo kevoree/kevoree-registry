@@ -6,7 +6,6 @@ angular.module('kevoreeRegistryApp')
         $scope.load = function (namespace, name, version) {
             TypeDefinitions.get({ namespace: namespace, name: name, version: version },
                 function (result) {
-                    console.log('RESULT', result);
                     $scope.tdef = result;
                 });
         };

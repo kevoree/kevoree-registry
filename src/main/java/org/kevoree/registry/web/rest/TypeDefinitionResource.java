@@ -1,14 +1,17 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.kevoree.registry.domain.Authority;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
@@ -37,6 +40,12 @@ public class TypeDefinitionResource {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private AuthorityRepository authorityRepository;
 
     @Inject
     private NamespaceRepository namespaceRepository;
@@ -144,23 +153,35 @@ public class TypeDefinitionResource {
             .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
     }
 
-                /**
-                 * DELETE  /tdefs/{namespace}/{name} -> delete all namespace.Name TypeDefinitions
-                 */
-        @RequestMapping(value = "/tdefs/{namespace}/{name}",
-        method = RequestMethod.DELETE,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
+    /**
+     * DELETE  /tdefs/{namespace}/{name} -> delete all namespace.Name TypeDefinitions
+     */
+    @RequestMapping(value = "/tdefs/{namespace}/{name}",
+    method = RequestMethod.DELETE,
+    produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteAll(@PathVariable String namespace, @PathVariable String name) {
         log.debug("REST request to delete all TypeDefinitions : {}.{}", namespace, name);
-        return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
-            .map(tdef -> {
-                Set<TypeDefinition> tdefs = tdefsRepository
-                    .findByNamespaceNameAndNamespaceMembersLoginAndName(namespace, SecurityUtils.getCurrentLogin(), name);
-                tdefs.forEach(tdefsRepository::delete);
+        Namespace ns = namespaceRepository.findOne(namespace);
+        if (ns == null) {
+            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
+        } else {
+            User user = userService.getUserWithAuthorities();
+            Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
+            if (user.getAuthorities().contains(admin)) {
+                tdefsRepository.delete(ns.getTypeDefinitions());
                 return new ResponseEntity<>(HttpStatus.OK);
-            })
-            .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+            } else {
+                return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
+                    .map(tdef -> {
+                        Set<TypeDefinition> tdefs = tdefsRepository
+                            .findByNamespaceNameAndNamespaceMembersLoginAndName(namespace, SecurityUtils.getCurrentLogin(), name);
+                        tdefsRepository.delete(tdefs);
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    })
+                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+            }
+        }
     }
 }

@@ -5,6 +5,9 @@ angular.module('kevoreeRegistryApp')
         return {
             getNamespaces: function () {
                 return $http.get('api/user/namespaces');
+            },
+            getTypeDefinitions: function () {
+                return $http.get('api/user/tdefs');
             }
         }
     });

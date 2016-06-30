@@ -42,7 +42,11 @@ angular.module('kevoreeRegistryApp')
                     $('#deleteNamespaceConfirmation').modal('hide');
                     $scope.clear();
                 }, function (resp) {
-                    $scope.deleteError = resp.data.message;
+                    if (resp.status === 401) {
+                        $scope.deleteError = resp.statusText;
+                    } else {
+                        $scope.deleteError = resp.statusText;
+                    }
                 });
         };
 

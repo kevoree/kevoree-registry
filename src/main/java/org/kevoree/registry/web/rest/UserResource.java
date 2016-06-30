@@ -2,6 +2,7 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -60,6 +62,25 @@ public class UserResource {
         log.debug("REST request to get User '{}' namespaces", SecurityUtils.getCurrentLogin());
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
             .map(user -> new ResponseEntity<>(user.getNamespaces(), HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+    }
+
+    /**
+     * GET  /user/tdefs -> get the user's typedefinitions
+     */
+    @RequestMapping(value = "/user/tdefs",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
+    ResponseEntity<Set<TypeDefinition>> getUserTypeDefinitions() {
+        log.debug("REST request to get User '{}' typedefinitions", SecurityUtils.getCurrentLogin());
+        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
+            .map(user -> {
+                Set<TypeDefinition> tdefs = new HashSet<>();
+                user.getNamespaces().stream().forEach(ns -> tdefs.addAll(ns.getTypeDefinitions()));
+                return new ResponseEntity<>(tdefs, HttpStatus.OK);
+            })
             .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
     }
 }

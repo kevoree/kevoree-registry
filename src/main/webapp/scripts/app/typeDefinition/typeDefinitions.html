@@ -85,15 +85,18 @@
         </div>
     </div>
 
-    <div class="list-group" ng-repeat="tdef in tdefs | filter:filterText | orderBy:tdef.name">
-        <a ui-sref="tdefDetail({namespace: tdef.namespace.name, name:tdef.name, version: tdef.version})" class="list-group-item clearfix">
-            <h4 class="list-group-item-heading">{{ tdef.name + ' / ' + tdef.version}}</h4>
-            <p class="list-group-item-text">{{tdef.namespace.name}}</p>
-            <span ng-show="isInRole('ROLE_USER')" class="pull-right">
-                <button ng-click="delete(tdef.namespace.name, tdef.name, tdef.version, $event)" class="btn btn-sm btn-danger">
+    <div class="clearfix">
+        <div class="col-xs-4 list-group" ng-repeat="tdef in tdefs | filter:filterText | orderBy:tdef.name">
+            <a ui-sref="tdefDetail({namespace: tdef.namespace.name, name:tdef.name, version: tdef.version})" class="list-group-item clearfix">
+                <button
+                        class="btn btn-sm btn-danger pull-right"
+                        ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)"
+                        ng-click="delete(tdef.namespace.name, tdef.name, tdef.version, $event)">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
-            </span>
-        </a>
+                <h4 class="list-group-item-heading">{{ tdef.name + ' / ' + tdef.version}}</h4>
+                <p class="list-group-item-text">{{tdef.namespace.name}}</p>
+            </a>
+        </div>
     </div>
 </div>

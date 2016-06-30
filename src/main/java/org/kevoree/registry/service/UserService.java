@@ -86,6 +86,9 @@ public class UserService {
         ns.addMember(newUser);
         namespaceRepository.save(ns);
 
+        newUser.addNamespace(ns);
+        userRepository.save(newUser);
+
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }

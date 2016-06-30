@@ -1,12 +1,15 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.kevoree.registry.domain.Authority;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -35,6 +39,12 @@ public class NamespaceResource {
 
     @Inject
     private UserRepository userRepository;
+
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private AuthorityRepository authorityRepository;
 
     /**
      * GET  /namespaces -> get all namespaces
@@ -188,15 +198,26 @@ public class NamespaceResource {
     @Timed
     public ResponseEntity<?> delete(@PathVariable String name) {
         log.debug("REST request to delete Namespace : {}", name);
-        return namespaceRepository.findOneByNameAndMemberName(name, SecurityUtils.getCurrentLogin())
-            .map(ns -> {
-                if (ns.getOwner().getLogin().equals(SecurityUtils.getCurrentLogin())) {
-                    namespaceRepository.delete(ns);
-                    return new ResponseEntity<>(HttpStatus.OK);
-                } else {
-                    return new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED);
-                }
-            })
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if (namespaceRepository.findOne(name) == null) {
+            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
+        } else {
+            User user = userService.getUserWithAuthorities();
+            Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
+            if (user.getAuthorities().contains(admin)) {
+                namespaceRepository.delete(namespaceRepository.findOne(name));
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return namespaceRepository.findOneByNameAndMemberName(name, SecurityUtils.getCurrentLogin())
+                    .map(ns -> {
+                        if (ns.getOwner().getLogin().equals(SecurityUtils.getCurrentLogin())) {
+                            namespaceRepository.delete(ns);
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        } else {
+                            return new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED);
+                        }
+                    })
+                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of "+name), HttpStatus.UNAUTHORIZED));
+            }
+        }
     }
 }
