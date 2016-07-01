@@ -1,23 +1,20 @@
 package org.kevoree.registry.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.kevoree.registry.domain.util.CustomTypeDefinitionDeserializer;
-import org.kevoree.registry.domain.util.CustomTypeDefinitionSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A TypeDefinition.
  */
 @Entity
 @Table(name = "T_TYPE_DEFINITION")
-@JsonSerialize(using = CustomTypeDefinitionSerializer.class)
-@JsonDeserialize(using = CustomTypeDefinitionDeserializer.class)
 public class TypeDefinition implements Serializable {
 
     @Id
@@ -37,7 +34,12 @@ public class TypeDefinition implements Serializable {
     private String version;
 
     @ManyToOne
+    @JsonIgnoreProperties({ "members", "typeDefinitions" })
     private Namespace namespace;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "typeDefinition")
+    @JsonIgnoreProperties({ "typeDefinition" })
+    private Set<DeployUnit> deployUnits = new HashSet<>();
 
     private Long nbDownloads = 0L;
 
@@ -81,6 +83,22 @@ public class TypeDefinition implements Serializable {
         this.nbDownloads = nbDownloads;
     }
 
+    public Set<DeployUnit> getDeployUnits() {
+        return deployUnits;
+    }
+
+    public void setDeployUnits(Set<DeployUnit> deployUnits) {
+        this.deployUnits = deployUnits;
+    }
+
+    public void addDeployUnit(DeployUnit deployUnit) {
+        this.deployUnits.add(deployUnit);
+    }
+
+    public void removeDeployUnit(DeployUnit deployUnit) {
+        this.deployUnits.remove(deployUnit);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -108,6 +126,7 @@ public class TypeDefinition implements Serializable {
             ", version='" + version + "'" +
             ", namespace='" + namespace.getName() + '\'' +
             ", nbDownloads=" + nbDownloads +
+            ", deployUnits=" + deployUnits +
             "}";
     }
 }

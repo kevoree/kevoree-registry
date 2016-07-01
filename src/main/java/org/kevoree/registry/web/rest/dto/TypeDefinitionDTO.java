@@ -11,9 +11,9 @@ public class TypeDefinitionDTO {
     @Size(min = 1, max = 50)
     private String name;
 
-    @Pattern(regexp = "/^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$/")
+    @Pattern(regexp = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$")
     @NotNull
-    @Size(min = 6, max = 50)
+    @Size(min = 1, max = 50)
     private String version;
 
     @Pattern(regexp = "^[a-z0-9]*$")
@@ -28,7 +28,6 @@ public class TypeDefinitionDTO {
         this.name = name;
         this.version = version;
     }
-
 
     public String getName() {
         return name;

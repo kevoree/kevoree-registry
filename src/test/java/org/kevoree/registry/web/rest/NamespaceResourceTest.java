@@ -36,9 +36,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 
 /**
- * Test class for the UserResource REST controller.
+ * Test class for the NamespaceResource REST controller.
  *
- * @see org.kevoree.registry.web.rest.UserResource
+ * @see NamespaceResource
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)

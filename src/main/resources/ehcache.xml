@@ -25,6 +25,14 @@
            timeToLiveSeconds="3600">
     </cache>
 
+    <cache name="org.kevoree.registry.domain.TypeDefinition"
+           timeToLiveSeconds="3600">
+    </cache>
+
+    <cache name="org.kevoree.registry.domain.DeployUnit"
+           timeToLiveSeconds="3600">
+    </cache>
+
     <cache name="org.kevoree.registry.domain.Authority"
            timeToLiveSeconds="3600">
     </cache>

@@ -1,0 +1,37 @@
+{
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "minlength"
+            ],
+            "fieldValidateRulesMinlength": "1"
+        },
+        {
+            "fieldName": "version",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "pattern"
+            ],
+            "fieldValidateRulesPattern": "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$",
+            "fieldValidateRulesPatternJava": "^([0-9]+)\\\\.([0-9]+)\\\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\\\.[0-9A-Za-z-]+)*))?(?:\\\\+[0-9A-Za-z-]+)?$"
+        },
+        {
+            "fieldName": "platform",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "model",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20160701082828",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "deploy_unit",
+    "pagination": "no"
+}

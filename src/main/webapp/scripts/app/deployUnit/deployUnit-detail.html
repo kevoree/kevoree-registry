@@ -1,0 +1,44 @@
+<div class="well">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th translate="entity.detail.field">Field</th>
+                    <th translate="entity.detail.value">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{tdef.namespace.name}}" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{tdef.name}}" readonly>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
+                    </td>
+                    <td>
+                        <input type="text" class="input-sm form-control" value="{{tdef.version}}" readonly>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit"
+            ui-sref="tdefs"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.typeDefinition.home.title"> Back</span>
+    </button>
+</div>

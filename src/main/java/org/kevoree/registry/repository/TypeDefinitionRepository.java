@@ -2,7 +2,6 @@ package org.kevoree.registry.repository;
 
 import org.kevoree.registry.domain.TypeDefinition;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 import java.util.Set;

@@ -58,6 +58,7 @@ public class OAuth2ServerConfiguration {
                 .authorizeRequests()
                 .antMatchers("/api/namespaces/**").permitAll()
                 .antMatchers("/api/tdefs/**").permitAll()
+                .antMatchers("/api/dus/**").permitAll()
                 .antMatchers("/api/authenticate").permitAll()
                 .antMatchers("/api/register").permitAll()
                 .antMatchers("/api/logs/**").hasAnyAuthority(AuthoritiesConstants.ADMIN)

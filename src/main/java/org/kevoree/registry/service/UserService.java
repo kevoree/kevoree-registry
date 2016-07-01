@@ -119,6 +119,16 @@ public class UserService {
         return currentUser;
     }
 
+    public boolean hasAuthority(String authority) {
+        User user = this.getUserWithAuthorities();
+        Authority auth = authorityRepository.findOne(authority);
+        if (auth != null) {
+            return user.getAuthorities().contains(auth);
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * Not activated users should be automatically deleted after 3 days.

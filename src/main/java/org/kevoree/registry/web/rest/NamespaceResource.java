@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -133,7 +132,7 @@ public class NamespaceResource {
                                     return new ResponseEntity<>(HttpStatus.OK);
                                 }))
                                 // cannot add unknown user to a namespace
-                            .orElse(new ResponseEntity<ErrorDTO>(new ErrorDTO("unknown user"), HttpStatus.BAD_REQUEST));
+                            .orElse(new ResponseEntity<>(new ErrorDTO("unknown user"), HttpStatus.BAD_REQUEST));
                     } else {
                         return new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED);
                     }
@@ -168,7 +167,7 @@ public class NamespaceResource {
                                 // this user is already a member of the given namespace
                                 .map(n -> {
                                     if (member.equals(user)) {
-                                        return new ResponseEntity<ErrorDTO>(new ErrorDTO("namespace owner cannot be removed from its own namespace"), HttpStatus.BAD_REQUEST);
+                                        return new ResponseEntity<>(new ErrorDTO("namespace owner cannot be removed from its own namespace"), HttpStatus.BAD_REQUEST);
                                     } else {
                                         // remove member from namespace
                                         ns.removeMember(member);
@@ -213,7 +212,7 @@ public class NamespaceResource {
                             namespaceRepository.delete(ns);
                             return new ResponseEntity<>(HttpStatus.OK);
                         } else {
-                            return new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED);
+                            return new ResponseEntity<>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED);
                         }
                     })
                     .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of "+name), HttpStatus.UNAUTHORIZED));

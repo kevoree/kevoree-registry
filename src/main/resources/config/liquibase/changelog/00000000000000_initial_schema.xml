@@ -194,6 +194,39 @@
                   separator=";"
                   tableName="T_TYPE_DEFINITION"/>
 
+        <createTable tableName="T_DEPLOY_UNIT">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="version" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="platform" type="varchar(50)">
+                <constraints nullable="false" />
+            </column>
+            <column name="typeDefinition_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="model" type="text">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="name, version, platform, typeDefinition_id"/>
+        <addForeignKeyConstraint baseColumnNames="typeDefinition_id"
+                                 baseTableName="T_DEPLOY_UNIT"
+                                 constraintName="fk_deploy_unit_typeDefinition_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="T_TYPE_DEFINITION"
+                                 onDelete="CASCADE"/>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/deploy_units.csv"
+                  separator=";"
+                  tableName="T_DEPLOY_UNIT"/>
+
         <createTable tableName="T_USER_NAMESPACE">
             <column name="name" type="varchar(50)">
                 <constraints nullable="false"/>
@@ -220,7 +253,6 @@
                   file="config/liquibase/users_namespaces.csv"
                   separator=";"
                   tableName="T_USER_NAMESPACE"/>
-
     </changeSet>
 
     <!-- Manage the OAuth authentication -->

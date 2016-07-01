@@ -1,0 +1,9 @@
+id;name;version;platform;typeDefinition_id;model
+1;kevoree-node-javascript;1.0.0;js;4;{}
+2;kevoree-comp-ticker;1.0.0;js;1;{}
+3;org.kevoree.library.java.toys;1.0.0;java;1;{}
+4;org.kevoree.library.java.javaNode;1.0.0;java;3;{}
+5;kevoree-comp-consoleprinter;1.0.0;js;2;{}
+6;org.kevoree.library.java.toys;1.0.0;java;2;{}
+7;kevoree-group-ws;1.0.0;js;5;{}
+8;org.kevoree.library.java.ws;1.0.0;java;5;{}

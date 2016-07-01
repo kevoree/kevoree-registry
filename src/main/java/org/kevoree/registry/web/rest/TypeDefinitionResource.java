@@ -127,8 +127,8 @@ public class TypeDefinitionResource {
                                 tdefsRepository.save(tdef);
                                 return new ResponseEntity<>(HttpStatus.CREATED);
                             }))
-                    .orElse(new ResponseEntity<ErrorDTO>(new ErrorDTO("you are not a member of '"+tdefDTO.getNamespace()+"' namespace"), HttpStatus.BAD_REQUEST)))
-            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '"+tdefDTO.getNamespace()+"' namespace"), HttpStatus.BAD_REQUEST)))
+            .orElse(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
     /**

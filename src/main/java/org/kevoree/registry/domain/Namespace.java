@@ -1,5 +1,6 @@
 package org.kevoree.registry.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.*;
@@ -22,8 +23,8 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "T_NAMESPACE")
-@JsonSerialize(using = CustomNamespaceSerializer.class)
-@JsonDeserialize(using = CustomNamespaceDeserializer.class)
+//@JsonSerialize(using = CustomNamespaceSerializer.class)
+//@JsonDeserialize(using = CustomNamespaceDeserializer.class)
 public class Namespace implements Serializable {
 
     @Id
@@ -33,12 +34,19 @@ public class Namespace implements Serializable {
     private String name;
 
     @ManyToOne
+    @JsonIgnoreProperties({
+        "authorities", "namespaces", "firstName", "lastName", "email", "activated", "langKey", "activationKey",
+        "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" })
     private User owner;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "namespaces")
+    @JsonIgnoreProperties({
+        "authorities", "namespaces", "firstName", "lastName", "email", "activated", "langKey", "activationKey",
+        "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" })
     private Set<User> members = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "namespace")
+    @JsonIgnoreProperties({ "namespace" })
     private Set<TypeDefinition> tdefs = new HashSet<>();
 
     public String getName() {

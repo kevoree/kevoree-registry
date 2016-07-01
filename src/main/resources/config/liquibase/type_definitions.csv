@@ -1,1 +1,7 @@
 id;name;version;namespace_name;nbDownloads
+1;Ticker;1.0.0;kevoree;0
+2;ConsolePrinter;1.0.0;kevoree;0
+3;JavaNode;1.0.0;kevoree;0
+4;JavascriptNode;1.0.0;kevoree;0
+5;WSGroup;1.0.0;kevoree;0
+6;Foo;1.2.3;user;0

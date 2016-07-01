@@ -31,9 +31,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Test class for the UserResource REST controller.
+ * Test class for the TypeDefinitionResource REST controller.
  *
- * @see UserResource
+ * @see TypeDefinitionResource
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class TypeDefinitionResourceTest {
 
-    private static final String DEFAULT_NAME = "testnamespace";
+    private static final String NS_NAME = "testnamespace";
 
     @Inject
     private TypeDefinitionRepository tdefsRepository;
@@ -72,7 +72,7 @@ public class TypeDefinitionResourceTest {
         admin = userRepository.findOneByLogin("admin").get();
 
         namespace = new Namespace();
-        namespace.setName(DEFAULT_NAME);
+        namespace.setName(NS_NAME);
         namespace.addMember(admin);
         namespace.setOwner(admin);
 
