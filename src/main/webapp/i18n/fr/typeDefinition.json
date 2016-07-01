@@ -17,7 +17,6 @@
             "name": "Nom",
             "version": "Version",
             "name_version": "Nom / Version",
-            "serializedModel": "Modèle sérialisé",
             "filter": "Filtrer",
             "filterPlaceholder": "Filtrer les TypeDefinitions..."
         }

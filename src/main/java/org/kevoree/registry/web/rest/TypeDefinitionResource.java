@@ -122,7 +122,6 @@ public class TypeDefinitionResource {
                                 TypeDefinition tdef = new TypeDefinition();
                                 tdef.setName(tdefDTO.getName());
                                 tdef.setVersion(tdefDTO.getVersion());
-                                tdef.setSerializedModel(tdefDTO.getSerializedModel());
                                 tdef.setNamespace(ns);
                                 ns.addTypeDefinition(tdef);
                                 tdefsRepository.save(tdef);

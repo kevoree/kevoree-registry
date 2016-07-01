@@ -43,10 +43,6 @@ public class CustomTypeDefinitionDeserializer extends JsonDeserializer<TypeDefin
             tdef.setNbDownloads(node.get("nbDownloads").asLong());
         }
 
-        if (node.get("serializedModel") != null) {
-            tdef.setSerializedModel(node.get("serializedModel").asText());
-        }
-
         return new TypeDefinition();
     }
 }

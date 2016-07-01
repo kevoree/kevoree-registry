@@ -2,10 +2,6 @@ package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.Type;
-import org.kevoree.registry.domain.util.CustomNamespaceDeserializer;
-import org.kevoree.registry.domain.util.CustomNamespaceSerializer;
 import org.kevoree.registry.domain.util.CustomTypeDefinitionDeserializer;
 import org.kevoree.registry.domain.util.CustomTypeDefinitionSerializer;
 
@@ -43,10 +39,6 @@ public class TypeDefinition implements Serializable {
     @ManyToOne
     private Namespace namespace;
 
-    @NotNull
-    @Type(type="org.hibernate.type.StringClobType")
-    private String serializedModel;
-
     private Long nbDownloads = 0L;
 
     public Long getId() {
@@ -55,14 +47,6 @@ public class TypeDefinition implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getSerializedModel() {
-        return serializedModel;
-    }
-
-    public void setSerializedModel(String serializedModel) {
-        this.serializedModel = serializedModel;
     }
 
     public Namespace getNamespace() {
@@ -109,7 +93,6 @@ public class TypeDefinition implements Serializable {
         TypeDefinition model = (TypeDefinition) o;
 
         return !(id != null && !id.equals(model.id));
-
     }
 
     @Override

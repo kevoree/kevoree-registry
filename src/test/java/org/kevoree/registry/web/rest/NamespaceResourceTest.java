@@ -7,10 +7,12 @@ import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -53,7 +55,13 @@ public class NamespaceResourceTest {
     private UserRepository userRepository;
 
     @Inject
+    private UserService userService;
+
+    @Inject
     private TypeDefinitionRepository typeDefinitionRepository;
+
+    @Inject
+    private AuthorityRepository authorityRepository;
 
     private MockMvc restNamespaceMockMvc;
 
@@ -64,7 +72,9 @@ public class NamespaceResourceTest {
     public void setup() {
         NamespaceResource namespaceResource = new NamespaceResource();
         ReflectionTestUtils.setField(namespaceResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(namespaceResource, "userService", userService);
         ReflectionTestUtils.setField(namespaceResource, "namespaceRepository", namespaceRepository);
+        ReflectionTestUtils.setField(namespaceResource, "authorityRepository", authorityRepository);
         this.restNamespaceMockMvc = MockMvcBuilders.standaloneSetup(namespaceResource).build();
     }
 
@@ -170,7 +180,6 @@ public class NamespaceResourceTest {
         TypeDefinition tdef = new TypeDefinition();
         tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
-        tdef.setSerializedModel("{}");
         tdef.setNamespace(namespace);
         namespace.addTypeDefinition(tdef);
         typeDefinitionRepository.saveAndFlush(tdef);

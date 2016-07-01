@@ -11,7 +11,6 @@ import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
-import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -84,7 +83,6 @@ public class TypeDefinitionResourceTest {
         tdef = new TypeDefinition();
         tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
-        tdef.setSerializedModel("{}");
     }
 
     @Test
@@ -99,8 +97,7 @@ public class TypeDefinitionResourceTest {
             .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
                 namespace.getName(),
                 tdef.getName(),
-                tdef.getVersion(),
-                tdef.getSerializedModel()))))
+                tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
@@ -123,8 +120,7 @@ public class TypeDefinitionResourceTest {
             .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
                 namespace.getName(),
                 tdef.getName(),
-                tdef.getVersion(),
-                tdef.getSerializedModel()))))
+                tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
@@ -139,8 +135,7 @@ public class TypeDefinitionResourceTest {
             .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
                 namespace.getName(),
                 tdef.getName(),
-                tdef.getVersion(),
-                tdef.getSerializedModel()))))
+                tdef.getVersion()))))
             .andExpect(status().isBadRequest());
     }
 
@@ -177,8 +172,7 @@ public class TypeDefinitionResourceTest {
             .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
                 newNs.getName(),
                 tdef.getName(),
-                tdef.getVersion(),
-                tdef.getSerializedModel()))))
+                tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db

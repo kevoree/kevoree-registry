@@ -174,9 +174,6 @@
             <column name="version" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="serializedModel" type="text">
-                <constraints nullable="false"/>
-            </column>
             <column name="namespace_name" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>

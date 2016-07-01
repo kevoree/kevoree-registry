@@ -29,9 +29,6 @@ public class CustomTypeDefinitionSerializer extends JsonSerializer<TypeDefinitio
             generator.writeStringField("owner", tdef.getNamespace().getOwner().getLogin());
             generator.writeEndObject();
         }
-        if (tdef.getSerializedModel() != null) {
-            generator.writeStringField("serializedModel", tdef.getSerializedModel());
-        }
         if (tdef.getNbDownloads() != null) {
             generator.writeNumberField("nbDownloads", tdef.getNbDownloads());
         }
