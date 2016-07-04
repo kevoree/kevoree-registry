@@ -55,7 +55,7 @@
     <div class="modal fade" id="deleteConfirmation">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(du.namespace.name, du.name, du.version)">
+                <form name="form" ng-submit="confirmDelete(du.typeDefinition.namespace.name, du.typeDefinition.name, du.typeDefinition.version, du.name, du.version, du.platform)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
@@ -81,17 +81,17 @@
         </div>
     </div>
 
-    <div class="clearfix">
+    <div class="row" style="padding-left: 15px;">
         <div class="col-xs-4 list-group" ng-repeat="du in dus | filter:filterText | orderBy:du.name">
-            <a ui-sref="deployUnitDetail({ namespace: du.typeDefinition.namespace.name, tdef: du.typeDefinition.name, tdefVersion: du.typeDefinition.version, name:du.name, version: du.version })" class="list-group-item clearfix">
+            <a ui-sref="duDetail({ namespace: du.typeDefinition.namespace.name, tdefName: du.typeDefinition.name, tdefVersion: du.typeDefinition.version, name:du.name, version: du.version, platform: du.platform })" class="list-group-item clearfix" style="overflow: hidden">
                 <button
-                        class="btn btn-sm btn-danger pull-right"
-                        ng-if="isInRole('ROLE_ADMIN')"
-                        ng-click="delete(du.typeDefinition.namespace.name, du.typeDefinition.name, du.typeDefinition.version, du.name, du.version, $event)">
+                    class="btn btn-sm btn-danger pull-right"
+                    ng-if="isInRole('ROLE_ADMIN') || isMember(du)"
+                    ng-click="delete(du.typeDefinition.namespace.name, du.typeDefinition.name, du.typeDefinition.version, du.name, du.version, du.platform, $event)">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
                 <h4 class="list-group-item-heading">{{ du.name + ' / ' + du.version}}</h4>
-                <p class="list-group-item-text">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</p>
+                <p class="list-group-item-text">{{ du.typeDefinition.namespace.name + '.' + du.typeDefinition.name + '/' + du.typeDefinition.version }}</p>
             </a>
         </div>
     </div>

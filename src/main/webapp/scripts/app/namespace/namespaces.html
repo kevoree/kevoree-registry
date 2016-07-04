@@ -77,15 +77,15 @@
 
     <div class="clearfix">
         <div class="col-xs-4 list-group" ng-repeat="ns in namespaces | filter:filterText | orderBy:ns.name">
-            <a ui-sref="namespaceDetail({name:ns.name})" class="list-group-item clearfix">
+            <a ui-sref="nsDetail({name:ns.name})" class="list-group-item clearfix">
                 <button
                     class="btn btn-sm btn-danger pull-right"
-                    ng-if="isInRole('ROLE_ADMIN') || (ns.owner === user.login)"
+                    ng-if="isInRole('ROLE_ADMIN') || isOwner(ns)"
                     ng-click="delete(ns.name, $event)">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
-                <h4 class="list-group-item-heading">{{ ns.name }} ({{ns.owner}})</h4>
-                <p class="list-group-item-text">{{ns.members | list}}</p>
+                <h4 class="list-group-item-heading">{{ ns.name }}</h4>
+                <p class="list-group-item-text">{{ ns.owner.login }}</p>
             </a>
         </div>
     </div>

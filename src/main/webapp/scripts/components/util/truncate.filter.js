@@ -44,12 +44,18 @@ angular.module('kevoreeRegistryApp')
             }
             return input;
         };
-    }).filter('list', function () {
-        return function (list) {
-            if (list) {
-                return list.join(', ');
-            } else {
-                return list;
+    })
+    .filter('list', function () {
+        return function (list, prop) {
+            if (typeof list !== 'undefined') {
+                if (prop) {
+                    return list.map(function (item) {
+                        return item[prop];
+                    }).join(', ');
+                } else {
+                    return list.join(', ');
+                }
             }
-        }
+            return list;
+        };
     });

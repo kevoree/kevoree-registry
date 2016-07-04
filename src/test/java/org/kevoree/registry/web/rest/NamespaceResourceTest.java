@@ -118,7 +118,7 @@ public class NamespaceResourceTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/json"))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.members.[0]").value(admin.getLogin()));
+            .andExpect(jsonPath("$.members.[0].login").value(admin.getLogin()));
     }
 
     @Test

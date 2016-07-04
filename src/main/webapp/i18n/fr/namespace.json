@@ -25,8 +25,7 @@
             "name": "Nom",
             "owner": "Propriétaire",
             "members": "Membres",
-            "addMember": "Ajouter un membre",
-            "typeDefinitions": "Type Definitions",
+            "typeDefinitions": "TypeDefinitions",
             "filterPlaceholder": "Filtrer les namespaces...",
             "filter": "Filtrer"
         }

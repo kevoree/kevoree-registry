@@ -22,9 +22,9 @@ angular.module('kevoreeRegistryApp')
                     }]
                 }
             })
-            .state('namespaceDetail', {
-                parent: 'entity',
-                url: '/ns/:name',
+            .state('nsDetail', {
+                parent: 'namespaces',
+                url: '/:name',
                 data: {
                     roles: []
                 },

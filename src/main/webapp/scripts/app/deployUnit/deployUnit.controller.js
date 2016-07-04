@@ -1,20 +1,13 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('DeployUnitController', function ($scope, $stateParams, DeployUnits, User, Principal) {
+    .controller('DeployUnitController', function ($rootScope, $scope, $stateParams, DeployUnits, User, Principal) {
         $scope.dus = [];
         $scope.namespaces = [];
         $scope.isInRole = Principal.isInRole;
 
         $scope.loadAll = function() {
-            DeployUnits.query({
-                namespace: $stateParams.namespace,
-                tdef: $stateParams.tdef,
-                tdefVersion: $stateParams.tdefVersion,
-                name: $stateParams.name,
-                version: $stateParams.version
-            }, function(result) {
-                // map dus so that they also get a fqn for filtering purposes
+            DeployUnits.query(function(result) {
                 $scope.dus = result;
             });
         };
@@ -38,26 +31,38 @@ angular.module('kevoreeRegistryApp')
                 });
         };
 
-        $scope.delete = function (namespace, tdef, tdefVersion, name, version, event) {
+        $scope.isMember = function (deployUnit) {
+            return $rootScope.user.namespaces.some(function (ns) {
+                return ns.typeDefinitions.some(function (tdef) {
+                    return tdef.deployUnits.some(function (du) {
+                        return deployUnit.id === du.id;
+                    });
+                });
+            });
+        };
+
+        $scope.delete = function (namespace, tdefName, tdefVersion, name, version, platform, event) {
             event.stopPropagation();
             event.preventDefault();
             $scope.tdef = DeployUnits.get({
                 namespace: namespace,
-                tdef: tdef,
+                tdefName: tdefName,
                 tdefVersion: tdefVersion,
                 name: name,
-                version: version
+                version: version,
+                platform: platform
             });
             $('#deleteConfirmation').modal('show');
         };
 
-        $scope.confirmDelete = function (namespace, name, version) {
+        $scope.confirmDelete = function (namespace, tdefName, tdefVersion, name, version, platform) {
             DeployUnits.delete({
                     namespace: namespace,
-                    tdef: tdef,
+                    tdefName: tdefName,
                     tdefVersion: tdefVersion,
                     name: name,
-                    version: version
+                    version: version,
+                    platform: platform
                 }, function () {
                     $scope.loadAll();
                     $('#deleteConfirmation').modal('hide');

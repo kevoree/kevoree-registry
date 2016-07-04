@@ -17,6 +17,7 @@
             "name": "Name",
             "version": "Version",
             "name_version": "Name / Version",
+            "deployUnits": "DeployUnits",
             "filterPlaceholder": "Filter TypeDefinitions...",
             "filter": "Filter"
         }

@@ -14,6 +14,8 @@
             },
             "namespace": "Namespace",
             "selectNamespace": "Select a namespace",
+            "typeDefinition": "TypeDefinition",
+            "typeDefinitionVersion": "TypeDefinition Version",
             "name": "Name",
             "version": "Version",
             "platform": "Platform",

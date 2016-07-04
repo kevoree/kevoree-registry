@@ -32,6 +32,18 @@
                         <input type="text" class="input-sm form-control" value="{{tdef.version}}" readonly>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+                    </td>
+                    <td>
+                        <ul class="list-unstyled">
+                            <li ng-repeat="du in tdef.deployUnits">
+                                <a ui-sref="duDetail({ namespace: tdef.namespace.name, tdefName: tdef.name, tdefVersion: tdef.version, name: du.name, version: du.version, platform: du.platform })">{{ du.name + '/' + du.version + '/' + du.platform }}</a>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

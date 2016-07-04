@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('NamespaceController', function ($scope, Principal, Namespaces) {
+    .controller('NamespaceController', function ($rootScope, $scope, Principal, Namespaces) {
         $scope.isInRole = Principal.isInRole;
         $scope.namespaces = [];
         $scope.loadAll = function() {
@@ -26,6 +26,10 @@ angular.module('kevoreeRegistryApp')
         $scope.update = function (name) {
             $scope.namespace = Namespaces.get({ name: name });
             $('#saveNamespaceModal').modal('show');
+        };
+
+        $scope.isOwner = function (namespace) {
+            return $rootScope.user.login === namespace.owner.login;
         };
 
         $scope.delete = function (name, event) {

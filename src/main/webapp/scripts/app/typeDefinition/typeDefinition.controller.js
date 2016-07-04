@@ -1,27 +1,17 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('TypeDefinitionController', function ($scope, $stateParams, TypeDefinitions, Namespaces, User, Principal) {
+    .controller('TypeDefinitionController', function ($rootScope, $scope, $stateParams, TypeDefinitions, Namespaces, User, Principal) {
         $scope.tdefs = [];
-        $scope.userTdefs = [];
         $scope.namespaces = [];
         $scope.isInRole = Principal.isInRole;
 
         $scope.loadAll = function() {
-            TypeDefinitions.query({
-                namespace: $stateParams.namespace,
-                name: $stateParams.name,
-                version: $stateParams.version
-            }, function(result) {
+            TypeDefinitions.query(function(result) {
                 // map tdefs so that they also get a fqn for filtering purposes
                 $scope.tdefs = result.map(function (tdef) {
                     tdef.fqn = tdef.namespace.name + '.' + tdef.name + '/' + tdef.version;
                     return tdef;
-                });
-            });
-            User.getTypeDefinitions().then(function (res) {
-                $scope.userTdefs = res.data.map(function (tdef) {
-                    return tdef.name;
                 });
             });
         };
@@ -45,8 +35,16 @@ angular.module('kevoreeRegistryApp')
                 });
         };
 
-        $scope.isMember = function (tdef) {
-            return $scope.userTdefs.indexOf(tdef.name) != -1;
+        $scope.isMember = function (typeDef) {
+            if ($rootScope) {
+                return $rootScope.user.namespaces.some(function (ns) {
+                    return ns.typeDefinitions.some(function (tdef) {
+                        return typeDef.id === tdef.id;
+                    });
+                });
+            } else {
+                return false;
+            }
         };
 
         $scope.delete = function (namespace, name, version, event) {

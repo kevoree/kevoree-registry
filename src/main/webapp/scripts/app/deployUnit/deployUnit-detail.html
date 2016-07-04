@@ -8,28 +8,44 @@
                 </tr>
             </thead>
             <tbody>
+            <tr>
+                <td>
+                    <span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+                </td>
+                <td>
+                    <input type="text" class="input-sm form-control" value="{{ du.name }}" readonly>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+                </td>
+                <td>
+                    <input type="text" class="input-sm form-control" value="{{ du.version }}" readonly>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+                </td>
+                <td>
+                    <input type="text" class="input-sm form-control" value="{{ du.platform }}" readonly>
+                </td>
+            </tr>
                 <tr>
                     <td>
-                        <span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+                        <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{tdef.namespace.name}}" readonly>
+                        <a ui-sref="nsDetail({ name: du.typeDefinition.namespace.name })">{{ du.typeDefinition.namespace.name }}</a>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>
+                        <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{tdef.name}}" readonly>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
-                    </td>
-                    <td>
-                        <input type="text" class="input-sm form-control" value="{{tdef.version}}" readonly>
+                        <a ui-sref="tdefDetail({ namespace: du.typeDefinition.namespace.name, name: du.typeDefinition.name, version: du.typeDefinition.version })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
                     </td>
                 </tr>
             </tbody>
@@ -37,8 +53,8 @@
     </div>
 
     <button type="submit"
-            ui-sref="tdefs"
+            ui-sref="dus"
             class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.typeDefinition.home.title"> Back</span>
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.deployUnit.home.title"> Back</span>
     </button>
 </div>

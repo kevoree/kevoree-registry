@@ -5,7 +5,7 @@ angular.module('kevoreeRegistryApp')
         $stateProvider
             .state('tdefs', {
                 parent: 'site',
-                url: '/tdefs/:namespace?/:name?',
+                url: '/tdefs',
                 data: {
                     roles: []
                 },
@@ -23,8 +23,8 @@ angular.module('kevoreeRegistryApp')
                 }
             })
             .state('tdefDetail', {
-                parent: 'entity',
-                url: '/tdefs/:namespace/:name?/:version?',
+                parent: 'tdefs',
+                url: '/:namespace/:name/:version',
                 data: {
                     roles: []
                 },

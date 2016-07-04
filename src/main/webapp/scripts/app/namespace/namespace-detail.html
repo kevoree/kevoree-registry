@@ -1,5 +1,5 @@
 <div class="well">
-    <div ng-show="namespace.owner === user.login" class="btn-group pull-right" role="group">
+    <div ng-show="namespace.owner.login === user.login" class="btn-group pull-right" role="group">
         <button ng-click="addMember()" class="btn btn-primary">
             <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
         </button>
@@ -98,7 +98,7 @@
                         <span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.owner}}" readonly>
+                        <input type="text" class="input-sm form-control" value="{{namespace.owner.login}}" readonly>
                     </td>
                 </tr>
                 <tr>
@@ -106,12 +106,12 @@
                         <span translate="kevoreeRegistryApp.namespace.members">Members</span>
                     </td>
                     <td>
-                        <input type="text" class="input-sm form-control" value="{{ namespace.members | list }}" readonly>
+                        <input type="text" class="input-sm form-control" value="{{ namespace.members | list:'login' }}" readonly>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span translate="kevoreeRegistryApp.namespace.typeDefinitions">Type Definitions</span>
+                        <span translate="kevoreeRegistryApp.namespace.typeDefinitions">TypeDefinitions</span>
                     </td>
                     <td>
                         <ul class="list-unstyled">

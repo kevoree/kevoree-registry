@@ -5,7 +5,7 @@ angular.module('kevoreeRegistryApp')
         $stateProvider
             .state('dus', {
                 parent: 'site',
-                url: '/dus/:namespace?/:tdef?/:tdefVersion?/:name?',
+                url: '/dus',
                 data: {
                     roles: []
                 },
@@ -23,8 +23,8 @@ angular.module('kevoreeRegistryApp')
                 }
             })
             .state('duDetail', {
-                parent: 'entity',
-                url: '/dus/:namespace/:tdef/:tdefVersion/:name?/:version?',
+                parent: 'dus',
+                url: '/:namespace/:tdefName/:tdefVersion/:name/:version/:platform',
                 data: {
                     roles: []
                 },

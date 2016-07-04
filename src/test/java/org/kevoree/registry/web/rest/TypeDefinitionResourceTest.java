@@ -92,12 +92,9 @@ public class TypeDefinitionResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
 
-        restTdefsMockMvc.perform(post("/api/tdefs")
+        restTdefsMockMvc.perform(post("/api/namespaces/{namespace}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
-                namespace.getName(),
-                tdef.getName(),
-                tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
@@ -115,12 +112,9 @@ public class TypeDefinitionResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
 
-        restTdefsMockMvc.perform(post("/api/tdefs")
+        restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
-                namespace.getName(),
-                tdef.getName(),
-                tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
@@ -130,12 +124,9 @@ public class TypeDefinitionResourceTest {
         Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(namespace.getName(), admin.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);
 
-        restTdefsMockMvc.perform(post("/api/tdefs")
+        restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
-                namespace.getName(),
-                tdef.getName(),
-                tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
             .andExpect(status().isBadRequest());
     }
 
@@ -167,12 +158,9 @@ public class TypeDefinitionResourceTest {
         assertThat(dbNewNs).isNotNull();
 
         // create a new TypeDefinition with same name and version but using the newNs
-        restTdefsMockMvc.perform(post("/api/tdefs")
+        restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", newNs.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(
-                newNs.getName(),
-                tdef.getName(),
-                tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db

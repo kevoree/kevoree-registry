@@ -1,17 +1,13 @@
 package org.kevoree.registry.service;
 
 import org.kevoree.registry.domain.DeployUnit;
-import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.repository.DeployUnitRepository;
-import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +20,6 @@ import javax.inject.Inject;
 @Transactional
 public class DeployUnitService {
 
-    private final Logger log = LoggerFactory.getLogger(DeployUnitService.class);
-
     @Inject
     private UserRepository userRepository;
 
@@ -33,21 +27,18 @@ public class DeployUnitService {
     private UserService userService;
 
     @Inject
-    private NamespaceRepository nsRepository;
-
-    @Inject
     private TypeDefinitionRepository tdefRepository;
 
     @Inject
     private DeployUnitRepository duRepository;
 
-    public DeployUnit create(DeployUnitDTO dto) {
+    public DeployUnit create(TypeDefinition tdef, DeployUnitDTO dto) {
         DeployUnit du = new DeployUnit();
         du.setName(dto.getName());
         du.setVersion(dto.getVersion());
         du.setPlatform(dto.getPlatform());
         du.setModel(dto.getModel());
-        du.setTypeDefinition(tdefRepository.findOne(dto.getTdefId()));
+        du.setTypeDefinition(tdef);
         return duRepository.save(du);
     }
 

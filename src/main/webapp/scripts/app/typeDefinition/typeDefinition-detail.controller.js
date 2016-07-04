@@ -4,15 +4,14 @@ angular.module('kevoreeRegistryApp')
     .controller('TypeDefinitionDetailController', function ($scope, $state, $stateParams, TypeDefinitions) {
         $scope.tdef = {};
         $scope.load = function (namespace, name, version) {
-            TypeDefinitions.get({ namespace: namespace, name: name, version: version },
-                function (result) {
-                    $scope.tdef = result;
-                });
+            TypeDefinitions.query({
+                namespace: namespace,
+                name: name,
+                version: version
+            }, function (result) {
+                $scope.tdef = result;
+            });
         };
 
-        if ($stateParams.version) {
-            $scope.load($stateParams.namespace, $stateParams.name, $stateParams.version);
-        } else {
-            $state.go('tdefs', { namespace: $stateParams.namespace, name: $stateParams.name });
-        }
+        $scope.load($stateParams.namespace, $stateParams.name, $stateParams.version);
     });

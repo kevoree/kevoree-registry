@@ -1,18 +1,16 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('TypeDefinitionDetailController', function ($scope, $state, $stateParams, TypeDefinitions) {
-        $scope.tdef = {};
-        $scope.load = function (namespace, name, version) {
-            TypeDefinitions.get({ namespace: namespace, name: name, version: version },
-                function (result) {
-                    $scope.tdef = result;
-                });
-        };
-
-        if ($stateParams.version) {
-            $scope.load($stateParams.namespace, $stateParams.name, $stateParams.version);
-        } else {
-            $state.go('tdefs', { namespace: $stateParams.namespace, name: $stateParams.name });
-        }
+    .controller('DeployUnitDetailController', function ($scope, $state, $stateParams, DeployUnits) {
+        $scope.du = {};
+        DeployUnits.query({
+            namespace: $stateParams.namespace,
+            tdefName: $stateParams.tdefName,
+            tdefVersion: $stateParams.tdefVersion,
+            name: $stateParams.name,
+            version: $stateParams.version,
+            platform: $stateParams.platform
+        }, function (result) {
+            $scope.du = result;
+        });
     });

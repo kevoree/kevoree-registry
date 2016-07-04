@@ -7,3 +7,5 @@ id;name;version;platform;typeDefinition_id;model
 6;org.kevoree.library.java.toys;1.0.0;java;2;{}
 7;kevoree-group-ws;1.0.0;js;5;{}
 8;org.kevoree.library.java.ws;1.0.0;java;5;{}
+9;foo-du;42-SNAPSHOT;java;6;{}
+10;foo-du;41;java;6;{}

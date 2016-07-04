@@ -25,20 +25,11 @@ public class DeployUnitDTO {
     private String platform;
 
     @NotNull
-    private Long tdefId;
-
-    @NotNull
     private String model;
 
     public DeployUnitDTO() {}
 
-    public DeployUnitDTO(Long id, Long tdefId, String name, String version, String platform, String model) {
-        this(tdefId, name, version, platform, model);
-        this.id = id;
-    }
-
-    public DeployUnitDTO(Long tdefId, String name, String version, String platform, String model) {
-        this.tdefId = tdefId;
+    public DeployUnitDTO(String name, String version, String platform, String model) {
         this.name = name;
         this.version = version;
         this.platform = platform;
@@ -59,10 +50,6 @@ public class DeployUnitDTO {
 
     public String getPlatform() {
         return platform;
-    }
-
-    public Long getTdefId() {
-        return tdefId;
     }
 
     public String getModel() {
@@ -86,22 +73,27 @@ public class DeployUnitDTO {
         this.platform = platform;
     }
 
-    public void setTdefId(Long tdefId) {
-        this.tdefId = tdefId;
-    }
-
     public void setModel(String model) {
         this.model = model;
     }
 
     @Override
     public String toString() {
-        return "DeployUnitDTO{" +
-            " tdefId=" + tdefId +
-            ", name='" + name + '\'' +
-            ", version='" + version + '\'' +
-            ", platform='" + platform + '\'' +
-            ", model='" + model + '\'' +
-            '}';
+        if (id == null) {
+            return "DeployUnitDTO{" +
+                "name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", platform='" + platform + '\'' +
+                ", model='" + model + '\'' +
+                '}';
+        } else {
+            return "DeployUnitDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", version='" + version + '\'' +
+                ", platform='" + platform + '\'' +
+                ", model='" + model + '\'' +
+                '}';
+        }
     }
 }

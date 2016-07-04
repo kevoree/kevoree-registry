@@ -1,10 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.kevoree.registry.domain.Authority;
-import org.kevoree.registry.domain.Namespace;
-import org.kevoree.registry.domain.TypeDefinition;
-import org.kevoree.registry.domain.User;
+import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
@@ -24,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -63,9 +61,51 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * GET  /tdefs/:namespace/:name/:version -> get a precise type definition
+     * GET  /tdefs/:id : get the "id" TypeDefinition.
+     *
+     * @param id the id of the TypeDefinition to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the TypeDefinition, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/tdefs/{namespace}/{name}/{version:.+}",
+    @RequestMapping(value = "/tdefs/{id:\\d}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable Long id) {
+        log.debug("REST request to get TypeDefinition : {}", id);
+        TypeDefinition tdef = tdefsRepository.findOne(id);
+        return Optional.ofNullable(tdef)
+            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs -> get a list of typeDefinitions from a specific namespace
+     */
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<Set<TypeDefinition>> getTypeDefinitions(@PathVariable String namespace) {
+        log.debug("REST request to get TypeDefinitions from Namespace: {}", namespace);
+        return new ResponseEntity<>(tdefsRepository.findByNamespaceName(namespace), HttpStatus.OK);
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:name -> get a list of typeDefinitions from a specific namespace and name
+     */
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace, @PathVariable String name) {
+        log.debug("REST request to get TypeDefinitions: {}.{}", namespace, name);
+        return new ResponseEntity<>(tdefsRepository.findByNamespaceNameAndName(namespace, name), HttpStatus.OK);
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:name/:version -> get a precise type definition
+     */
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}/{version:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -77,42 +117,18 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * GET  /tdefs/:namespace/:name -> get a list of typeDefinitions from a specific namespace and name
+     * POST  /namespaces/:namespace/tdefs -> add type definitions
      */
-    @RequestMapping(value = "/tdefs/{namespace}/{name}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace, @PathVariable String name) {
-        log.debug("REST request to get TypeDefinitions: {}.{}", namespace, name);
-        return new ResponseEntity<>(tdefsRepository.findByNamespaceNameAndName(namespace, name), HttpStatus.OK);
-    }
-
-    /**
-     * GET  /tdefs/:namespace -> get a list of typeDefinitions from a specific namespace
-     */
-    @RequestMapping(value = "/tdefs/{namespace}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespace(@PathVariable String namespace) {
-        log.debug("REST request to get TypeDefinitions from Namespace: {}", namespace);
-        return new ResponseEntity<>(tdefsRepository.findByNamespaceName(namespace), HttpStatus.OK);
-    }
-
-    /**
-     * POST  /tdefs -> add type definitions
-     */
-    @RequestMapping(value = "/tdefs",
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs",
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addTypeDefinitions(@RequestBody TypeDefinitionDTO tdefDTO) {
-        log.debug("REST request to add a TypeDefinition: {}", tdefDTO);
+    ResponseEntity<?> addTypeDefinitions(@PathVariable String namespace, @RequestBody TypeDefinitionDTO tdefDTO) {
+        log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
             .map(user ->
-                namespaceRepository.findOneByNameAndMemberName(tdefDTO.getNamespace(), user.getLogin())
+                namespaceRepository.findOneByNameAndMemberName(namespace, user.getLogin())
                     .map(ns ->
                         tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
                             .map(tdef -> new ResponseEntity<>(
@@ -127,14 +143,14 @@ public class TypeDefinitionResource {
                                 tdefsRepository.save(tdef);
                                 return new ResponseEntity<>(HttpStatus.CREATED);
                             }))
-                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '"+tdefDTO.getNamespace()+"' namespace"), HttpStatus.BAD_REQUEST)))
+                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of namespace '"+namespace+"'"), HttpStatus.BAD_REQUEST)))
             .orElse(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
     /**
-     * DELETE  /tdefs/{namespace}/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
+     * DELETE  /namespaces/{namespace}/tdefs/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
      */
-    @RequestMapping(value = "/tdefs/{namespace}/{name}/{version:.+}",
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}/{version:.+}",
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
@@ -153,9 +169,9 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * DELETE  /tdefs/{namespace}/{name} -> delete all namespace.Name TypeDefinitions
+     * DELETE  /namespaces/{namespace}/tdefs/{name} -> delete all namespace.Name TypeDefinitions
      */
-    @RequestMapping(value = "/tdefs/{namespace}/{name}",
+    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}",
     method = RequestMethod.DELETE,
     produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed

@@ -1,33 +1,23 @@
 package org.kevoree.registry.web.rest;
 
-import com.google.common.collect.Lists;
-import net.minidev.json.JSONUtil;
-import net.minidev.json.parser.JSONParser;
-import org.json4s.jackson.Json;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.DeployUnit;
-import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.repository.DeployUnitRepository;
-import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
-import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.json.JsonJsonParser;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -57,15 +47,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class DeployUnitResourceTest {
 
+    private static final String NAMESPACE = "kevoree";
+
+    private static final String TDEF_NAME = "ConsolePrinter";
+    private static final String TDEF_VERSION = "1.0.0";
+
     private static final String DEFAULT_NAME = "consoleprinter-deployUnit";
-    private static final String UPDATED_NAME = "org.kevoree.library.java.printer";
     private static final String DEFAULT_VERSION = "1.2.3";
-    private static final String UPDATED_VERSION = "42-SNAPSHOT";
     private static final String DEFAULT_PLATFORM = "atari";
-    private static final String UPDATED_PLATFORM = "js";
     private static final String DEFAULT_MODEL = "{}";
+
+    private static final String UPDATED_NAME = "org.kevoree.library.java.printer";
+    private static final String UPDATED_VERSION = "42.0.0-SNAPSHOT";
+    private static final String UPDATED_PLATFORM = "js";
     private static final String UPDATED_MODEL = "{\"foo\": \"bar\"}";
-    private static final Long   TDEF_ID = 2L;
 
     @Inject
     private DeployUnitRepository duRepository;
@@ -85,6 +80,7 @@ public class DeployUnitResourceTest {
     private MockMvc restDeployUnitMockMvc;
 
     private DeployUnitDTO deployUnit;
+    private TypeDefinition tdef;
 
     @PostConstruct
     public void setup() {
@@ -100,7 +96,8 @@ public class DeployUnitResourceTest {
 
     @Before
     public void initTest() {
-        deployUnit = new DeployUnitDTO(TDEF_ID, DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM, DEFAULT_MODEL);
+        tdef = tdefsRepository.findOne(2L);
+        deployUnit = new DeployUnitDTO(DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM, DEFAULT_MODEL);
     }
 
     @Test
@@ -113,7 +110,8 @@ public class DeployUnitResourceTest {
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
         // Create the DeployUnit
-        restDeployUnitMockMvc.perform(post("/api/dus")
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            NAMESPACE, TDEF_NAME, TDEF_VERSION)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
                 .andExpect(status().isCreated());
@@ -126,7 +124,9 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getVersion()).isEqualTo(DEFAULT_VERSION);
         assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
         assertThat(testDeployUnit.getModel()).isEqualTo(DEFAULT_MODEL);
-        assertThat(testDeployUnit.getTypeDefinition().getId()).isEqualTo(TDEF_ID);
+        assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
+        assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
+        assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
     }
 
     @Test
@@ -136,10 +136,9 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
-        deployUnit.setTdefId(42L);
-
         // Create the DeployUnit
-        restDeployUnitMockMvc.perform(post("/api/dus")
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            NAMESPACE, "unknown", "0.0.0")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
             .andExpect(status().isNotFound());
@@ -152,13 +151,27 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
-        deployUnit.setTdefId(6L);
-
         // Create the DeployUnit
-        restDeployUnitMockMvc.perform(post("/api/dus")
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            "user", "Foo", "1.2.3")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
             .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Transactional
+    public void createDeployUnitForUnknownNamespace() throws Exception {
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+
+        // Create the DeployUnit
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            "unknown", "aaa", "0.0.0")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -169,7 +182,8 @@ public class DeployUnitResourceTest {
         deployUnit.setName(null);
 
         // Create the DeployUnit, which fails.
-        restDeployUnitMockMvc.perform(post("/api/dus")
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            NAMESPACE, TDEF_NAME, TDEF_VERSION)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
                 .andExpect(status().isBadRequest());
@@ -186,7 +200,8 @@ public class DeployUnitResourceTest {
         deployUnit.setVersion(null);
 
         // Create the DeployUnit, which fails.
-        restDeployUnitMockMvc.perform(post("/api/dus")
+        restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
+            NAMESPACE, TDEF_NAME, TDEF_VERSION)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
                 .andExpect(status().isBadRequest());
@@ -199,7 +214,7 @@ public class DeployUnitResourceTest {
     @Transactional
     public void getAllDeployUnits() throws Exception {
         // Initialize the database
-        DeployUnit deployUnit = duService.create(this.deployUnit);
+        DeployUnit deployUnit = duService.create(tdef, this.deployUnit);
         duRepository.flush();
 
         // Get all the deployUnits
@@ -217,7 +232,7 @@ public class DeployUnitResourceTest {
     @Transactional
     public void getDeployUnit() throws Exception {
         // Initialize the database
-        DeployUnit deployUnit = duService.create(this.deployUnit);
+        DeployUnit deployUnit = duService.create(tdef, this.deployUnit);
         duRepository.flush();
 
         // Get the deployUnit
@@ -235,12 +250,12 @@ public class DeployUnitResourceTest {
     @Transactional
     public void getSpecificDeployUnit() throws Exception {
         // Initialize the database
-        DeployUnit deployUnit = duService.create(this.deployUnit);
+        DeployUnit deployUnit = duService.create(tdef, this.deployUnit);
         duRepository.flush();
 
         // Get the deployUnit
         restDeployUnitMockMvc.perform(
-            get("/api/dus/{namespace}/{tdef}/{tdefVersion}/{name}/{version}/{platform}",
+            get("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
                 deployUnit.getTypeDefinition().getNamespace().getName(),
                 deployUnit.getTypeDefinition().getName(),
                 deployUnit.getTypeDefinition().getVersion(),
@@ -253,7 +268,9 @@ public class DeployUnitResourceTest {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
             .andExpect(jsonPath("$.platform").value(DEFAULT_PLATFORM))
-            .andExpect(jsonPath("$.typeDefinition.id").value(TDEF_ID.intValue()))
+            .andExpect(jsonPath("$.typeDefinition.name").value(TDEF_NAME))
+            .andExpect(jsonPath("$.typeDefinition.version").value(TDEF_VERSION))
+            .andExpect(jsonPath("$.typeDefinition.namespace.name").value(NAMESPACE))
             .andExpect(jsonPath("$.model").value(DEFAULT_MODEL));
     }
 
@@ -270,21 +287,21 @@ public class DeployUnitResourceTest {
     @Transactional
     public void updateDeployUnit() throws Exception {
         // Initialize the database
-        DeployUnit deployUnit = duService.create(this.deployUnit);
+        DeployUnit du = duService.create(tdef, this.deployUnit);
         duRepository.flush();
         int databaseSizeBeforeUpdate = duRepository.findAll().size();
 
         // Update the deployUnit
-        DeployUnit updatedDeployUnit = new DeployUnit();
-        updatedDeployUnit.setId(deployUnit.getId());
-        updatedDeployUnit.setName(UPDATED_NAME);
-        updatedDeployUnit.setVersion(UPDATED_VERSION);
-        updatedDeployUnit.setPlatform(UPDATED_PLATFORM);
-        updatedDeployUnit.setModel(UPDATED_MODEL);
+        this.deployUnit.setId(du.getId());
+        this.deployUnit.setName(UPDATED_NAME);
+        this.deployUnit.setVersion(UPDATED_VERSION);
+        this.deployUnit.setPlatform(UPDATED_PLATFORM);
+        this.deployUnit.setModel(UPDATED_MODEL);
 
-        restDeployUnitMockMvc.perform(put("/api/dus")
+        restDeployUnitMockMvc.perform(put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
+            NAMESPACE, TDEF_NAME, TDEF_VERSION)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedDeployUnit)))
+                .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
                 .andExpect(status().isOk());
 
         // Validate the DeployUnit in the database
@@ -295,23 +312,8 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getVersion()).isEqualTo(UPDATED_VERSION);
         assertThat(testDeployUnit.getPlatform()).isEqualTo(UPDATED_PLATFORM);
         assertThat(testDeployUnit.getModel()).isEqualTo(UPDATED_MODEL);
-    }
-
-    @Test
-    @Transactional
-    public void deleteDeployUnit() throws Exception {
-        // Initialize the database
-        DeployUnit deployUnit = duService.create(this.deployUnit);
-        duRepository.flush();
-        int databaseSizeBeforeDelete = duRepository.findAll().size();
-
-        // Get the deployUnit
-        restDeployUnitMockMvc.perform(delete("/api/dus/{id}", deployUnit.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
-
-        // Validate the database is empty
-        List<DeployUnit> deployUnits = duRepository.findAll();
-        assertThat(deployUnits).hasSize(databaseSizeBeforeDelete - 1);
+        assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
+        assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
+        assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
     }
 }

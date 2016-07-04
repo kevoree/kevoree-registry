@@ -16,15 +16,9 @@ public class TypeDefinitionDTO {
     @Size(min = 1, max = 50)
     private String version;
 
-    @Pattern(regexp = "^[a-z0-9]*$")
-    @Size(max = 50)
-    @NotNull
-    private String namespace;
-
     public TypeDefinitionDTO() {}
 
-    public TypeDefinitionDTO(String namespace, String name, String version) {
-        this.namespace = namespace;
+    public TypeDefinitionDTO(String name, String version) {
         this.name = name;
         this.version = version;
     }
@@ -37,15 +31,10 @@ public class TypeDefinitionDTO {
         return version;
     }
 
-    public String getNamespace() {
-        return namespace;
-    }
-
     @Override
     public String toString() {
         return "TypeDefinitionDTO{" +
-        "namespace='" + namespace + '\'' +
-        ", name='" + name + '\'' +
+        "name='" + name + '\'' +
         ", version='" + version + '\'' +
         '}';
     }
