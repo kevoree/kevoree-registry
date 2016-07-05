@@ -117,7 +117,7 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * POST  /namespaces/:namespace/tdefs -> add type definitions
+     * POST  /namespaces/:namespace/tdefs -> add type definition
      */
     @RequestMapping(value = "/namespaces/{namespace}/tdefs",
         method = RequestMethod.POST,
@@ -128,23 +128,26 @@ public class TypeDefinitionResource {
         log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
             .map(user ->
-                namespaceRepository.findOneByNameAndMemberName(namespace, user.getLogin())
-                    .map(ns ->
-                        tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
-                            .map(tdef -> new ResponseEntity<>(
-                                new ErrorDTO(ns.getName()+"."+tdefDTO.getName()+"/"+tdefDTO.getVersion()+" already exists"),
-                                HttpStatus.BAD_REQUEST))
-                            .orElseGet(() -> {
-                                TypeDefinition tdef = new TypeDefinition();
-                                tdef.setName(tdefDTO.getName());
-                                tdef.setVersion(tdefDTO.getVersion());
-                                tdef.setModel(tdefDTO.getModel());
-                                tdef.setNamespace(ns);
-                                ns.addTypeDefinition(tdef);
-                                tdefsRepository.save(tdef);
-                                return new ResponseEntity<>(HttpStatus.CREATED);
-                            }))
-                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of namespace '"+namespace+"'"), HttpStatus.BAD_REQUEST)))
+                Optional.ofNullable(namespaceRepository.findOne(namespace))
+                    .map(foundNs ->
+                        namespaceRepository.findOneByNameAndMemberName(namespace, user.getLogin())
+                            .map(ns ->
+                                tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
+                                    .map(tdef -> new ResponseEntity<>(
+                                        new ErrorDTO(ns.getName()+"."+tdefDTO.getName()+"/"+tdefDTO.getVersion()+" already exists"),
+                                        HttpStatus.BAD_REQUEST))
+                                    .orElseGet(() -> {
+                                        TypeDefinition tdef = new TypeDefinition();
+                                        tdef.setName(tdefDTO.getName());
+                                        tdef.setVersion(tdefDTO.getVersion());
+                                        tdef.setModel(tdefDTO.getModel());
+                                        tdef.setNamespace(ns);
+                                        ns.addTypeDefinition(tdef);
+                                        tdefsRepository.save(tdef);
+                                        return new ResponseEntity<>(HttpStatus.CREATED);
+                                    }))
+                            .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of namespace '"+namespace+"'"), HttpStatus.FORBIDDEN)))
+                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
             .orElse(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }
 
