@@ -3,9 +3,13 @@
 angular.module('kevoreeRegistryApp')
     .controller('NamespaceDetailController', function ($scope, $stateParams, $timeout, Namespaces, Namespace) {
         $scope.namespace = null;
+        $scope.selectedMember = null;
+        $scope.member = null;
+
         $scope.load = function (name) {
             Namespaces.get({ name: name }, function (result) {
                 $scope.namespace = result;
+                $scope.selectedMember = $scope.namespace.members[0];
             });
         };
         $scope.load($stateParams.name);
@@ -14,12 +18,14 @@ angular.module('kevoreeRegistryApp')
             $('#addMemberModal').modal('show');
         };
 
-        $scope.confirmAddMember = function (nsName, memberName) {
-            Namespace.addMember(nsName, memberName).then(
+        $scope.confirmAddMember = function (name, member) {
+            Namespace.save(
+                { name: name },
+                { name: member },
                 function () {
                     $scope.load($stateParams.name);
                     $('#addMemberModal').modal('hide');
-                    $scope.member = {}; // clear
+                    $scope.clear();
                 },
                 function (resp) {
                     $scope.addError = resp.data.message;
@@ -27,14 +33,12 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.removeMember = function () {
-            $scope.filteredMembers = $scope.namespace.members.filter(function (login) {
-                return (login !== $scope.user.login);
-            });
             $('#removeMemberModal').modal('show');
         };
 
-        $scope.confirmRemoveMember = function (nsName, member) {
-            Namespace.removeMember(nsName, member).then(
+        $scope.confirmRemoveMember = function (name, member) {
+            Namespace.delete(
+                { name: name, member: member.login },
                 function () {
                     $scope.load($stateParams.name);
                     $('#removeMemberModal').modal('hide');
@@ -42,6 +46,11 @@ angular.module('kevoreeRegistryApp')
                 function () {
                     $scope.removeError = 'unable to remove member, did you select one?';
                 });
+        };
+
+        $scope.clear = function () {
+            $scope.selectedMember = null;
+            $scope.member = null;
         };
 
         $scope.clearAddError = function () {

@@ -153,7 +153,7 @@ public class NamespaceResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
 
-        restNamespaceMockMvc.perform(post("/api/namespace/{name}/addMember", DEFAULT_NAME)
+        restNamespaceMockMvc.perform(post("/api/namespaces/{name}/members", DEFAULT_NAME)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(new NamedDTO("user"))))
             .andExpect(status().isOk());

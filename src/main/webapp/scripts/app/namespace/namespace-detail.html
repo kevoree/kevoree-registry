@@ -45,7 +45,7 @@
     <div class="modal fade" id="removeMemberModal">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmRemoveMember(namespace.name, member)">
+                <form name="form" ng-submit="confirmRemoveMember(namespace.name, selectedMember)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
@@ -59,7 +59,7 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label translate="kevoreeRegistryApp.namespace.removeMember.user">Select the user to remove</label>
-                                <select class="form-control" ng-model="member" ng-options="member as member for (i, member) in filteredMembers"></select>
+                                <select class="form-control" ng-model="selectedMember" ng-options="member as member.login for member in namespace.members"></select>
                             </div>
                         </div>
                     </div>

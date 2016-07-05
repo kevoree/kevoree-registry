@@ -100,9 +100,9 @@ public class NamespaceResource {
     }
 
     /**
-     * POST  /namespace/{name}/addMember -> add a member to a namespace
+     * POST  /namespace/{name}/members -> add a member to a namespace
      */
-    @RequestMapping(value = "/namespace/{name}/addMember",
+    @RequestMapping(value = "/namespaces/{name}/members",
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -143,15 +143,15 @@ public class NamespaceResource {
     }
 
     /**
-     * POST  /namespace/{name}/removeMember -> remove a member from a namespace
+     * DELETE  /namespace/{name}/members/{member} -> remove a member from a namespace
      */
-    @RequestMapping(value = "/namespace/{name}/removeMember",
-        method = RequestMethod.POST,
+    @RequestMapping(value = "/namespaces/{name}/members/{member}",
+        method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> removeMemberFromNamespace(@PathVariable String name, @RequestBody NamedDTO namedDTO) {
-        log.debug("REST request to remove '{}' from namespace '{}'", namedDTO, name);
+    ResponseEntity<?> removeMemberFromNamespace(@PathVariable String name, @PathVariable String member) {
+        log.debug("REST request to remove '{}' from namespace '{}'", member, name);
         final Namespace ns = namespaceRepository.findOne(name);
         if (ns == null) {
             return new ResponseEntity<>(new ErrorDTO("unknown namespace"), HttpStatus.NOT_FOUND);
@@ -161,19 +161,19 @@ public class NamespaceResource {
                 .map(user -> {
                     // check that the current logged-in user owns the namespace
                     if (ns.getOwner().getLogin().equals(user.getLogin())) {
-                        return userRepository.findOneByLogin(namedDTO.getName())
+                        return userRepository.findOneByLogin(member)
                             // retrieve user to remove
-                            .map(member -> namespaceRepository.findOneByNameAndMemberName(ns.getName(), member.getLogin())
+                            .map(m -> namespaceRepository.findOneByNameAndMemberName(ns.getName(), m.getLogin())
                                 // this user is already a member of the given namespace
                                 .map(n -> {
-                                    if (member.equals(user)) {
+                                    if (m.equals(user)) {
                                         return new ResponseEntity<>(new ErrorDTO("namespace owner cannot be removed from its own namespace"), HttpStatus.BAD_REQUEST);
                                     } else {
                                         // remove member from namespace
-                                        ns.removeMember(member);
-                                        member.removeNamespace(ns);
+                                        ns.removeMember(m);
+                                        m.removeNamespace(ns);
                                         namespaceRepository.save(ns);
-                                        userRepository.save(member);
+                                        userRepository.save(m);
                                         return new ResponseEntity<>(HttpStatus.OK);
                                     }})
                                 .orElse(new ResponseEntity<>(new ErrorDTO("not a member of the namespace"), HttpStatus.BAD_REQUEST)))
