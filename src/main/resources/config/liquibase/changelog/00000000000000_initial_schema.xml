@@ -207,13 +207,13 @@
             <column name="platform" type="varchar(50)">
                 <constraints nullable="false" />
             </column>
-            <column name="typeDefinition_id" type="bigint">
+            <column name="typedefinition_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="model" type="text">
                 <constraints nullable="false" />
             </column>
-            <column name="nbDownloads" type="bigserial">
+            <column name="nbdownloads" type="bigserial">
                 <constraints nullable="false"/>
             </column>
         </createTable>
