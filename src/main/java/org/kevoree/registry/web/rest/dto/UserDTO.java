@@ -1,7 +1,6 @@
 package org.kevoree.registry.web.rest.dto;
 
 import org.hibernate.validator.constraints.Email;
-import org.kevoree.registry.domain.Namespace;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -34,13 +33,13 @@ public class UserDTO {
 
     private List<String> roles;
 
-    private List<Namespace> namespaces;
+    private List<String> namespaces;
 
     public UserDTO() {
     }
 
     public UserDTO(String login, String password, String firstName, String lastName, String email, String langKey,
-                   List<String> roles, List<Namespace> namespaces) {
+                   List<String> roles, List<String> namespaces) {
         this.login = login;
         this.password = password;
         this.firstName = firstName;
@@ -79,7 +78,7 @@ public class UserDTO {
         return roles;
     }
 
-    public List<Namespace> getNamespaces() {
+    public List<String> getNamespaces() {
         return namespaces;
     }
 

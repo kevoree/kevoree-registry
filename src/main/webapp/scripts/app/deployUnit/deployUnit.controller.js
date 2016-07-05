@@ -32,48 +32,32 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.isMember = function (deployUnit) {
-            return $rootScope.user.namespaces.some(function (ns) {
-                return ns.typeDefinitions.some(function (tdef) {
-                    return tdef.deployUnits.some(function (du) {
-                        return deployUnit.id === du.id;
-                    });
+            return $rootScope.user && deployUnit.typeDefinition.namespace.members.some(function (member) {
+                    return $rootScope.user.login === member.login;
                 });
-            });
         };
 
-        $scope.delete = function (namespace, tdefName, tdefVersion, name, version, platform, event) {
+        $scope.delete = function (id, event) {
             event.stopPropagation();
             event.preventDefault();
-            $scope.tdef = DeployUnits.get({
-                namespace: namespace,
-                tdefName: tdefName,
-                tdefVersion: tdefVersion,
-                name: name,
-                version: version,
-                platform: platform
-            });
+            $scope.du = DeployUnits.get({ id: id });
             $('#deleteConfirmation').modal('show');
         };
 
-        $scope.confirmDelete = function (namespace, tdefName, tdefVersion, name, version, platform) {
-            DeployUnits.delete({
-                    namespace: namespace,
-                    tdefName: tdefName,
-                    tdefVersion: tdefVersion,
-                    name: name,
-                    version: version,
-                    platform: platform
-                }, function () {
+        $scope.confirmDelete = function (id) {
+            DeployUnits.delete({ id: id },
+                function () {
                     $scope.loadAll();
                     $('#deleteConfirmation').modal('hide');
                     $scope.clear();
                 },
                 function (resp) {
-                    $scope.deleteError = resp.data.message;
+                    $scope.deleteError = resp.data.statusText;
                 });
         };
 
         $scope.clear = function () {
+            $scope.du = null;
             $scope.filterText = null;
         };
 

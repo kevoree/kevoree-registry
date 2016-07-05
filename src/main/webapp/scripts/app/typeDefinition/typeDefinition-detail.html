@@ -39,9 +39,17 @@
                     <td>
                         <ul class="list-unstyled">
                             <li ng-repeat="du in tdef.deployUnits">
-                                <a ui-sref="duDetail({ namespace: tdef.namespace.name, tdefName: tdef.name, tdefVersion: tdef.version, name: du.name, version: du.version, platform: du.platform })">{{ du.name + '/' + du.version + '/' + du.platform }}</a>
+                                <a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version + '/' + du.platform }}</a>
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
+                    </td>
+                    <td>
+                        <textarea class="input-sm form-control" readonly>{{tdef.model}}</textarea>
                     </td>
                 </tr>
             </tbody>

@@ -1,16 +1,8 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hibernate.annotations.*;
-import org.kevoree.registry.domain.util.CustomNamespaceDeserializer;
-import org.kevoree.registry.domain.util.CustomNamespaceSerializer;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -23,12 +15,10 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "T_NAMESPACE")
-//@JsonSerialize(using = CustomNamespaceSerializer.class)
-//@JsonDeserialize(using = CustomNamespaceDeserializer.class)
 public class Namespace implements Serializable {
 
     @Id
-    @Pattern(regexp = "^[a-z0-9]*$")
+    @Pattern(regexp = "^[a-z0-9]+(\\.[a-z0-9]+)*$")
     @Size(min = 1, max = 50)
     @Column(length = 50, unique = true, nullable = false)
     private String name;

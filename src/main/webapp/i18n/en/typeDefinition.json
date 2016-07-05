@@ -16,6 +16,7 @@
             "selectNamespace": "Select a namespace",
             "name": "Name",
             "version": "Version",
+            "model": "Model",
             "name_version": "Name / Version",
             "deployUnits": "DeployUnits",
             "filterPlaceholder": "Filter TypeDefinitions...",

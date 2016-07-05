@@ -24,7 +24,7 @@ angular.module('kevoreeRegistryApp')
             })
             .state('duDetail', {
                 parent: 'dus',
-                url: '/:namespace/:tdefName/:tdefVersion/:name/:version/:platform',
+                url: '/:id',
                 data: {
                     roles: []
                 },
@@ -40,5 +40,5 @@ angular.module('kevoreeRegistryApp')
                         return $translate.refresh();
                     }]
                 }
-            });
+            })
     });

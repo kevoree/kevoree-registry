@@ -50,7 +50,7 @@ public class DeployUnitResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new deployUnit, or with status 400 (Bad Request) if the deployUnit has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -88,7 +88,7 @@ public class DeployUnitResource {
      * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -96,10 +96,6 @@ public class DeployUnitResource {
                                               @PathVariable String tdefVersion,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
         log.debug("REST request to update DeployUnit: {} in {}.{}/{}", namespace, tdefName, tdefVersion, deployUnit.getId());
-        System.out.println("=============== UPDATE ==============");
-        System.out.println(namespace + "." + tdefName + "/" + tdefVersion);
-        System.out.println(deployUnit.toString());
-        System.out.println("=============== UPDATE ==============");
         if (deployUnit.getId() == null) {
             return createDeployUnit(namespace, tdefName, tdefVersion, deployUnit);
         }
@@ -179,7 +175,7 @@ public class DeployUnitResource {
      * @param namespace the name of the namespace you want to list deployUnits from
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/dus",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -196,7 +192,7 @@ public class DeployUnitResource {
      * @param tdefName the name of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/dus",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -214,7 +210,7 @@ public class DeployUnitResource {
      * @param tdefVersion the version of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -235,7 +231,7 @@ public class DeployUnitResource {
      * @param name the name of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus/{name}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -258,7 +254,7 @@ public class DeployUnitResource {
      * @param version the version of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -283,7 +279,7 @@ public class DeployUnitResource {
      * @param platform the platform of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed

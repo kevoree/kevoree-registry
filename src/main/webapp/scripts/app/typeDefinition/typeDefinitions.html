@@ -38,6 +38,10 @@
                             <label translate="kevoreeRegistryApp.typeDefinition.version">Version</label>
                             <input type="text" class="form-control" ng-model="tdef.version">
                         </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.typeDefinition.model">Model</label>
+                            <textarea class="form-control" ng-model="tdef.model"></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
@@ -55,7 +59,7 @@
     <div class="modal fade" id="deleteTypeDefinitionConfirmation">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(tdef.namespace.name, tdef.name, tdef.version)">
+                <form name="form" ng-submit="confirmDelete(tdef.id)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
@@ -83,11 +87,11 @@
 
     <div class="clearfix">
         <div class="col-xs-4 list-group" ng-repeat="tdef in tdefs | filter:filterText | orderBy:tdef.name">
-            <a ui-sref="tdefDetail({namespace: tdef.namespace.name, name:tdef.name, version: tdef.version})" class="list-group-item clearfix">
+            <a ui-sref="tdefDetail({ id: tdef.id })" class="list-group-item clearfix">
                 <button
                         class="btn btn-sm btn-danger pull-right"
                         ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)"
-                        ng-click="delete(tdef.namespace.name, tdef.name, tdef.version, $event)">
+                        ng-click="delete(tdef.id, $event)">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
                 <h4 class="list-group-item-heading">{{ tdef.name + ' / ' + tdef.version}}</h4>

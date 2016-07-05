@@ -181,6 +181,7 @@ public class NamespaceResourceTest {
         tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
         tdef.setNamespace(namespace);
+        tdef.setModel("{}");
         namespace.addTypeDefinition(tdef);
         typeDefinitionRepository.saveAndFlush(tdef);
 

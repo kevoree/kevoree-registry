@@ -29,7 +29,7 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.isOwner = function (namespace) {
-            return $rootScope.user.login === namespace.owner.login;
+            return $rootScope.user && ($rootScope.user.login === namespace.owner.login);
         };
 
         $scope.delete = function (name, event) {
@@ -55,7 +55,7 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.clear = function () {
-            $scope.namespace = { name: null };
+            $scope.namespace = null;
             $scope.filterText = null;
         };
 

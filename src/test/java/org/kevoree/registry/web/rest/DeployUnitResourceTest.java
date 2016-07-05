@@ -268,9 +268,7 @@ public class DeployUnitResourceTest {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
             .andExpect(jsonPath("$.platform").value(DEFAULT_PLATFORM))
-            .andExpect(jsonPath("$.typeDefinition.name").value(TDEF_NAME))
-            .andExpect(jsonPath("$.typeDefinition.version").value(TDEF_VERSION))
-            .andExpect(jsonPath("$.typeDefinition.namespace.name").value(NAMESPACE))
+            .andExpect(jsonPath("$.typeDefinition.id").value(deployUnit.getTypeDefinition().getId().intValue()))
             .andExpect(jsonPath("$.model").value(DEFAULT_MODEL));
     }
 

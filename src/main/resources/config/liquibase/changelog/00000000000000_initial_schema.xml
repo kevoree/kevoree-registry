@@ -177,8 +177,8 @@
             <column name="namespace_name" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="nbDownloads" type="bigserial">
-                <constraints nullable="false"/>
+            <column name="model" type="text">
+                <constraints nullable="false" />
             </column>
         </createTable>
         <addUniqueConstraint tableName="T_TYPE_DEFINITION" columnNames="name, version, namespace_name"/>
@@ -212,6 +212,9 @@
             </column>
             <column name="model" type="text">
                 <constraints nullable="false" />
+            </column>
+            <column name="nbDownloads" type="bigserial">
+                <constraints nullable="false"/>
             </column>
         </createTable>
         <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="name, version, platform, typeDefinition_id"/>

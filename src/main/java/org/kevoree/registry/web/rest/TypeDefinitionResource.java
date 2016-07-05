@@ -66,7 +66,7 @@ public class TypeDefinitionResource {
      * @param id the id of the TypeDefinition to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the TypeDefinition, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/tdefs/{id:\\d}",
+    @RequestMapping(value = "/tdefs/{id}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -81,7 +81,7 @@ public class TypeDefinitionResource {
     /**
      * GET  /namespaces/:namespace/tdefs -> get a list of typeDefinitions from a specific namespace
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -93,7 +93,7 @@ public class TypeDefinitionResource {
     /**
      * GET  /namespaces/:namespace/tdefs/:name -> get a list of typeDefinitions from a specific namespace and name
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -105,7 +105,7 @@ public class TypeDefinitionResource {
     /**
      * GET  /namespaces/:namespace/tdefs/:name/:version -> get a precise type definition
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}/{version:.+}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -119,7 +119,7 @@ public class TypeDefinitionResource {
     /**
      * POST  /namespaces/:namespace/tdefs -> add type definitions
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs",
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -138,6 +138,7 @@ public class TypeDefinitionResource {
                                 TypeDefinition tdef = new TypeDefinition();
                                 tdef.setName(tdefDTO.getName());
                                 tdef.setVersion(tdefDTO.getVersion());
+                                tdef.setModel(tdefDTO.getModel());
                                 tdef.setNamespace(ns);
                                 ns.addTypeDefinition(tdef);
                                 tdefsRepository.save(tdef);
@@ -150,30 +151,42 @@ public class TypeDefinitionResource {
     /**
      * DELETE  /namespaces/{namespace}/tdefs/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}/{version:.+}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version:.+}",
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
         log.debug("REST request to delete TypeDefinition : {}.{}/{}", namespace, name, version);
-        return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
-            .map(tdef -> tdefsRepository
-                .findOneByNamespaceNameAndNamespaceMembersLoginAndNameAndVersion(namespace, SecurityUtils.getCurrentLogin(), name, version)
-                    .map(t -> {
-                        tdefsRepository.delete(t);
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    })
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
-            .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+        Namespace ns = namespaceRepository.findOne(namespace);
+        if (ns == null) {
+            return new ResponseEntity<>(new ErrorDTO("unable to find namespace " + name), HttpStatus.NOT_FOUND);
+        } else {
+            User user = userService.getUserWithAuthorities();
+            Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
+            if (user.getAuthorities().contains(admin)) {
+                tdefsRepository.delete(ns.getTypeDefinitions());
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
+                    .map(ignore -> tdefsRepository.findOneByNamespaceNameAndNamespaceMembersLoginAndNameAndVersion(
+                        namespace, SecurityUtils.getCurrentLogin(), name, version)
+                        .map(tdef -> {
+                            tdefsRepository.delete(tdef);
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        })
+                        .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
+                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+            }
+        }
     }
 
     /**
      * DELETE  /namespaces/{namespace}/tdefs/{name} -> delete all namespace.Name TypeDefinitions
      */
-    @RequestMapping(value = "/namespaces/{namespace:^[a-z0-9]*$}/tdefs/{name}",
-    method = RequestMethod.DELETE,
-    produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}",
+        method = RequestMethod.DELETE,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteAll(@PathVariable String namespace, @PathVariable String name) {
@@ -189,7 +202,7 @@ public class TypeDefinitionResource {
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
                 return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
-                    .map(tdef -> {
+                    .map(ignore -> {
                         Set<TypeDefinition> tdefs = tdefsRepository
                             .findByNamespaceNameAndNamespaceMembersLoginAndName(namespace, SecurityUtils.getCurrentLogin(), name);
                         tdefsRepository.delete(tdefs);
@@ -198,5 +211,18 @@ public class TypeDefinitionResource {
                     .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
             }
         }
+    }
+
+    /**
+     * DELETE /tdefs/:id -> delete "id" TypeDefinition
+     */
+    @RequestMapping(value = "/tdefs/{id}",
+        method = RequestMethod.DELETE,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        log.debug("REST request to delete TypeDefinition: {}", id);
+        return Optional.ofNullable(tdefsRepository.findOne(id))
+            .map(tdef -> delete(tdef.getNamespace().getName(), tdef.getName(), tdef.getVersion()))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

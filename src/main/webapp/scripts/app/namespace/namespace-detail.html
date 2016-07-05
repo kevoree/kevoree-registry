@@ -1,5 +1,5 @@
 <div class="well">
-    <div ng-show="namespace.owner.login === user.login" class="btn-group pull-right" role="group">
+    <div ng-if="namespace.owner.login === user.login" class="btn-group pull-right" role="group">
         <button ng-click="addMember()" class="btn btn-primary">
             <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
         </button>
@@ -116,7 +116,7 @@
                     <td>
                         <ul class="list-unstyled">
                             <li ng-repeat="tdef in namespace.typeDefinitions">
-                                <a ui-sref="tdefDetail({namespace: namespace.name, name:tdef.name, version: tdef.version})">{{ tdef.name + '/' + tdef.version }}</a>
+                                <a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name + '/' + tdef.version }}</a>
                             </li>
                         </ul>
                     </td>

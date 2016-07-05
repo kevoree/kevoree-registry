@@ -1,6 +1,7 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -34,14 +35,17 @@ public class TypeDefinition implements Serializable {
     private String version;
 
     @ManyToOne
-    @JsonIgnoreProperties({ "members", "typeDefinitions" })
+    @JsonIgnoreProperties({ "typeDefinitions" })
     private Namespace namespace;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "typeDefinition")
     @JsonIgnoreProperties({ "typeDefinition" })
     private Set<DeployUnit> deployUnits = new HashSet<>();
 
-    private Long nbDownloads = 0L;
+    @NotNull
+    @Type(type="org.hibernate.type.StringClobType")
+    @Column(name = "model")
+    private String model;
 
     public Long getId() {
         return id;
@@ -75,12 +79,12 @@ public class TypeDefinition implements Serializable {
         this.version = version;
     }
 
-    public Long getNbDownloads() {
-        return nbDownloads;
+    public String getModel() {
+        return model;
     }
 
-    public void setNbDownloads(Long nbDownloads) {
-        this.nbDownloads = nbDownloads;
+    public void setModel(String model) {
+        this.model = model;
     }
 
     public Set<DeployUnit> getDeployUnits() {
@@ -125,8 +129,8 @@ public class TypeDefinition implements Serializable {
             ", name='" + name + "'" +
             ", version='" + version + "'" +
             ", namespace='" + namespace.getName() + '\'' +
-            ", nbDownloads=" + nbDownloads +
             ", deployUnits=" + deployUnits +
+            ", model='" + model + '\'' +
             "}";
     }
 }

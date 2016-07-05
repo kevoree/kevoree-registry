@@ -1,16 +1,14 @@
 package org.kevoree.registry.domain;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -53,6 +51,10 @@ public class DeployUnit implements Serializable {
     @Column(name = "model")
     private String model;
 
+    @NotNull
+    @Column(name = "nbDownloads")
+    private Long nbDownloads = 0L;
+
     public Long getId() {
         return id;
     }
@@ -93,6 +95,14 @@ public class DeployUnit implements Serializable {
         this.model = model;
     }
 
+    public Long getNbDownloads() {
+        return nbDownloads;
+    }
+
+    public void setNbDownloads(Long nbDownloads) {
+        this.nbDownloads = nbDownloads;
+    }
+
     public TypeDefinition getTypeDefinition() {
         return this.typeDefinition;
     }
@@ -129,6 +139,7 @@ public class DeployUnit implements Serializable {
             ", version='" + version + "'" +
             ", platform='" + platform + "'" +
             ", typeDefinitionId=" + typeDefinition.getId() +
+            ", nbDownloads=" + nbDownloads +
             ", model='" + model + "'" +
             '}';
     }

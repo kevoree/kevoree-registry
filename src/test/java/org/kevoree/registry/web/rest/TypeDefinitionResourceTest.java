@@ -14,7 +14,7 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -54,9 +54,9 @@ public class TypeDefinitionResourceTest {
 
     private MockMvc restTdefsMockMvc;
 
-    private TypeDefinition tdef;
+    private TypeDefinitionDTO tdef;
     private Namespace namespace;
-    private User admin;
+    private User user;
 
     @Before
     public void setup() {
@@ -69,89 +69,95 @@ public class TypeDefinitionResourceTest {
 
     @Before
     public void initTest() {
-        admin = userRepository.findOneByLogin("admin").get();
+        user = userRepository.findOneByLogin("user").get();
 
         namespace = new Namespace();
         namespace.setName(NS_NAME);
-        namespace.addMember(admin);
-        namespace.setOwner(admin);
+        namespace.addMember(user);
+        namespace.setOwner(user);
 
-        admin.addNamespace(namespace);
+        user.addNamespace(namespace);
         namespaceRepository.saveAndFlush(namespace);
-        userRepository.saveAndFlush(admin);
+        userRepository.saveAndFlush(user);
 
-        tdef = new TypeDefinition();
+        tdef = new TypeDefinitionDTO();
         tdef.setName("TestComp");
         tdef.setVersion("1.2.3");
+        tdef.setModel("{}");
     }
 
     @Test
     @Transactional
     public void testCreateTypeDefinition() throws Exception {
-        // Add the owner to the SecurityContext
+        // add "user" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
+            new TestingAuthenticationToken("user", null, AuthoritiesConstants.USER));
 
         restTdefsMockMvc.perform(post("/api/namespaces/{namespace}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(tdef)))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
         TypeDefinition dbTdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(
             namespace.getName(), tdef.getName(), tdef.getVersion()).get();
         assertThat(dbTdef.getNamespace().getName()).isEqualTo(namespace.getName());
-        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(namespace.getName(), admin.getLogin()).get();
+        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(namespace.getName(), user.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);
     }
 
     @Test
     @Transactional
     public void testCreateAlreadyExistingTypeDefinition() throws Exception {
-        // Add the owner to the SecurityContext
+        // add "user" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
+            new TestingAuthenticationToken("user", null, AuthoritiesConstants.USER));
 
         restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(tdef)))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
         TypeDefinition dbTdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(
             namespace.getName(), tdef.getName(), tdef.getVersion()).get();
         assertThat(dbTdef.getNamespace().getName()).isEqualTo(namespace.getName());
-        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(namespace.getName(), admin.getLogin()).get();
+        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(namespace.getName(), user.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);
 
         restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", namespace.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(tdef)))
             .andExpect(status().isBadRequest());
     }
 
     @Test
     @Transactional
     public void testCreateTypeDefinitionWithExistingNameAndVersionButInDifferentNamespace() throws Exception {
-        // Add the owner to the SecurityContext
+        // add "user" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(admin.getLogin(), AuthoritiesConstants.ADMIN));
+            new TestingAuthenticationToken("user", null, AuthoritiesConstants.USER));
 
         // add default tdef to db
+        TypeDefinition tdef = new TypeDefinition();
+        tdef.setName(this.tdef.getName());
+        tdef.setVersion(this.tdef.getVersion());
+        tdef.setModel(this.tdef.getModel());
         tdef.setNamespace(namespace);
         namespace.addTypeDefinition(tdef);
+        namespaceRepository.saveAndFlush(namespace);
         tdefsRepository.saveAndFlush(tdef);
 
         // create a new namespace
         Namespace newNs = new Namespace();
         newNs.setName("anothernamespace");
-        newNs.setOwner(admin);
-        newNs.addMember(admin);
+        newNs.setOwner(user);
+        newNs.addMember(user);
         namespaceRepository.saveAndFlush(newNs);
 
-        // add admin to newNs members
-        admin.addNamespace(newNs);
-        userRepository.saveAndFlush(admin);
+        // add namespace to user
+        user.addNamespace(newNs);
+        userRepository.saveAndFlush(user);
 
         // validate db
         Namespace dbNewNs = namespaceRepository.findOne(newNs.getName());
@@ -160,14 +166,14 @@ public class TypeDefinitionResourceTest {
         // create a new TypeDefinition with same name and version but using the newNs
         restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", newNs.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(new TypeDefinitionDTO(tdef.getName(), tdef.getVersion()))))
+            .content(TestUtil.convertObjectToJsonBytes(tdef)))
             .andExpect(status().isCreated());
 
         // Validate the namespace in db
         TypeDefinition dbTdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(
             newNs.getName(), tdef.getName(), tdef.getVersion()).get();
         assertThat(dbTdef.getNamespace().getName()).isEqualTo(newNs.getName());
-        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(newNs.getName(), admin.getLogin()).get();
+        Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(newNs.getName(), user.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);
     }
 }

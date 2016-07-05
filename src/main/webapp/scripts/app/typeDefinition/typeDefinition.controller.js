@@ -36,26 +36,20 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.isMember = function (typeDef) {
-            if ($rootScope) {
-                return $rootScope.user.namespaces.some(function (ns) {
-                    return ns.typeDefinitions.some(function (tdef) {
-                        return typeDef.id === tdef.id;
-                    });
+            return $rootScope.user && typeDef.namespace.members.some(function (member) {
+                    return member.login === $rootScope.user.login;
                 });
-            } else {
-                return false;
-            }
         };
 
-        $scope.delete = function (namespace, name, version, event) {
+        $scope.delete = function (id, event) {
             event.stopPropagation();
             event.preventDefault();
-            $scope.tdef = TypeDefinitions.get({ namespace: namespace, name: name, version: version });
+            $scope.tdef = TypeDefinitions.get({ id: id });
             $('#deleteTypeDefinitionConfirmation').modal('show');
         };
 
-        $scope.confirmDelete = function (namespace, name, version) {
-            TypeDefinitions.delete({ namespace: namespace, name: name, version: version },
+        $scope.confirmDelete = function (id) {
+            TypeDefinitions.delete({ id: id },
                 function () {
                     $scope.loadAll();
                     $('#deleteTypeDefinitionConfirmation').modal('hide');
@@ -67,11 +61,8 @@ angular.module('kevoreeRegistryApp')
         };
 
         $scope.clear = function () {
-            $scope.tdef = { namespace: null, name: null, version: null };
+            $scope.tdef = null;
             $scope.filterText = null;
-            Namespaces.query(function (namespaces) {
-                $scope.namespaces = namespaces;
-            });
         };
 
         $scope.clearDeleteError = function () {

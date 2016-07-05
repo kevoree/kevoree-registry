@@ -38,6 +38,10 @@
                             <label translate="kevoreeRegistryApp.deployUnit.version">Version</label>
                             <input type="text" class="form-control" ng-model="du.version">
                         </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.deployUnit.model">Model</label>
+                            <textarea class="form-control" ng-model="du.model"></textarea>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
@@ -55,18 +59,54 @@
     <div class="modal fade" id="deleteConfirmation">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(du.typeDefinition.namespace.name, du.typeDefinition.name, du.typeDefinition.version, du.name, du.version, du.platform)">
+                <form name="form" ng-submit="confirmDelete(du.id)">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                                 ng-click="clear()">&times;</button>
                         <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-danger" role="alert" ng-show="deleteError">
+                        <div class="alert alert-danger" role="alert" ng-if="deleteError">
                             <button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearDeleteError()">&times;</span></button>
                             <strong>Error: </strong>{{deleteError}}
                         </div>
-                        <p translate="kevoreeRegistryApp.deployUnit.delete.question" translate-values="du">Are you sure you want to delete the DeployUnit {{du.name}}/{{du.version}} for the platform {{du.platform}}?</p>
+                        <p translate="kevoreeRegistryApp.deployUnit.delete.question" translate-values="du">Are you sure you want to delete the DeployUnit:</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+                                    </td>
+                                    <td>{{ du.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+                                    </td>
+                                    <td>{{ du.version }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+                                    </td>
+                                    <td>{{ du.platform }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
+                                    </td>
+                                    <td>{{ du.typeDefinition.namespace.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
+                                    </td>
+                                    <td>{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
@@ -81,13 +121,13 @@
         </div>
     </div>
 
-    <div class="row" style="padding-left: 15px;">
+    <div class="row-fluid clearfix">
         <div class="col-xs-4 list-group" ng-repeat="du in dus | filter:filterText | orderBy:du.name">
-            <a ui-sref="duDetail({ namespace: du.typeDefinition.namespace.name, tdefName: du.typeDefinition.name, tdefVersion: du.typeDefinition.version, name:du.name, version: du.version, platform: du.platform })" class="list-group-item clearfix" style="overflow: hidden">
+            <a ui-sref="duDetail({ id: du.id })" class="list-group-item clearfix" style="overflow: hidden">
                 <button
                     class="btn btn-sm btn-danger pull-right"
                     ng-if="isInRole('ROLE_ADMIN') || isMember(du)"
-                    ng-click="delete(du.typeDefinition.namespace.name, du.typeDefinition.name, du.typeDefinition.version, du.name, du.version, du.platform, $event)">
+                    ng-click="delete(du.id, $event)">
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
                 <h4 class="list-group-item-heading">{{ du.name + ' / ' + du.version}}</h4>

@@ -45,7 +45,15 @@
                         <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
                     </td>
                     <td>
-                        <a ui-sref="tdefDetail({ namespace: du.typeDefinition.namespace.name, name: du.typeDefinition.name, version: du.typeDefinition.version })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
+                        <a ui-sref="tdefDetail({ id: du.typeDefinition.id })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span translate="kevoreeRegistryApp.deployUnit.model">Model</span>
+                    </td>
+                    <td>
+                        <textarea class="input-sm form-control" readonly>{{du.model}}</textarea>
                     </td>
                 </tr>
             </tbody>
