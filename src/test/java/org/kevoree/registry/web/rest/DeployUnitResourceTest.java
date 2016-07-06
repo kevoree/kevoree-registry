@@ -6,10 +6,13 @@ import org.junit.runner.RunWith;
 import org.kevoree.registry.Application;
 import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.DeployUnitService;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
@@ -72,6 +75,15 @@ public class DeployUnitResourceTest {
     private DeployUnitService duService;
 
     @Inject
+    private NamespaceRepository nsRepository;
+
+    @Inject
+    private AuthorityRepository authRepository;
+
+    @Inject
+    private UserService userService;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -89,6 +101,9 @@ public class DeployUnitResourceTest {
         ReflectionTestUtils.setField(deployUnitResource, "duRepository", duRepository);
         ReflectionTestUtils.setField(deployUnitResource, "tdefsRepository", tdefsRepository);
         ReflectionTestUtils.setField(deployUnitResource, "duService", duService);
+        ReflectionTestUtils.setField(deployUnitResource, "nsRepository", nsRepository);
+        ReflectionTestUtils.setField(deployUnitResource, "authRepository", authRepository);
+        ReflectionTestUtils.setField(deployUnitResource, "userService", userService);
         this.restDeployUnitMockMvc = MockMvcBuilders.standaloneSetup(deployUnitResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
