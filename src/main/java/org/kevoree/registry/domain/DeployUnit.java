@@ -43,7 +43,7 @@ public class DeployUnit implements Serializable {
     private String platform;
 
     @ManyToOne
-    @JsonIgnoreProperties({ "nbDownloads", "deployUnits" })
+    @JsonIgnoreProperties({ "nbdownloads", "deployUnits" })
     private TypeDefinition typeDefinition;
 
     @NotNull
@@ -52,7 +52,7 @@ public class DeployUnit implements Serializable {
     private String model;
 
     @NotNull
-    @Column(name = "nbDownloads")
+    @Column(name = "nbdownloads")
     private Long nbDownloads = 0L;
 
     public Long getId() {

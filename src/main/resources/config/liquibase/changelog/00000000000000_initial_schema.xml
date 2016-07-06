@@ -217,10 +217,10 @@
                 <constraints nullable="false"/>
             </column>
         </createTable>
-        <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="name, version, platform, typeDefinition_id"/>
-        <addForeignKeyConstraint baseColumnNames="typeDefinition_id"
+        <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="name, version, platform, typedefinition_id"/>
+        <addForeignKeyConstraint baseColumnNames="typedefinition_id"
                                  baseTableName="T_DEPLOY_UNIT"
-                                 constraintName="fk_deploy_unit_typeDefinition_id"
+                                 constraintName="fk_deploy_unit_typedefinition_id"
                                  referencedColumnNames="id"
                                  referencedTableName="T_TYPE_DEFINITION"
                                  onDelete="CASCADE"/>
