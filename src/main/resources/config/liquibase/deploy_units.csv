@@ -1,4 +1,4 @@
-id;name;version;platform;typeDefinition_id;model;nbDownloads
+id;name;version;platform;typedefinition_id;model;nbdownloads
 1;kevoree-node-javascript;1.0.0;js;4;{};0
 2;kevoree-comp-ticker;1.0.0;js;1;{};0
 3;org.kevoree.library.java.toys;1.0.0;java;1;{};0
