@@ -90,35 +90,45 @@ public class DeployUnitResource {
     }
 
     /**
-     * PUT  /namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus : Updates a deployUnit.
+     * PUT  /namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform} : Updates a deployUnit.
      *
      * @param namespace the namespace name to find the typeDefinition in
      * @param tdefName the typeDefinition name to attach the deployUnit to
      * @param tdefVersion the typeDefinition version to attach de deployUnit to
-     * @param deployUnit the deployUnit to create
+     * @param name the deployUnit name
+     * @param version the deployUnit version
+     * @param platform the deployUnit platform
+     * @param deployUnit the updated deployUnit
      * @return the ResponseEntity with status 200 (OK) and with body the updated deployUnit,
      * or with status 400 (Bad Request) if the deployUnit is not valid,
      * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<?> updateDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                              @PathVariable String tdefVersion,
+                                              @PathVariable String tdefVersion, @PathVariable String name,
+                                              @PathVariable String version, @PathVariable String platform,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
-        log.debug("REST request to update DeployUnit: {} in {}.{}/{}", namespace, tdefName, tdefVersion, deployUnit.getId());
+        log.debug("REST request to update DeployUnit {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
+            version, platform, namespace, tdefName, tdefVersion);
         if (deployUnit.getId() == null) {
             return createDeployUnit(namespace, tdefName, tdefVersion, deployUnit);
         }
         DeployUnit du = duRepository.findOne(deployUnit.getId());
-        du.setName(deployUnit.getName());
-        du.setVersion(deployUnit.getVersion());
-        du.setPlatform(deployUnit.getPlatform());
-        du.setModel(deployUnit.getModel());
-        DeployUnit result = duRepository.save(du);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        if (duService.canCreate(du.getTypeDefinition().getId())) {
+            du.setName(deployUnit.getName());
+            du.setVersion(deployUnit.getVersion());
+            du.setPlatform(deployUnit.getPlatform());
+            du.setModel(deployUnit.getModel());
+            du.setTypeDefinition(du.getTypeDefinition());
+            DeployUnit result = duRepository.save(du);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
     }
 
     /**
@@ -153,22 +163,22 @@ public class DeployUnitResource {
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * PUT  /dus/:id : update the "id" deployUnit.
-     *
-     * @param id the id of the deployUnit to update
-     * @param deployUnit the deployUnit to create
-     * @return the ResponseEntity with status 200 (OK) and with body the updated deployUnit,
-     * or with status 400 (Bad Request) if the deployUnit is not valid,
-     * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
-     * @throws URISyntaxException if the Location URI syntax is incorrect
-     */
-    @RequestMapping(value = "/dus/{id}",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<DeployUnit> updateDeployUnit(@PathVariable Long id,
-                                                       @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
+//    /**
+//     * PUT  /dus/:id : update the "id" deployUnit.
+//     *
+//     * @param id the id of the deployUnit to update
+//     * @param deployUnit the deployUnit to create
+//     * @return the ResponseEntity with status 200 (OK) and with body the updated deployUnit,
+//     * or with status 400 (Bad Request) if the deployUnit is not valid,
+//     * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
+//     * @throws URISyntaxException if the Location URI syntax is incorrect
+//     */
+//    @RequestMapping(value = "/dus/{id}",
+//        method = RequestMethod.PUT,
+//        produces = MediaType.APPLICATION_JSON_VALUE)
+//    @Timed
+//    public ResponseEntity<DeployUnit> updateDeployUnit(@PathVariable Long id,
+//                                                       @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
 //        log.debug("REST request to update DeployUnit : {}", id);
 //        if (deployUnit.getId() == null) {
 //            createDeployUnit()
@@ -179,8 +189,8 @@ public class DeployUnitResource {
 //        return Optional.ofNullable(deployUnit)
 //            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
 //            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
+//        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+//    }
 
     /**
      * GET  /namespaces/:namespace/dus : get the all the deployUnits attached to a specified namespace.
@@ -308,70 +318,70 @@ public class DeployUnitResource {
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    /**
-     * DELETE  /dus/:id : delete the "id" deployUnit.
-     *
-     * @param id the id of the deployUnit to delete
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @RequestMapping(value = "/dus/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
-        log.debug("REST request to delete DeployUnit : {}", id);
-        return Optional.ofNullable(duRepository.findOne(id))
-            .map(du -> deleteDeployUnit(
-                du.getTypeDefinition().getNamespace().getName(),
-                du.getTypeDefinition().getName(),
-                du.getTypeDefinition().getVersion(),
-                du.getName(),
-                du.getVersion(),
-                du.getPlatform()
-            ))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
+//    /**
+//     * DELETE  /dus/:id : delete the "id" deployUnit.
+//     *
+//     * @param id the id of the deployUnit to delete
+//     * @return the ResponseEntity with status 200 (OK)
+//     */
+//    @RequestMapping(value = "/dus/{id}",
+//        method = RequestMethod.DELETE,
+//        produces = MediaType.APPLICATION_JSON_VALUE)
+//    @Timed
+//    public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
+//        log.debug("REST request to delete DeployUnit : {}", id);
+//        return Optional.ofNullable(duRepository.findOne(id))
+//            .map(du -> deleteDeployUnit(
+//                du.getTypeDefinition().getNamespace().getName(),
+//                du.getTypeDefinition().getName(),
+//                du.getTypeDefinition().getVersion(),
+//                du.getName(),
+//                du.getVersion(),
+//                du.getPlatform()
+//            ))
+//            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+//    }
 
-    /**
-     * DELETE  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus/:name/:version/:platform : delete a specific deployUnit
-     * version
-     *
-     * @param namespace the name of the namespace you want to list deployUnits from
-     * @param tdefName the name of the typeDefinition
-     * @param tdefVersion the version of the typeDefinition
-     * @param name the name of the DeployUnits
-     * @param version the version of the DeployUnits
-     * @param platform the platform of the DeployUnits
-     * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
-     */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                    @PathVariable String tdefVersion, @PathVariable String name,
-                                    @PathVariable String version, @PathVariable String platform) {
-        log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
-            version, platform, namespace, tdefName, tdefVersion);
-        Namespace ns = nsRepository.findOne(namespace);
-        if (ns == null) {
-            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
-        } else {
-            User user = userService.getUserWithAuthorities();
-            Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
-            if (user.getAuthorities().contains(admin)
-                || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
-                return Optional.ofNullable(
-                    duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-                        namespace, tdefName, tdefVersion, name, version, platform)
-                ).map(du -> {
-                    // delete du
-                    duRepository.delete(du.getId());
-                    return new ResponseEntity<>(HttpStatus.OK);
-                }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-            } else {
-                return new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN);
-            }
-        }
-    }
+//    /**
+//     * DELETE  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus/:name/:version/:platform : delete a specific deployUnit
+//     * version
+//     *
+//     * @param namespace the name of the namespace you want to list deployUnits from
+//     * @param tdefName the name of the typeDefinition
+//     * @param tdefVersion the version of the typeDefinition
+//     * @param name the name of the DeployUnits
+//     * @param version the version of the DeployUnits
+//     * @param platform the platform of the DeployUnits
+//     * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
+//     */
+//    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+//        method = RequestMethod.DELETE,
+//        produces = MediaType.APPLICATION_JSON_VALUE)
+//    @Timed
+//    public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+//                                    @PathVariable String tdefVersion, @PathVariable String name,
+//                                    @PathVariable String version, @PathVariable String platform) {
+//        log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
+//            version, platform, namespace, tdefName, tdefVersion);
+//        Namespace ns = nsRepository.findOne(namespace);
+//        if (ns == null) {
+//            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
+//        } else {
+//            User user = userService.getUserWithAuthorities();
+//            Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
+//            if (user.getAuthorities().contains(admin)
+//                || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
+//                return Optional.ofNullable(
+//                    duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+//                        namespace, tdefName, tdefVersion, name, version, platform)
+//                ).map(du -> {
+//                    // delete du
+//                    duRepository.delete(du.getId());
+//                    return new ResponseEntity<>(HttpStatus.OK);
+//                }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+//            } else {
+//                return new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN);
+//            }
+//        }
+//    }
 }

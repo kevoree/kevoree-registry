@@ -304,6 +304,10 @@ public class DeployUnitResourceTest {
         duRepository.flush();
         int databaseSizeBeforeUpdate = duRepository.findAll().size();
 
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
         this.deployUnit.setName(UPDATED_NAME);
@@ -311,8 +315,9 @@ public class DeployUnitResourceTest {
         this.deployUnit.setPlatform(UPDATED_PLATFORM);
         this.deployUnit.setModel(UPDATED_MODEL);
 
-        restDeployUnitMockMvc.perform(put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
-            NAMESPACE, TDEF_NAME, TDEF_VERSION)
+        restDeployUnitMockMvc.perform(
+            put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+            NAMESPACE, TDEF_NAME, TDEF_VERSION, DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
                 .andExpect(status().isOk());
