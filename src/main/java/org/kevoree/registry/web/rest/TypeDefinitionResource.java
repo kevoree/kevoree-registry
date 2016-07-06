@@ -125,7 +125,7 @@ public class TypeDefinitionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addTypeDefinitions(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
+    ResponseEntity<?> addTypeDefinition(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
         log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
             .map(user ->
