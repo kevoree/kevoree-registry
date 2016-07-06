@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -124,7 +125,7 @@ public class TypeDefinitionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addTypeDefinitions(@PathVariable String namespace, @RequestBody TypeDefinitionDTO tdefDTO) {
+    ResponseEntity<?> addTypeDefinitions(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
         log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
             .map(user ->
