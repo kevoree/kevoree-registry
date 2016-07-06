@@ -296,13 +296,16 @@ public class DeployUnitResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public DeployUnit getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+    public ResponseEntity<DeployUnit> getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                          @PathVariable String tdefVersion, @PathVariable String name,
                                          @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to get DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
-        return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-            namespace, tdefName, tdefVersion, name, version, platform);
+        return Optional.ofNullable(
+                duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+                    namespace, tdefName, tdefVersion, name, version, platform))
+            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
