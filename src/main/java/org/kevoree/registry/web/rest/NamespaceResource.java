@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,7 +80,7 @@ public class NamespaceResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addNamespaces(@RequestBody NamedDTO namedDTO) {
+    ResponseEntity<?> addNamespaces(@Valid @RequestBody NamedDTO namedDTO) {
         log.debug("REST request to add a namespace: {}", namedDTO);
         return Optional.ofNullable(namespaceRepository.findOne(namedDTO.getName()))
             .map(ns -> new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST))
@@ -107,7 +108,7 @@ public class NamespaceResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    ResponseEntity<?> addMemberToNamespace(@PathVariable String name, @RequestBody NamedDTO namedDTO) {
+    ResponseEntity<?> addMemberToNamespace(@PathVariable String name, @Valid @RequestBody NamedDTO namedDTO) {
         log.debug("REST request to add '{}' to namespace '{}'", namedDTO, name);
         final Namespace ns = namespaceRepository.findOne(name);
         if (ns == null) {
