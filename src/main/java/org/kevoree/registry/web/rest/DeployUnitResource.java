@@ -277,7 +277,7 @@ public class DeployUnitResource {
      * @param version the version of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
