@@ -61,7 +61,7 @@ public class NamespaceResource {
     /**
      * GET  /namespaces/:name -> get a precise namespace
      */
-    @RequestMapping(value = "/namespaces/{name}",
+    @RequestMapping(value = "/namespaces/{name:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
