@@ -310,9 +310,6 @@ public class DeployUnitResourceTest {
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
-        this.deployUnit.setName(UPDATED_NAME);
-        this.deployUnit.setVersion(UPDATED_VERSION);
-        this.deployUnit.setPlatform(UPDATED_PLATFORM);
         this.deployUnit.setModel(UPDATED_MODEL);
 
         restDeployUnitMockMvc.perform(
@@ -326,9 +323,9 @@ public class DeployUnitResourceTest {
         List<DeployUnit> deployUnits = duRepository.findAll();
         assertThat(deployUnits).hasSize(databaseSizeBeforeUpdate);
         DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
-        assertThat(testDeployUnit.getName()).isEqualTo(UPDATED_NAME);
-        assertThat(testDeployUnit.getVersion()).isEqualTo(UPDATED_VERSION);
-        assertThat(testDeployUnit.getPlatform()).isEqualTo(UPDATED_PLATFORM);
+        assertThat(testDeployUnit.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDeployUnit.getVersion()).isEqualTo(DEFAULT_VERSION);
+        assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
         assertThat(testDeployUnit.getModel()).isEqualTo(UPDATED_MODEL);
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);

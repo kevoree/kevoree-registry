@@ -318,70 +318,74 @@ public class DeployUnitResource {
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-//    /**
-//     * DELETE  /dus/:id : delete the "id" deployUnit.
-//     *
-//     * @param id the id of the deployUnit to delete
-//     * @return the ResponseEntity with status 200 (OK)
-//     */
-//    @RequestMapping(value = "/dus/{id}",
-//        method = RequestMethod.DELETE,
-//        produces = MediaType.APPLICATION_JSON_VALUE)
-//    @Timed
-//    public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
-//        log.debug("REST request to delete DeployUnit : {}", id);
-//        return Optional.ofNullable(duRepository.findOne(id))
-//            .map(du -> deleteDeployUnit(
-//                du.getTypeDefinition().getNamespace().getName(),
-//                du.getTypeDefinition().getName(),
-//                du.getTypeDefinition().getVersion(),
-//                du.getName(),
-//                du.getVersion(),
-//                du.getPlatform()
-//            ))
-//            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//    }
+    /**
+     * DELETE  /dus/:id : delete the "id" deployUnit.
+     *
+     * @param id the id of the deployUnit to delete
+     * @return the ResponseEntity with status 200 (OK)
+     */
+    @RequestMapping(value = "/dus/{id}",
+        method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
+        log.debug("REST request to delete DeployUnit : {}", id);
+        return Optional.ofNullable(duRepository.findOne(id))
+            .map(du -> deleteDeployUnit(
+                du.getTypeDefinition().getNamespace().getName(),
+                du.getTypeDefinition().getName(),
+                du.getTypeDefinition().getVersion(),
+                du.getName(),
+                du.getVersion(),
+                du.getPlatform()
+            ))
+            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
-//    /**
-//     * DELETE  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus/:name/:version/:platform : delete a specific deployUnit
-//     * version
-//     *
-//     * @param namespace the name of the namespace you want to list deployUnits from
-//     * @param tdefName the name of the typeDefinition
-//     * @param tdefVersion the version of the typeDefinition
-//     * @param name the name of the DeployUnits
-//     * @param version the version of the DeployUnits
-//     * @param platform the platform of the DeployUnits
-//     * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
-//     */
-//    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
-//        method = RequestMethod.DELETE,
-//        produces = MediaType.APPLICATION_JSON_VALUE)
-//    @Timed
-//    public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-//                                    @PathVariable String tdefVersion, @PathVariable String name,
-//                                    @PathVariable String version, @PathVariable String platform) {
-//        log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
-//            version, platform, namespace, tdefName, tdefVersion);
-//        Namespace ns = nsRepository.findOne(namespace);
-//        if (ns == null) {
-//            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
-//        } else {
-//            User user = userService.getUserWithAuthorities();
-//            Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
-//            if (user.getAuthorities().contains(admin)
-//                || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
-//                return Optional.ofNullable(
-//                    duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-//                        namespace, tdefName, tdefVersion, name, version, platform)
-//                ).map(du -> {
-//                    // delete du
-//                    duRepository.delete(du.getId());
-//                    return new ResponseEntity<>(HttpStatus.OK);
-//                }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//            } else {
-//                return new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN);
-//            }
-//        }
-//    }
+    /**
+     * DELETE  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus/:name/:version/:platform : delete a specific deployUnit
+     * version
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @param name the name of the DeployUnits
+     * @param version the version of the DeployUnits
+     * @param platform the platform of the DeployUnits
+     * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+        method = RequestMethod.DELETE,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+                                    @PathVariable String tdefVersion, @PathVariable String name,
+                                    @PathVariable String version, @PathVariable String platform) {
+        log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
+            version, platform, namespace, tdefName, tdefVersion);
+        Namespace ns = nsRepository.findOne(namespace);
+        if (ns == null) {
+            return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
+        } else {
+            User user = userService.getUserWithAuthorities();
+            if (user != null) {
+                Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
+                if (user.getAuthorities().contains(admin)
+                    || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
+                    return Optional.ofNullable(
+                        duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+                            namespace, tdefName, tdefVersion, name, version, platform)
+                    ).map(du -> {
+                        // delete du
+                        duRepository.delete(du.getId());
+                        return new ResponseEntity<>(HttpStatus.OK);
+                    }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                } else {
+                    return new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN);
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
+        }
+    }
 }
