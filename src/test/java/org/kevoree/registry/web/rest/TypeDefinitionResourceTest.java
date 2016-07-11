@@ -4,13 +4,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kevoree.registry.Application;
+import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
+import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -25,8 +28,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,6 +58,12 @@ public class TypeDefinitionResourceTest {
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private AuthorityRepository authorityRepository;
+
+    @Inject
+    private UserService userService;
+
     private MockMvc restTdefsMockMvc;
 
     private TypeDefinitionDTO tdef;
@@ -63,6 +75,8 @@ public class TypeDefinitionResourceTest {
         TypeDefinitionResource tdefResource = new TypeDefinitionResource();
         ReflectionTestUtils.setField(tdefResource, "tdefsRepository", tdefsRepository);
         ReflectionTestUtils.setField(tdefResource, "userRepository", userRepository);
+        ReflectionTestUtils.setField(tdefResource, "userService", userService);
+        ReflectionTestUtils.setField(tdefResource, "authorityRepository", authorityRepository);
         ReflectionTestUtils.setField(tdefResource, "namespaceRepository", namespaceRepository);
         this.restTdefsMockMvc = MockMvcBuilders.standaloneSetup(tdefResource).build();
     }
@@ -129,6 +143,39 @@ public class TypeDefinitionResourceTest {
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(tdef)))
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteTypeDefinitionByNamespaceAndNameAndVersion() throws Exception {
+        // Initialize the database
+        TypeDefinition tdef = new TypeDefinition();
+        tdef.setName(this.tdef.getName());
+        tdef.setVersion(this.tdef.getVersion());
+        tdef.setModel(this.tdef.getModel());
+        tdef.setNamespace(this.namespace);
+        namespace.addTypeDefinition(tdef);
+        namespaceRepository.saveAndFlush(this.namespace);
+        tdefsRepository.saveAndFlush(tdef);
+
+        // retrieve db size for tdefs
+        int databaseSizeBeforeUpdate = tdefsRepository.findAll().size();
+
+        // add "user" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("user", null, AuthoritiesConstants.USER));
+
+        restTdefsMockMvc.perform(delete("/api/namespaces/{namespaces}/tdefs/{name}/{version}",
+            namespace.getName(), tdef.getName(), tdef.getVersion())
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+
+        // Validate db
+        List<TypeDefinition> tdefs = tdefsRepository.findAll();
+        assertThat(tdefs).hasSize(databaseSizeBeforeUpdate - 1);
+        Optional<TypeDefinition> deletedTdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(
+            namespace.getName(), tdef.getName(), tdef.getVersion());
+        assertThat(deletedTdef.isPresent()).isFalse();
     }
 
     @Test

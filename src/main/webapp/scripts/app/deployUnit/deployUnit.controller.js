@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('DeployUnitController', function ($rootScope, $scope, $stateParams, DeployUnits, User, Principal) {
+    .controller('DeployUnitController', function ($rootScope, $scope, $stateParams, TypeDefinitions, DeployUnits, User, Principal) {
         $scope.dus = [];
         $scope.namespaces = [];
         $scope.isInRole = Principal.isInRole;

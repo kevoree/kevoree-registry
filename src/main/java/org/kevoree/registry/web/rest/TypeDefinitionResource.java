@@ -167,20 +167,27 @@ public class TypeDefinitionResource {
             return new ResponseEntity<>(new ErrorDTO("unable to find namespace " + name), HttpStatus.NOT_FOUND);
         } else {
             User user = userService.getUserWithAuthorities();
-            Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
-            if (user.getAuthorities().contains(admin)) {
-                tdefsRepository.delete(ns.getTypeDefinitions());
-                return new ResponseEntity<>(HttpStatus.OK);
-            } else {
-                return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
-                    .map(ignore -> tdefsRepository.findOneByNamespaceNameAndNamespaceMembersLoginAndNameAndVersion(
-                        namespace, SecurityUtils.getCurrentLogin(), name, version)
+            if (user != null) {
+                Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
+                if (user.getAuthorities().contains(admin)) {
+                    return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
                         .map(tdef -> {
                             tdefsRepository.delete(tdef);
                             return new ResponseEntity<>(HttpStatus.OK);
                         })
-                        .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
-                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+                        .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                } else {
+                    return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
+                        .map(ignore -> tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
+                            .map(tdef -> {
+                                tdefsRepository.delete(tdef);
+                                return new ResponseEntity<>(HttpStatus.OK);
+                            })
+                            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
+                        .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
         }
     }
@@ -200,19 +207,21 @@ public class TypeDefinitionResource {
             return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
         } else {
             User user = userService.getUserWithAuthorities();
-            Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
-            if (user.getAuthorities().contains(admin)) {
-                tdefsRepository.delete(ns.getTypeDefinitions());
-                return new ResponseEntity<>(HttpStatus.OK);
+            if (user != null) {
+                Authority admin = authorityRepository.findOne(AuthoritiesConstants.ADMIN);
+                if (user.getAuthorities().contains(admin)) {
+                    tdefsRepository.delete(tdefsRepository.findByNamespaceNameAndName(namespace, name));
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
+                        .map(ignore -> {
+                            tdefsRepository.delete(tdefsRepository.findByNamespaceNameAndName(namespace, name));
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        })
+                        .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+                }
             } else {
-                return namespaceRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin())
-                    .map(ignore -> {
-                        Set<TypeDefinition> tdefs = tdefsRepository
-                            .findByNamespaceNameAndNamespaceMembersLoginAndName(namespace, SecurityUtils.getCurrentLogin(), name);
-                        tdefsRepository.delete(tdefs);
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    })
-                    .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN));
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
         }
     }
