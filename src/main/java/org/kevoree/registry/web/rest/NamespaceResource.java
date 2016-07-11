@@ -192,7 +192,7 @@ public class NamespaceResource {
     /**
      * DELETE  /namespaces/{name} -> delete the "name" namespace.
      */
-    @RequestMapping(value = "/namespaces/{name}",
+    @RequestMapping(value = "/namespaces/{name:.+}",
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed

@@ -104,7 +104,7 @@ public class DeployUnitResource {
      * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -254,7 +254,7 @@ public class DeployUnitResource {
      * @param name the name of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -302,7 +302,7 @@ public class DeployUnitResource {
      * @param platform the platform of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
@@ -354,7 +354,7 @@ public class DeployUnitResource {
      * @param platform the platform of the DeployUnits
      * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
         method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
