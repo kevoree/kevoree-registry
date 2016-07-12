@@ -2,6 +2,7 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.github.zafarkhaja.semver.Version;
+import org.apache.commons.lang3.tuple.Pair;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -15,6 +16,7 @@ import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing DeployUnit.
@@ -76,8 +80,14 @@ public class DeployUnitResource {
             return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion)
                 .map(tdef -> {
                     if (duService.canCreate(tdef.getId())) {
-                        DeployUnit savedDu = duService.create(tdef, deployUnit);
-                        return new ResponseEntity<>(savedDu, HttpStatus.CREATED);
+                        try {
+                            DeployUnit savedDu = duService.create(tdef, deployUnit);
+                            return new ResponseEntity<>(savedDu, HttpStatus.CREATED);
+                        } catch (DataIntegrityViolationException e) {
+                            return new ResponseEntity<>(
+                                new ErrorDTO("There is already a DeployUnit with version " + deployUnit.getVersion() +
+                                    " for platform " + deployUnit.getPlatform()), HttpStatus.FORBIDDEN);
+                        }
                     } else {
                         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                     }
@@ -194,35 +204,6 @@ public class DeployUnitResource {
             .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
-//    /**
-//     * PUT  /dus/:id : update the "id" deployUnit.
-//     *
-//     * @param id the id of the deployUnit to update
-//     * @param deployUnit the deployUnit to create
-//     * @return the ResponseEntity with status 200 (OK) and with body the updated deployUnit,
-//     * or with status 400 (Bad Request) if the deployUnit is not valid,
-//     * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
-//     * @throws URISyntaxException if the Location URI syntax is incorrect
-//     */
-//    @RequestMapping(value = "/dus/{id}",
-//        method = RequestMethod.PUT,
-//        produces = MediaType.APPLICATION_JSON_VALUE)
-//    @Timed
-//    public ResponseEntity<DeployUnit> updateDeployUnit(@PathVariable Long id,
-//                                                       @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
-//        log.debug("REST request to update DeployUnit : {}", id);
-//        if (deployUnit.getId() == null) {
-//            createDeployUnit()
-//        } else {
-//
-//        }
-//        DeployUnit du = duService.update(deployUnit);
-//        return Optional.ofNullable(deployUnit)
-//            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
-//            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-//    }
 
     /**
      * GET  /namespaces/:namespace/dus : get the all the deployUnits attached to a specified namespace.
@@ -416,6 +397,90 @@ public class DeployUnitResource {
             } else {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
+        }
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/du/:platform/latest: get the latest deployUnit for a
+     * specific platform
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @param platform the name of the platform
+     * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/du/{platform:.+}/latest",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<DeployUnit> getLatestDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+                                          @PathVariable String tdefVersion, @PathVariable String platform) {
+        log.debug("REST request to get the latest DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
+        Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
+            namespace, tdefName, tdefVersion, platform);
+        if (dus.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            List<DeployUnit> sortedDus = dus.stream()
+                .sorted((du0, du1) -> {
+                    Version v0 = new Version.Builder(du0.getVersion()).build();
+                    Version v1 = new Version.Builder(du1.getVersion()).build();
+                    return compare(v0, v1);
+                })
+                .collect(Collectors.toList());
+            return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
+        }
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/du/:platform/release: get the latest released deployUnit
+     * for a specific platform
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @param platform the name of the platform
+     * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/du/{platform:.+}/release",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<DeployUnit> getLatestReleasedDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+                                                          @PathVariable String tdefVersion, @PathVariable String platform) {
+        log.debug("REST request to get the latest released DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
+        Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
+            namespace, tdefName, tdefVersion, platform);
+        if (dus.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            List<DeployUnit> sortedDus = dus.stream()
+                .filter(du -> {
+                    Version v = new Version.Builder(du.getVersion()).build();
+                    return v.getPreReleaseVersion() == null || v.getPreReleaseVersion().isEmpty();
+                })
+                .sorted((du0, du1) -> {
+                    Version v0 = new Version.Builder(du0.getVersion()).build();
+                    Version v1 = new Version.Builder(du1.getVersion()).build();
+                    return compare(v0, v1);
+                })
+                .collect(Collectors.toList());
+            if (sortedDus.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
+            }
+        }
+    }
+
+    private int compare(Version v0, Version v1) {
+        if (v0.greaterThan(v1)) {
+            return 1;
+        } else if (v0.lessThan(v1)) {
+            return -1;
+        } else {
+            return 0;
         }
     }
 }

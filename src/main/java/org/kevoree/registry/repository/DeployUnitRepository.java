@@ -24,6 +24,10 @@ public interface DeployUnitRepository extends JpaRepository<DeployUnit, Long> {
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(
         String nsName, String tdefName, String tdefVersion);
 
+    @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.platform = ?4")
+    Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
+        String nsName, String tdefName, String tdefVersion, String platform);
+
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4")
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
         String nsName, String tdefName, String tdefVersion, String name);
