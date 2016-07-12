@@ -147,7 +147,7 @@ public class DeployUnitResource {
                                 return new ResponseEntity<>(new ErrorDTO("DeployUnit platform cannot be updated"), HttpStatus.BAD_REQUEST);
                             }
                         } else {
-                            return new ResponseEntity<>(new ErrorDTO("updating released DeployUnit is not allowed"), HttpStatus.FORBIDDEN);
+                            return new ResponseEntity<>(new ErrorDTO("DeployUnit with release version cannot be updated (only preRelease)"), HttpStatus.FORBIDDEN);
                         }
                     } else {
                         return new ResponseEntity<>(new ErrorDTO("DeployUnit version cannot be updated"), HttpStatus.BAD_REQUEST);
