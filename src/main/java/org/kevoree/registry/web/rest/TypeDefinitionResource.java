@@ -1,6 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.github.zafarkhaja.semver.Version;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
@@ -9,6 +10,7 @@ import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.service.util.SemverUtil;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing models.
@@ -106,11 +109,11 @@ public class TypeDefinitionResource {
     /**
      * GET  /namespaces/:namespace/tdefs/:name/:version -> get a precise type definition
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version:.+}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
+    ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable String namespace, @PathVariable String name, @PathVariable Long version) {
         log.debug("REST request to get TypeDefinition: {}.{}/{}", namespace, name, version);
         return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
             .map(tdef -> new ResponseEntity<>(tdef, HttpStatus.OK))
@@ -155,12 +158,12 @@ public class TypeDefinitionResource {
     /**
      * DELETE  /namespaces/{namespace}/tdefs/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version:.+}",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{name}/{version}",
         method = RequestMethod.DELETE,
         produces = {MediaType.APPLICATION_JSON_VALUE})
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
-    public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable String version) {
+    public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable Long version) {
         log.debug("REST request to delete TypeDefinition : {}.{}/{}", namespace, name, version);
         Namespace ns = namespaceRepository.findOne(namespace);
         if (ns == null) {
@@ -237,5 +240,25 @@ public class TypeDefinitionResource {
         return Optional.ofNullable(tdefsRepository.findOne(id))
             .map(tdef -> delete(tdef.getNamespace().getName(), tdef.getName(), tdef.getVersion()))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET /namespaces/:namespace/tdef/:name/latest
+     *
+     * @param namespace the name of the namespace you want to find TypeDefinition from
+     * @param name the name of the latest typeDefinition
+     * @return the ResponseEntity with status 200 (OK) and with body the typeDefinition, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdef/{name}/latest",
+        method = RequestMethod.GET,
+        produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<TypeDefinition> getLatestTypeDefinition(@PathVariable String namespace, @PathVariable String name) {
+        log.debug("REST request to get the latest TypeDefinition for {}.{}", namespace, name);
+        List<TypeDefinition> tdefs = tdefsRepository.findOneByNamespaceNameAndNameOrderByVersionDesc(namespace, name);
+        if (tdefs.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(tdefs.get(0), HttpStatus.OK);
+        }
     }
 }

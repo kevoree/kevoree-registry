@@ -179,7 +179,7 @@ public class NamespaceResourceTest {
         // add a TypeDefinition to the Namespace
         TypeDefinition tdef = new TypeDefinition();
         tdef.setName("TestComp");
-        tdef.setVersion("1.2.3");
+        tdef.setVersion(1L);
         tdef.setNamespace(namespace);
         tdef.setModel("{}");
         namespace.addTypeDefinition(tdef);

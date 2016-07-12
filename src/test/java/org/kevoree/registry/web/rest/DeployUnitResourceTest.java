@@ -53,7 +53,7 @@ public class DeployUnitResourceTest {
     private static final String NAMESPACE = "kevoree";
 
     private static final String TDEF_NAME = "ConsolePrinter";
-    private static final String TDEF_VERSION = "1.0.0";
+    private static final Long TDEF_VERSION = 1L;
 
     private static final String DEFAULT_NAME = "consoleprinter-deployUnit";
     private static final String DEFAULT_VERSION = "1.2.3-SNAPSHOT";
@@ -150,7 +150,7 @@ public class DeployUnitResourceTest {
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
-            NAMESPACE, "unknown", "0.0.0")
+            NAMESPACE, "unknown", "1")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
             .andExpect(status().isNotFound());
@@ -165,7 +165,7 @@ public class DeployUnitResourceTest {
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
-            "user", "Foo", "1.2.3")
+            "user", "Foo", "1")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
             .andExpect(status().isUnauthorized());
@@ -180,7 +180,7 @@ public class DeployUnitResourceTest {
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
-            "unknown", "aaa", "0.0.0")
+            "unknown", "aaa", "1")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(deployUnit)))
             .andExpect(status().isNotFound());
@@ -422,7 +422,7 @@ public class DeployUnitResourceTest {
         // call PUT with a wrong parent TypeDef in the URI compared to DTO
         restDeployUnitMockMvc.perform(
             put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
-                NAMESPACE, "Ticker", "1.0.0", DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM)
+                NAMESPACE, "Ticker", "1", DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM)
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
             .andExpect(status().isNotFound());

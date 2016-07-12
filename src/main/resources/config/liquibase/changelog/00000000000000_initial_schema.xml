@@ -171,7 +171,7 @@
             <column name="name" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
-            <column name="version" type="varchar(50)">
+            <column name="version" type="bigint">
                 <constraints nullable="false"/>
             </column>
             <column name="namespace_name" type="varchar(50)">

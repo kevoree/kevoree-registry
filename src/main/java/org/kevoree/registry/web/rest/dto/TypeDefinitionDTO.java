@@ -6,22 +6,20 @@ import javax.validation.constraints.Size;
 
 public class TypeDefinitionDTO {
 
-    @Pattern(regexp = "^[A-Z][\\w]*$")
     @NotNull
+    @Pattern(regexp = "^[A-Z][\\w]*$")
     @Size(min = 1, max = 50)
     private String name;
 
-    @Pattern(regexp = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$")
     @NotNull
-    @Size(min = 1, max = 50)
-    private String version;
+    private Long version;
 
     @NotNull
     private String model;
 
     public TypeDefinitionDTO() {}
 
-    public TypeDefinitionDTO(String name, String version, String model) {
+    public TypeDefinitionDTO(String name, Long version, String model) {
         this.name = name;
         this.version = version;
         this.model = model;
@@ -31,7 +29,7 @@ public class TypeDefinitionDTO {
         return name;
     }
 
-    public String getVersion() {
+    public Long getVersion() {
         return version;
     }
 
@@ -52,7 +50,7 @@ public class TypeDefinitionDTO {
         this.name = name;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 

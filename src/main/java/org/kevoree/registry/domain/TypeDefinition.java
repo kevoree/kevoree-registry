@@ -29,10 +29,7 @@ public class TypeDefinition implements Serializable {
     private String name;
 
     @NotNull
-    @Pattern(regexp = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$")
-    @Size(min = 1, max = 50)
-    @Column(length = 50)
-    private String version;
+    private Long version;
 
     @ManyToOne
     @JsonIgnoreProperties({ "typeDefinitions" })
@@ -71,11 +68,11 @@ public class TypeDefinition implements Serializable {
         this.name = name;
     }
 
-    public String getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 

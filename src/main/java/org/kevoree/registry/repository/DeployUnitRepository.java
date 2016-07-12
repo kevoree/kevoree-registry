@@ -22,21 +22,21 @@ public interface DeployUnitRepository extends JpaRepository<DeployUnit, Long> {
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3)")
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(
-        String nsName, String tdefName, String tdefVersion);
+        String nsName, String tdefName, Long tdefVersion);
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.platform = ?4")
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
-        String nsName, String tdefName, String tdefVersion, String platform);
+        String nsName, String tdefName, Long tdefVersion, String platform);
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4")
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
-        String nsName, String tdefName, String tdefVersion, String name);
+        String nsName, String tdefName, Long tdefVersion, String name);
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4 and d.version = ?5")
     Set<DeployUnit> findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersion(
-        String nsName, String tdefName, String tdefVersion, String name, String version);
+        String nsName, String tdefName, Long tdefVersion, String name, String version);
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4 and d.version = ?5 and d.platform = ?6")
     Optional<DeployUnit> findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-        String nsName, String tdefName, String tdefVersion, String name, String version, String platform);
+        String nsName, String tdefName, Long tdefVersion, String name, String version, String platform);
 }

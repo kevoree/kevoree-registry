@@ -96,7 +96,7 @@ public class TypeDefinitionResourceTest {
 
         tdef = new TypeDefinitionDTO();
         tdef.setName("TestComp");
-        tdef.setVersion("1.2.3");
+        tdef.setVersion(1L);
         tdef.setModel("{}");
     }
 

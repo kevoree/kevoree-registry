@@ -12,6 +12,7 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.service.util.SemverUtil;
 import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.slf4j.Logger;
@@ -73,7 +74,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<?> createDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                              @PathVariable String tdefVersion,
+                                              @PathVariable Long tdefVersion,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
         log.debug("REST request to create DeployUnit: {} for {}.{}/{}", deployUnit, namespace, tdefName, tdefVersion);
         if (deployUnit.getId() == null) {
@@ -120,7 +121,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<?> updateDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                              @PathVariable String tdefVersion, @PathVariable String name,
+                                              @PathVariable Long tdefVersion, @PathVariable String name,
                                               @PathVariable String version, @PathVariable String platform,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
         log.debug("REST request to update DeployUnit {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
@@ -251,7 +252,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable String tdefVersion) {
+                                         @PathVariable Long tdefVersion) {
         log.debug("REST request to get DeployUnits from Namespace: {} and TypeDefinition: {}/{}",
             namespace, tdefName, tdefVersion);
         return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
@@ -272,7 +273,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable String tdefVersion, @PathVariable String name) {
+                                         @PathVariable Long tdefVersion, @PathVariable String name) {
         log.debug("REST request to get DeployUnits {} from Namespace: {} and TypeDefinition: {}/{}", name,
             namespace, tdefName, tdefVersion);
         return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
@@ -295,7 +296,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable String tdefVersion, @PathVariable String name,
+                                         @PathVariable Long tdefVersion, @PathVariable String name,
                                          @PathVariable String version) {
         log.debug("REST request to get DeployUnits {}-{} from Namespace: {} and TypeDefinition: {}/{}", name, version,
             namespace, tdefName, tdefVersion);
@@ -320,7 +321,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<DeployUnit> getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable String tdefVersion, @PathVariable String name,
+                                         @PathVariable Long tdefVersion, @PathVariable String name,
                                          @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to get DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
@@ -371,7 +372,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                    @PathVariable String tdefVersion, @PathVariable String name,
+                                    @PathVariable Long tdefVersion, @PathVariable String name,
                                     @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
@@ -415,7 +416,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<DeployUnit> getLatestDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                          @PathVariable String tdefVersion, @PathVariable String platform) {
+                                          @PathVariable Long tdefVersion, @PathVariable String platform) {
         log.debug("REST request to get the latest DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
             namespace, tdefName, tdefVersion, platform);
@@ -426,7 +427,7 @@ public class DeployUnitResource {
                 .sorted((du0, du1) -> {
                     Version v0 = new Version.Builder(du0.getVersion()).build();
                     Version v1 = new Version.Builder(du1.getVersion()).build();
-                    return compare(v0, v1);
+                    return SemverUtil.compare(v0, v1);
                 })
                 .collect(Collectors.toList());
             return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
@@ -448,7 +449,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<DeployUnit> getLatestReleasedDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                                          @PathVariable String tdefVersion, @PathVariable String platform) {
+                                                          @PathVariable Long tdefVersion, @PathVariable String platform) {
         log.debug("REST request to get the latest released DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
             namespace, tdefName, tdefVersion, platform);
@@ -463,7 +464,7 @@ public class DeployUnitResource {
                 .sorted((du0, du1) -> {
                     Version v0 = new Version.Builder(du0.getVersion()).build();
                     Version v1 = new Version.Builder(du1.getVersion()).build();
-                    return compare(v0, v1);
+                    return SemverUtil.compare(v0, v1);
                 })
                 .collect(Collectors.toList());
             if (sortedDus.isEmpty()) {
@@ -471,16 +472,6 @@ public class DeployUnitResource {
             } else {
                 return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
             }
-        }
-    }
-
-    private int compare(Version v0, Version v1) {
-        if (v0.greaterThan(v1)) {
-            return 1;
-        } else if (v0.lessThan(v1)) {
-            return -1;
-        } else {
-            return 0;
         }
     }
 }
