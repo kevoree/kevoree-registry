@@ -97,13 +97,13 @@
             </thead>
             <tbody>
             <tr ng-repeat="tdef in tdefs | filter:filterText | orderBy:'namespace.name'">
-                <td class="col-xs-3">
+                <td class="col-xs-2">
                     {{ tdef.namespace.name }}
                 </td>
-                <td class="col-xs-5">
+                <td class="col-xs-7">
                     <a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name }}</a>
                 </td>
-                <td class="col-xs-3">
+                <td class="col-xs-2">
                     {{ tdef.version }}
                 </td>
                 <td class="col-xs-1">

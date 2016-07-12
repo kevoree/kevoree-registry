@@ -125,6 +125,7 @@
         <table class="table table-bordered table-condensed table-striped">
             <thead>
                 <tr>
+                    <th>Namespace</th>
                     <th>TypeDefinition</th>
                     <th>Name</th>
                     <th>Version</th>
@@ -133,13 +134,16 @@
             </thead>
             <tbody>
                 <tr ng-repeat="du in dus | filter:filterText | orderBy:'typeDefinition.name'">
+                    <td class="col-xs-2">
+                        {{ du.typeDefinition.namespace.name }}
+                    </td>
                     <td class="col-xs-3">
                         {{ du.typeDefinition.name + '/' + du.typeDefinition.version }}
                     </td>
-                    <td class="col-xs-5">
+                    <td class="col-xs-4">
                         <a ui-sref="duDetail({ id: du.id })">{{ du.name }}</a>
                     </td>
-                    <td class="col-xs-3">
+                    <td class="col-xs-2">
                         {{ du.version }}
                     </td>
                     <td class="col-xs-1">

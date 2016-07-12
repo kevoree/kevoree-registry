@@ -33,6 +33,6 @@ public interface DeployUnitRepository extends JpaRepository<DeployUnit, Long> {
         String nsName, String tdefName, String tdefVersion, String name, String version);
 
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4 and d.version = ?5 and d.platform = ?6")
-    DeployUnit findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+    Optional<DeployUnit> findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
         String nsName, String tdefName, String tdefVersion, String name, String version, String platform);
 }

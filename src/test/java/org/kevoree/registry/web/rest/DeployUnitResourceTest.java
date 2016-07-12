@@ -331,4 +331,78 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
     }
+
+    @Test
+    @Transactional
+    public void badUpdateDeployUnit() throws Exception {
+        // Initialize the database
+        DeployUnit du = duService.create(tdef, this.deployUnit);
+        duRepository.flush();
+        int databaseSizeBeforeUpdate = duRepository.findAll().size();
+
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+
+        // Update the deployUnit
+        this.deployUnit.setId(du.getId());
+        this.deployUnit.setPlatform("foo");
+        this.deployUnit.setModel(UPDATED_MODEL);
+
+        restDeployUnitMockMvc.perform(
+            put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+                NAMESPACE, TDEF_NAME, TDEF_VERSION, DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
+            .andExpect(status().isBadRequest());
+
+        // Validate the DeployUnit in the database
+        List<DeployUnit> deployUnits = duRepository.findAll();
+        assertThat(deployUnits).hasSize(databaseSizeBeforeUpdate);
+        DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
+        assertThat(testDeployUnit.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDeployUnit.getVersion()).isEqualTo(DEFAULT_VERSION);
+        assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
+        assertThat(testDeployUnit.getModel()).isEqualTo(DEFAULT_MODEL);
+        assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
+        assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
+        assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
+    }
+
+    @Test
+    @Transactional
+    public void mismatchUriDTOUpdateDeployUnit() throws Exception {
+        // Initialize the database
+        DeployUnit du = duService.create(tdef, this.deployUnit);
+        duRepository.flush();
+        int databaseSizeBeforeUpdate = duRepository.findAll().size();
+
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+
+        // Update the deployUnit
+        this.deployUnit.setId(du.getId());
+        this.deployUnit.setModel(UPDATED_MODEL);
+
+        // call PUT with a wrong parent TypeDef in the URI compared to DTO
+        restDeployUnitMockMvc.perform(
+            put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+                NAMESPACE, "Ticker", "1.0.0", DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
+            .andExpect(status().isNotFound());
+
+        // Validate the DeployUnit in the database
+        List<DeployUnit> deployUnits = duRepository.findAll();
+        assertThat(deployUnits).hasSize(databaseSizeBeforeUpdate);
+        DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
+        assertThat(testDeployUnit.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDeployUnit.getVersion()).isEqualTo(DEFAULT_VERSION);
+        assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
+        assertThat(testDeployUnit.getModel()).isEqualTo(DEFAULT_MODEL);
+        assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
+        assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
+        assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
+    }
 }

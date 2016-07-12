@@ -117,17 +117,42 @@ public class DeployUnitResource {
         if (deployUnit.getId() == null) {
             return createDeployUnit(namespace, tdefName, tdefVersion, deployUnit);
         }
-        DeployUnit du = duRepository.findOne(deployUnit.getId());
-        if (duService.canCreate(du.getTypeDefinition().getId())) {
-            du.setName(deployUnit.getName());
-            du.setVersion(deployUnit.getVersion());
-            du.setPlatform(deployUnit.getPlatform());
-            du.setModel(deployUnit.getModel());
-            du.setTypeDefinition(du.getTypeDefinition());
-            DeployUnit result = duRepository.save(du);
-            return new ResponseEntity<>(result, HttpStatus.OK);
+        Optional<DeployUnit> dbDu = duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+            namespace, tdefName, tdefVersion, name, version, platform);
+        if (dbDu.isPresent()) {
+            DeployUnit du = dbDu.get();
+            if (duService.canCreate(du.getTypeDefinition().getId())) {
+                if (du.getName().equals(deployUnit.getName())) {
+                    if (du.getVersion().equals(deployUnit.getVersion())) {
+                        if (du.getPlatform().equals(deployUnit.getPlatform())) {
+                            Optional<TypeDefinition> tdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion);
+                            if (tdef.isPresent()) {
+                                if (du.getTypeDefinition().equals(tdef.get())) {
+                                    du.setModel(deployUnit.getModel());
+                                    DeployUnit result = duRepository.save(du);
+                                    return new ResponseEntity<>(result, HttpStatus.OK);
+                                } else {
+                                    return new ResponseEntity<>(new ErrorDTO("DeployUnit typeDef cannot be updated"), HttpStatus.BAD_REQUEST);
+                                }
+                            } else {
+                                return new ResponseEntity<>(
+                                    new ErrorDTO("Unable to find TypeDefinition " + namespace + "." + tdefName + "/" + tdefVersion),
+                                    HttpStatus.NOT_FOUND);
+                            }
+                        } else {
+                            return new ResponseEntity<>(new ErrorDTO("DeployUnit platform cannot be updated"), HttpStatus.BAD_REQUEST);
+                        }
+                    } else {
+                        return new ResponseEntity<>(new ErrorDTO("DeployUnit version cannot be updated"), HttpStatus.BAD_REQUEST);
+                    }
+                } else {
+                    return new ResponseEntity<>(new ErrorDTO("DeployUnit name cannot be updated"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
         } else {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -311,9 +336,8 @@ public class DeployUnitResource {
                                          @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to get DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
-        return Optional.ofNullable(
-                duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-                    namespace, tdefName, tdefVersion, name, version, platform))
+        return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+            namespace, tdefName, tdefVersion, name, version, platform)
             .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -372,14 +396,13 @@ public class DeployUnitResource {
                 Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
                 if (user.getAuthorities().contains(admin)
                     || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
-                    return Optional.ofNullable(
-                        duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
-                            namespace, tdefName, tdefVersion, name, version, platform)
-                    ).map(du -> {
-                        // delete du
-                        duRepository.delete(du.getId());
-                        return new ResponseEntity<>(HttpStatus.OK);
-                    }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                    return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
+                        namespace, tdefName, tdefVersion, name, version, platform)
+                        .map(du -> {
+                            // delete du
+                            duRepository.delete(du.getId());
+                            return new ResponseEntity<>(HttpStatus.OK);
+                        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
                 } else {
                     return new ResponseEntity<>(new ErrorDTO("you are not a member of '" + namespace + "' namespace"), HttpStatus.FORBIDDEN);
                 }

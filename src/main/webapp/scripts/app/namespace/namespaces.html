@@ -86,10 +86,10 @@
             </thead>
             <tbody>
             <tr ng-repeat="ns in namespaces | filter:filterText | orderBy:'name'">
-                <td class="col-xs-5">
+                <td class="col-xs-2">
                     <a ui-sref="nsDetail({ name: ns.name })">{{ ns.name }}</a>
                 </td>
-                <td class="col-xs-5">
+                <td class="col-xs-9">
                     {{ ns.owner.login }}
                 </td>
                 <td class="col-xs-1">
