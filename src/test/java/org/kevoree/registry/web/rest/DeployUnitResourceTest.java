@@ -56,13 +56,10 @@ public class DeployUnitResourceTest {
     private static final String TDEF_VERSION = "1.0.0";
 
     private static final String DEFAULT_NAME = "consoleprinter-deployUnit";
-    private static final String DEFAULT_VERSION = "1.2.3";
+    private static final String DEFAULT_VERSION = "1.2.3-SNAPSHOT";
     private static final String DEFAULT_PLATFORM = "atari";
     private static final String DEFAULT_MODEL = "{}";
 
-    private static final String UPDATED_NAME = "org.kevoree.library.java.printer";
-    private static final String UPDATED_VERSION = "42.0.0-SNAPSHOT";
-    private static final String UPDATED_PLATFORM = "js";
     private static final String UPDATED_MODEL = "{\"foo\": \"bar\"}";
 
     @Inject
@@ -362,6 +359,43 @@ public class DeployUnitResourceTest {
         DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
         assertThat(testDeployUnit.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testDeployUnit.getVersion()).isEqualTo(DEFAULT_VERSION);
+        assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
+        assertThat(testDeployUnit.getModel()).isEqualTo(DEFAULT_MODEL);
+        assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
+        assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
+        assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
+    }
+
+    @Test
+    @Transactional
+    public void badUpdateDeployUnitWhenReleasedVersion() throws Exception {
+        // Initialize the database
+        this.deployUnit.setVersion("1.2.3");
+        DeployUnit du = duService.create(tdef, this.deployUnit);
+        duRepository.flush();
+        int databaseSizeBeforeUpdate = duRepository.findAll().size();
+
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+
+        // Update the deployUnit
+        this.deployUnit.setId(du.getId());
+        this.deployUnit.setModel(UPDATED_MODEL);
+
+        restDeployUnitMockMvc.perform(
+            put("/api/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform}",
+                NAMESPACE, TDEF_NAME, TDEF_VERSION, DEFAULT_NAME, "1.2.3", DEFAULT_PLATFORM)
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(this.deployUnit)))
+            .andExpect(status().isForbidden());
+
+        // Validate the DeployUnit in the database
+        List<DeployUnit> deployUnits = duRepository.findAll();
+        assertThat(deployUnits).hasSize(databaseSizeBeforeUpdate);
+        DeployUnit testDeployUnit = deployUnits.get(deployUnits.size() - 1);
+        assertThat(testDeployUnit.getName()).isEqualTo(DEFAULT_NAME);
+        assertThat(testDeployUnit.getVersion()).isEqualTo("1.2.3");
         assertThat(testDeployUnit.getPlatform()).isEqualTo(DEFAULT_PLATFORM);
         assertThat(testDeployUnit.getModel()).isEqualTo(DEFAULT_MODEL);
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);

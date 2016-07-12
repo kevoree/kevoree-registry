@@ -1,6 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.github.zafarkhaja.semver.Version;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -124,23 +125,29 @@ public class DeployUnitResource {
             if (duService.canCreate(du.getTypeDefinition().getId())) {
                 if (du.getName().equals(deployUnit.getName())) {
                     if (du.getVersion().equals(deployUnit.getVersion())) {
-                        if (du.getPlatform().equals(deployUnit.getPlatform())) {
-                            Optional<TypeDefinition> tdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion);
-                            if (tdef.isPresent()) {
-                                if (du.getTypeDefinition().equals(tdef.get())) {
-                                    du.setModel(deployUnit.getModel());
-                                    DeployUnit result = duRepository.save(du);
-                                    return new ResponseEntity<>(result, HttpStatus.OK);
+                        // test SemVer preRelease
+                        Version v = new Version.Builder(deployUnit.getVersion()).build();
+                        if (v.getPreReleaseVersion() != null && !v.getPreReleaseVersion().isEmpty()) {
+                            if (du.getPlatform().equals(deployUnit.getPlatform())) {
+                                Optional<TypeDefinition> tdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion);
+                                if (tdef.isPresent()) {
+                                    if (du.getTypeDefinition().equals(tdef.get())) {
+                                        du.setModel(deployUnit.getModel());
+                                        DeployUnit result = duRepository.save(du);
+                                        return new ResponseEntity<>(result, HttpStatus.OK);
+                                    } else {
+                                        return new ResponseEntity<>(new ErrorDTO("DeployUnit typeDef cannot be updated"), HttpStatus.BAD_REQUEST);
+                                    }
                                 } else {
-                                    return new ResponseEntity<>(new ErrorDTO("DeployUnit typeDef cannot be updated"), HttpStatus.BAD_REQUEST);
+                                    return new ResponseEntity<>(
+                                        new ErrorDTO("Unable to find TypeDefinition " + namespace + "." + tdefName + "/" + tdefVersion),
+                                        HttpStatus.NOT_FOUND);
                                 }
                             } else {
-                                return new ResponseEntity<>(
-                                    new ErrorDTO("Unable to find TypeDefinition " + namespace + "." + tdefName + "/" + tdefVersion),
-                                    HttpStatus.NOT_FOUND);
+                                return new ResponseEntity<>(new ErrorDTO("DeployUnit platform cannot be updated"), HttpStatus.BAD_REQUEST);
                             }
                         } else {
-                            return new ResponseEntity<>(new ErrorDTO("DeployUnit platform cannot be updated"), HttpStatus.BAD_REQUEST);
+                            return new ResponseEntity<>(new ErrorDTO("updating released DeployUnit is not allowed"), HttpStatus.FORBIDDEN);
                         }
                     } else {
                         return new ResponseEntity<>(new ErrorDTO("DeployUnit version cannot be updated"), HttpStatus.BAD_REQUEST);
