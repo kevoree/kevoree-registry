@@ -12,8 +12,6 @@ import java.util.Set;
  */
 public interface DeployUnitRepository extends JpaRepository<DeployUnit, Long> {
 
-    Optional<DeployUnit> findOneByTypeDefinitionIdAndNameAndVersionAndPlatform(Long tdefId, String name, String version, String platform);
-
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1)")
     Set<DeployUnit> findByNamespace(String name);
 

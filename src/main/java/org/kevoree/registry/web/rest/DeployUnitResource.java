@@ -2,7 +2,6 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.github.zafarkhaja.semver.Version;
-import org.apache.commons.lang3.tuple.Pair;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -251,11 +249,24 @@ public class DeployUnitResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
+    public ResponseEntity<?> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
                                          @PathVariable Long tdefVersion) {
         log.debug("REST request to get DeployUnits from Namespace: {} and TypeDefinition: {}/{}",
             namespace, tdefName, tdefVersion);
-        return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
+        Optional<Namespace> ns = Optional.ofNullable(nsRepository.findOne(namespace));
+        if (ns.isPresent()) {
+            if (tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion).isPresent()) {
+                Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(
+                    namespace, tdefName, tdefVersion);
+                return new ResponseEntity<>(dus, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(
+                    new ErrorDTO("Unable to find TypeDefinition " + namespace + "." + tdefName + "/" + tdefVersion),
+                    HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>(new ErrorDTO("Unable to find Namespace " + namespace), HttpStatus.NOT_FOUND);
+        }
     }
 
     /**
