@@ -7,6 +7,7 @@ angular.module('kevoreeRegistryApp')
             { id: $stateParams.id },
             function (du) {
                 $scope.du = du;
+                $scope.du.model = JSON.stringify(JSON.parse($scope.du.model), null, 2);
             },
             function () {
                 $state.go('dus');
