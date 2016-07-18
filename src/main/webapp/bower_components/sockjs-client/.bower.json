@@ -32,7 +32,7 @@
     "tag": "v0.3.4",
     "commit": "0c70698bddcfab826c7b241ed709f69b5b0d41f7"
   },
-  "_source": "git://github.com/sockjs/sockjs-client.git",
+  "_source": "https://github.com/sockjs/sockjs-client.git",
   "_target": "0.3.4",
   "_originalSource": "sockjs-client"
 }

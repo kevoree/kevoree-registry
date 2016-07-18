@@ -8,7 +8,7 @@
     "tag": "v2.0.18",
     "commit": "95c377ceca3d20c49da9d87f94460c99bf6afec7"
   },
-  "_source": "git://github.com/wordnik/swagger-ui.git",
+  "_source": "https://github.com/wordnik/swagger-ui.git",
   "_target": "2.0.18",
   "_originalSource": "swagger-ui"
 }
