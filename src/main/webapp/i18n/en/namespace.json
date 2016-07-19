@@ -7,7 +7,9 @@
                 "createOrEditLabel": "Create or edit a Namespace"
             },
             "delete": {
-                "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?"
+                "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?",
+                "warning1": "Every TypeDefinition & DeployUnit in this namespace will be deleted forever.",
+                "warning2": "This cannot be undone!"
             },
             "detail": {
                 "title": "Namespace"

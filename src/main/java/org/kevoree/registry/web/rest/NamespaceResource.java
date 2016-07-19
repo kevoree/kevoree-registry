@@ -9,6 +9,7 @@ import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
@@ -36,6 +37,9 @@ public class NamespaceResource {
 
     @Inject
     private NamespaceRepository namespaceRepository;
+
+    @Inject
+    private NamespaceService namespaceService;
 
     @Inject
     private UserRepository userRepository;
@@ -82,22 +86,28 @@ public class NamespaceResource {
     @RolesAllowed(AuthoritiesConstants.USER)
     ResponseEntity<?> addNamespaces(@Valid @RequestBody NamedDTO namedDTO) {
         log.debug("REST request to add a namespace: {}", namedDTO);
-        return Optional.ofNullable(namespaceRepository.findOne(namedDTO.getName()))
-            .map(ns -> new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST))
-            .orElseGet(() -> userRepository.findOneByLogin(namedDTO.getName())
-                .map(user -> new ResponseEntity<>(new ErrorDTO("name already in use"), HttpStatus.BAD_REQUEST))
+        Optional<Namespace> oNs = Optional.ofNullable(namespaceRepository.findOne(namedDTO.getName()));
+        if (oNs.isPresent()) {
+            return new ResponseEntity<>(new ErrorDTO("namespace already in use"), HttpStatus.BAD_REQUEST);
+        } else {
+            return userRepository.findOneByLogin(namedDTO.getName())
+                // but there is a user that is using this name
+                .map(user -> {
+                    if (SecurityUtils.getCurrentLogin().equals(user.getLogin())) {
+                        Namespace newNs = namespaceService.create(namedDTO.getName(), user);
+                        return new ResponseEntity<>(newNs, HttpStatus.CREATED);
+                    } else {
+                        return new ResponseEntity<>(new ErrorDTO("only the user \"" + user.getLogin() + "\" can create this namespace"), HttpStatus.BAD_REQUEST);
+                    }
+                })
+                // and no user are using this name
                 .orElseGet(() -> userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
                     .map(user -> {
-                        Namespace newNs = new Namespace();
-                        newNs.setName(namedDTO.getName());
-                        newNs.setOwner(user);
-                        newNs.addMember(user);
-                        user.addNamespace(newNs);
-                        namespaceRepository.save(newNs);
-                        userRepository.save(user);
-                        return new ResponseEntity(HttpStatus.CREATED);
+                        Namespace newNs = namespaceService.create(namedDTO.getName(), user);
+                        return new ResponseEntity<>(newNs, HttpStatus.CREATED);
                     })
-                    .orElse(new ResponseEntity(HttpStatus.FORBIDDEN))));
+                    .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN)));
+        }
     }
 
     /**

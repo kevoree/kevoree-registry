@@ -12,6 +12,7 @@ import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
+import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.springframework.boot.test.IntegrationTest;
@@ -52,6 +53,9 @@ public class NamespaceResourceTest {
     private NamespaceRepository namespaceRepository;
 
     @Inject
+    private NamespaceService namespaceService;
+
+    @Inject
     private UserRepository userRepository;
 
     @Inject
@@ -74,6 +78,7 @@ public class NamespaceResourceTest {
         ReflectionTestUtils.setField(namespaceResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(namespaceResource, "userService", userService);
         ReflectionTestUtils.setField(namespaceResource, "namespaceRepository", namespaceRepository);
+        ReflectionTestUtils.setField(namespaceResource, "namespaceService", namespaceService);
         ReflectionTestUtils.setField(namespaceResource, "authorityRepository", authorityRepository);
         this.restNamespaceMockMvc = MockMvcBuilders.standaloneSetup(namespaceResource).build();
     }

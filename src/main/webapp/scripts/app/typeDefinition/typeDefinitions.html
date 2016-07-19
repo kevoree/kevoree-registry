@@ -81,7 +81,7 @@
                     <td class="col-xs-2">{{ tdef.version }}</td>
                     <td class="col-xs-1">
                         <a href="" ng-click="delete(tdef.id, $event)">
-                            <span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)">Delete</span>
+                            <span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)" translate="entity.action.delete">Delete</span>
                         </a>
                     </td>
                 </tr>

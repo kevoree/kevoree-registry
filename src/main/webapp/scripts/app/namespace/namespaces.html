@@ -76,6 +76,10 @@
                             <strong>Error: </strong>{{deleteError}}
                         </div>
                         <p translate="kevoreeRegistryApp.namespace.delete.question" translate-values="{name: '{{namespace.name}}'}">Are you sure you want to delete Namespace {{namespace.name}}?</p>
+                        <div class="alert alert-danger" role="alert">
+                            <p translate="kevoreeRegistryApp.namespace.delete.warning1">Every TypeDefinition & DeployUnit in this namespace will be deleted forever.</p>
+                            <p><strong translate="kevoreeRegistryApp.namespace.delete.warning2">This cannot be undone!</strong></p>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
@@ -124,7 +128,7 @@
                     </td>
                     <td class="col-xs-1">
                         <a href="" ng-click="delete(ns.name, $event)">
-                            <span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isOwner(ns)">Delete</span>
+                            <span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isOwner(ns)" translate="entity.action.delete">Delete</span>
                         </a>
                     </td>
                 </tr>
