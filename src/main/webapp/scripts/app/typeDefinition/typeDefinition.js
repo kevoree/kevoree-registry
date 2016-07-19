@@ -5,7 +5,7 @@ angular.module('kevoreeRegistryApp')
         $stateProvider
             .state('tdefs', {
                 parent: 'site',
-                url: '/tdefs',
+                url: '/tdefs?page?size?sort',
                 data: {
                     roles: []
                 },

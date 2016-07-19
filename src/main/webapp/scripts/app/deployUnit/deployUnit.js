@@ -5,7 +5,7 @@ angular.module('kevoreeRegistryApp')
         $stateProvider
             .state('dus', {
                 parent: 'site',
-                url: '/dus',
+                url: '/dus?page?size?sort',
                 data: {
                     roles: []
                 },

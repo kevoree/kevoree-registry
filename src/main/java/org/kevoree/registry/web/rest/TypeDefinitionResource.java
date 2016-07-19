@@ -15,6 +15,8 @@ import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,9 +61,21 @@ public class TypeDefinitionResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    ResponseEntity<List<TypeDefinition>> getTypeDefinitions() {
+    List<TypeDefinition> getTypeDefinitions() {
         log.debug("REST request to get all TypeDefinitions");
-        return new ResponseEntity<>(tdefsRepository.findAll(), HttpStatus.OK);
+        return tdefsRepository.findAll();
+    }
+
+    /**
+     * GET  /tdefs -> returns all tdefs
+     */
+    @RequestMapping(value = "/tdefs/page",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public Page<TypeDefinition> getPageableTypeDefinitions(Pageable pageable) {
+        log.debug("REST request to get paged TypeDefinitions (index={}, size={})", pageable.getPageNumber(), pageable.getPageSize());
+        return tdefsRepository.findAll(pageable);
     }
 
     /**
@@ -70,7 +84,7 @@ public class TypeDefinitionResource {
      * @param id the id of the TypeDefinition to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the TypeDefinition, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/tdefs/{id}",
+    @RequestMapping(value = "/tdefs/{id:[\\d]+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed

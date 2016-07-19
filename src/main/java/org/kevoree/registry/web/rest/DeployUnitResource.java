@@ -17,6 +17,9 @@ import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -173,17 +176,27 @@ public class DeployUnitResource {
     }
 
     /**
-     * GET  /dus : get all the deployUnits.
-     *
-     * @return the ResponseEntity with status 200 (OK) and the list of deployUnits in body
+     * GET  /dus -> returns all dus
      */
     @RequestMapping(value = "/dus",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public List<DeployUnit> getAllDeployUnits() {
+    public List<DeployUnit> getDeployUnits() {
         log.debug("REST request to get all DeployUnits");
         return duRepository.findAll();
+    }
+
+    /**
+     * GET  /dus/page -> returns pageable dus
+     */
+    @RequestMapping(value = "/dus/page",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public Page<DeployUnit> getPageableDeployUnits(Pageable pageable) {
+        log.debug("REST request to get paged DeployUnits (index={}, size={})", pageable.getPageNumber(), pageable.getPageSize());
+        return duRepository.findAll(pageable);
     }
 
     /**
@@ -192,7 +205,7 @@ public class DeployUnitResource {
      * @param id the id of the deployUnit to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/dus/{id}",
+    @RequestMapping(value = "/dus/{id:[\\d]+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed

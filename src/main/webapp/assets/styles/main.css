@@ -132,3 +132,19 @@ ul#strength {
     width:20px;
 }
 /* end Password strength bar style */
+
+.pagination {
+    margin: 0;
+}
+
+a.nocolor {
+    color: inherit;
+}
+
+a.block {
+    display: block;
+}
+
+a .glyphicon {
+    line-height: inherit;
+}

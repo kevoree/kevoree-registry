@@ -1,14 +1,19 @@
 <div class="well">
-    <div class="row">
-        <div class="col-xs-6 col-md-4">
-            <input type="text" class="form-control" ng-model="filterText" placeholder="{{ 'kevoreeRegistryApp.deployUnit.filterPlaceholder' | translate }}">
+    <fieldset>
+        <legend>Filter by:</legend>
+        <div class="col-xs-6 col-sm-2">
+            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.namespace.name" placeholder="Namespace">
         </div>
-        <!--<div class="col-md-offset-2 col-xs-6">-->
-            <!--<button ng-show="isInRole('ROLE_USER')" class="btn btn-primary btn-md pull-right" ng-click="create()">-->
-                <!--<span class="glyphicon glyphicon-plus"></span> <span translate="kevoreeRegistryApp.deployUnit.home.createLabel">New DeployUnit</span>-->
-            <!--</button>-->
-        <!--</div>-->
-    </div>
+        <div class="col-xs-6 col-sm-3">
+            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.name" placeholder="TypeDefinition">
+        </div>
+        <div class="col-xs-6 col-sm-4">
+            <input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
+        </div>
+        <div class="col-xs-6 col-sm-2">
+            <input type="text" class="form-control input-sm" ng-model="search.version" placeholder="Version">
+        </div>
+    </fieldset>
     <hr/>
     <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -125,15 +130,45 @@
         <table class="table table-bordered table-condensed table-striped">
             <thead>
                 <tr>
-                    <th>Namespace</th>
-                    <th>TypeDefinition</th>
-                    <th>Name</th>
-                    <th>Version</th>
-                    <th>Platform</th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.namespace.name')">
+                            <span>Namespace</span>
+                            <i ng-if="orderColumn === 'typeDefinition.namespace.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.name')">
+                            TypeDefinition
+                            <i ng-if="orderColumn === 'typeDefinition.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('name')">
+                            Name
+                            <i ng-if="orderColumn === 'name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('version')">
+                            Version
+                            <i ng-if="orderColumn === 'version'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('platform')">
+                            Platform
+                            <i ng-if="orderColumn === 'platform'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="du in dus | filter:filterText | orderBy:'typeDefinition.name'">
+                <tr ng-if="filteredDus.length === 0" ng-init="filteredDus = []">
+                    <td colspan="5" class="text-center">
+                        <em>No DeployUnit found</em>
+                    </td>
+                </tr>
+                <tr ng-repeat="du in filteredDus = (page.content | filter:search | orderBy:orderColumn:reverse )">
                     <td class="col-xs-2">
                         {{ du.typeDefinition.namespace.name }}
                     </td>
@@ -152,5 +187,32 @@
                 </tr>
             </tbody>
         </table>
+
+        <ul class="pagination pagination-sm">
+            <li ng-class="{ disabled: page.first }">
+                <a href="#" aria-label="Previous"
+                   ui-sref="dus({ page: (page.number - 1), size: page.size, sort: page.sort })">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li ng-class="{ active: ($index === page.number) }"
+                ng-repeat="i in asArray(page.totalPages) track by $index">
+                <a ui-sref="dus({ page: $index, size: page.size, sort: page.sort })">{{ $index + 1 }}</a>
+            </li>
+            <li ng-class="{ disabled: page.last }">
+                <a href="#" aria-label="Next"
+                   ui-sref="dus({ page: (page.number + 1), size: page.size, sort: page.sort })">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="btn-group pull-right">
+            <a
+                ui-sref="dus({ page: page.number, size: size, sort: page.sort })"
+                class="btn btn-sm btn-default"
+                ng-class="{ active: (size === page.size) }"
+                ng-repeat="size in sizes">{{ size }}</a>
+        </div>
     </div>
 </div>

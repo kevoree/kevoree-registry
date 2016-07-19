@@ -4,11 +4,25 @@ angular.module('kevoreeRegistryApp')
     .controller('NamespaceController', function ($rootScope, $scope, Principal, Namespaces) {
         $scope.isInRole = Principal.isInRole;
         $scope.namespaces = [];
+        $scope.search = {
+            name: '',
+            owner: {
+                login: ''
+            }
+        };
+        $scope.orderColumn = 'name';
+        $scope.reverse = false;
+        $scope.orderClasses = {
+            'glyphicon-chevron-up': $scope.reverse,
+            'glyphicon-chevron-down': !$scope.reverse
+        };
+
         $scope.loadAll = function() {
             Namespaces.query(function(result) {
                 $scope.namespaces = result;
             });
         };
+
         $scope.loadAll();
 
         $scope.create = function () {
@@ -56,7 +70,12 @@ angular.module('kevoreeRegistryApp')
 
         $scope.clear = function () {
             $scope.namespace = null;
-            $scope.filterText = null;
+            $scope.search = {
+                name: '',
+                owner: {
+                    login: ''
+                }
+            };
         };
 
         $scope.clearDeleteError = function () {
@@ -65,6 +84,17 @@ angular.module('kevoreeRegistryApp')
 
         $scope.clearSaveError = function () {
             $scope.saveError = null;
+        };
+
+        $scope.changeOrderBy = function (prop) {
+            if (prop === $scope.orderColumn) {
+                $scope.reverse = !$scope.reverse;
+                $scope.orderClasses = {
+                    'glyphicon-chevron-up': $scope.reverse,
+                    'glyphicon-chevron-down': !$scope.reverse
+                };
+            }
+            $scope.orderColumn = prop;
         };
 
         angular.element('#saveNamespaceModal').on('shown.bs.modal', function () {

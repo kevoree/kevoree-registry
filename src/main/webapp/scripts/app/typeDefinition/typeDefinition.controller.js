@@ -1,39 +1,34 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('TypeDefinitionController', function ($rootScope, $scope, $stateParams, TypeDefinitions, Namespaces, User, Principal) {
-        $scope.tdefs = [];
-        $scope.namespaces = [];
+    .controller('TypeDefinitionController', function ($rootScope, $scope, $stateParams, TypeDefinitions, User, Principal) {
+        $scope.page = {};
         $scope.isInRole = Principal.isInRole;
+        $scope.search = {
+            namespace: {
+                name: ''
+            },
+            name: '',
+            version: ''
+        };
+        $scope.sizes = [5, 20, 50, 100];
+        $scope.selectedSize = $scope.sizes[0];
+        $scope.orderColumn = 'name';
+        $scope.reverse = false;
+        $scope.orderClasses = {
+            'glyphicon-chevron-up': $scope.reverse,
+            'glyphicon-chevron-down': !$scope.reverse
+        };
 
         $scope.loadAll = function() {
-            TypeDefinitions.query(function(result) {
-                // map tdefs so that they also get a fqn for filtering purposes
-                $scope.tdefs = result.map(function (tdef) {
-                    tdef.fqn = tdef.namespace.name + '.' + tdef.name + '/' + tdef.version;
-                    return tdef;
+            TypeDefinitions.get(
+                Object.assign({ id: 'page' }, $stateParams),
+                function (page) {
+                    $scope.page = page;
+                    $scope.selectedSize = $scope.sizes[$scope.sizes.indexOf(page.size)];
                 });
-            });
         };
         $scope.loadAll();
-
-        $scope.create = function () {
-            User.getNamespaces().then(function (resp) {
-                $scope.namespaces = resp.data;
-            });
-            $('#createTypeDefinitionModal').modal('show');
-        };
-
-        $scope.confirmCreate = function () {
-            TypeDefinitions.save($scope.tdef,
-                function () {
-                    $scope.loadAll();
-                    $('#createTypeDefinitionModal').modal('hide');
-                    $scope.clear();
-                }, function (resp) {
-                    $scope.createError = resp.data.message;
-                });
-        };
 
         $scope.isMember = function (typeDef) {
             return $rootScope.user && typeDef.namespace.members.some(function (member) {
@@ -62,7 +57,13 @@ angular.module('kevoreeRegistryApp')
 
         $scope.clear = function () {
             $scope.tdef = null;
-            $scope.filterText = null;
+            $scope.search = {
+                namespace: {
+                    name: ''
+                },
+                name: '',
+                version: ''
+            };
         };
 
         $scope.clearDeleteError = function () {
@@ -71,5 +72,20 @@ angular.module('kevoreeRegistryApp')
 
         $scope.clearCreateError = function () {
             $scope.createError = null;
+        };
+
+        $scope.asArray = function (val) {
+            return new Array(val);
+        };
+
+        $scope.changeOrderBy = function (prop) {
+            if (prop === $scope.orderColumn) {
+                $scope.reverse = !$scope.reverse;
+                $scope.orderClasses = {
+                    'glyphicon-chevron-up': $scope.reverse,
+                    'glyphicon-chevron-down': !$scope.reverse
+                };
+            }
+            $scope.orderColumn = prop;
         };
     });
