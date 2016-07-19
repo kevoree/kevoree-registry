@@ -1,6 +1,7 @@
 {
     "settings": {
         "title": "User settings for [<b>{{username}}</b>]",
+        "namespaces": "My namespaces",
         "form": {
             "firstname": "First Name",
             "firstname.placeholder": "Your first name",
