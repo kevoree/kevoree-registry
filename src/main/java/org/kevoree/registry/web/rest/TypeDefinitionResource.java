@@ -244,19 +244,6 @@ public class TypeDefinitionResource {
     }
 
     /**
-     * DELETE /tdefs/:id -> delete "id" TypeDefinition
-     */
-    @RequestMapping(value = "/tdefs/{id}",
-        method = RequestMethod.DELETE,
-        produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        log.debug("REST request to delete TypeDefinition: {}", id);
-        return Optional.ofNullable(tdefsRepository.findOne(id))
-            .map(tdef -> delete(tdef.getNamespace().getName(), tdef.getName(), tdef.getVersion()))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    /**
      * GET /namespaces/:namespace/tdef/:name/latest
      *
      * @param namespace the name of the namespace you want to find TypeDefinition from

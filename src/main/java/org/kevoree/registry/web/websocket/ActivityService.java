@@ -52,7 +52,7 @@ public class ActivityService implements ApplicationListener<SessionDisconnectEve
     @Override
     public void onApplicationEvent(SessionDisconnectEvent event) {
         ActivityDTO activityDTO = new ActivityDTO();
-        Message message = event.getMessage();
+//        Message message = event.getMessage();
         activityDTO.setSessionId(event.getSessionId());
         activityDTO.setPage("logout");
         messagingTemplate.convertAndSend("/topic/activity", activityDTO);

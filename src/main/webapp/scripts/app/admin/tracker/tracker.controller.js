@@ -1,13 +1,13 @@
 angular.module('kevoreeRegistryApp')
-    .controller('TrackerController', function ($scope, AuthServerProvider) {
+    .controller('TrackerController', function ($scope) {
         // This controller uses a Websocket connection to receive user activities in real-time.
 
         $scope.activities = [];
         var stompClient = null;
         var socket = new SockJS('/websocket/tracker');
         stompClient = Stomp.over(socket);
-        stompClient.connect({}, function(frame) {
-            stompClient.subscribe('/topic/activity', function(activity){
+        stompClient.connect({}, function() {
+            stompClient.subscribe('/topic/activity', function(activity) {
                 showActivity(JSON.parse(activity.body));
             });
         });
@@ -28,5 +28,5 @@ angular.module('kevoreeRegistryApp')
                 $scope.activities.push(activity);
             }
             $scope.$apply();
-        };
+        }
     });

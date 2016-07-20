@@ -88,25 +88,29 @@ public class NamespaceResource {
         log.debug("REST request to add a namespace: {}", namedDTO);
         Optional<Namespace> oNs = Optional.ofNullable(namespaceRepository.findOne(namedDTO.getName()));
         if (oNs.isPresent()) {
+            // namespace already exists
             return new ResponseEntity<>(new ErrorDTO("namespace already in use"), HttpStatus.BAD_REQUEST);
         } else {
+            // namespace is available: retrieve authenticated user
+            User user = userService.getUserWithAuthorities();
             return userRepository.findOneByLogin(namedDTO.getName())
-                // but there is a user that is using this name
-                .map(user -> {
-                    if (SecurityUtils.getCurrentLogin().equals(user.getLogin())) {
+                .map(userWithSameNameThatNs -> {
+                    // there is already a user with the same name as the namespace
+                    if (userWithSameNameThatNs.getLogin().equals(user.getLogin())) {
+                        // current authenticated user is this user: it's fine
                         Namespace newNs = namespaceService.create(namedDTO.getName(), user);
                         return new ResponseEntity<>(newNs, HttpStatus.CREATED);
                     } else {
-                        return new ResponseEntity<>(new ErrorDTO("only the user \"" + user.getLogin() + "\" can create this namespace"), HttpStatus.BAD_REQUEST);
+                        // current authenticated user is not that user: forbidden
+                        return new ResponseEntity<>(
+                            new ErrorDTO("only the user \"" + user.getLogin() + "\" can create this namespace"),
+                            HttpStatus.FORBIDDEN);
                     }
                 })
-                // and no user are using this name
-                .orElseGet(() -> userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-                    .map(user -> {
-                        Namespace newNs = namespaceService.create(namedDTO.getName(), user);
-                        return new ResponseEntity<>(newNs, HttpStatus.CREATED);
-                    })
-                    .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN)));
+                .orElseGet(() -> {
+                    Namespace newNs = namespaceService.create(namedDTO.getName(), user);
+                    return new ResponseEntity<>(newNs, HttpStatus.CREATED);
+                });
         }
     }
 

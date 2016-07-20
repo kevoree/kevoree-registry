@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
@@ -74,6 +75,7 @@ public class DeployUnitResource {
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> createDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                               @PathVariable Long tdefVersion,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
@@ -121,6 +123,7 @@ public class DeployUnitResource {
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> updateDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                               @PathVariable Long tdefVersion, @PathVariable String name,
                                               @PathVariable String version, @PathVariable String platform,
@@ -365,6 +368,7 @@ public class DeployUnitResource {
         method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
         log.debug("REST request to delete DeployUnit : {}", id);
         return Optional.ofNullable(duRepository.findOne(id))
@@ -395,6 +399,7 @@ public class DeployUnitResource {
         method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
+    @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                     @PathVariable Long tdefVersion, @PathVariable String name,
                                     @PathVariable String version, @PathVariable String platform) {

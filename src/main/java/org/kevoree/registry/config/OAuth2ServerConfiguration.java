@@ -9,6 +9,8 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -55,12 +57,15 @@ public class OAuth2ServerConfiguration {
                 .disable()
                 .headers()
                 .frameOptions().disable()
+//          .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
                 .authorizeRequests()
-                .antMatchers("/api/namespaces/**").permitAll()
-                .antMatchers("/api/tdefs/**").permitAll()
-                .antMatchers("/api/dus/**").permitAll()
-                .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/register").permitAll()
+                .antMatchers("/api/authenticate", "/api/register").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/namespaces/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/tdefs/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/dus/**").permitAll()
                 .antMatchers("/api/logs/**").hasAnyAuthority(AuthoritiesConstants.ADMIN)
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
