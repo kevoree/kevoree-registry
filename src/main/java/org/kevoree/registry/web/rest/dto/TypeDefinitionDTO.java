@@ -1,10 +1,14 @@
 package org.kevoree.registry.web.rest.dto;
 
+import org.kevoree.registry.domain.TypeDefinition;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public class TypeDefinitionDTO {
+
+    private Long id;
 
     @NotNull
     @Pattern(regexp = "^[A-Z][\\w]*$")
@@ -18,6 +22,13 @@ public class TypeDefinitionDTO {
     private String model;
 
     public TypeDefinitionDTO() {}
+
+    public TypeDefinitionDTO(TypeDefinition tdef) {
+        this.id = tdef.getId();
+        this.name = tdef.getName();
+        this.version = tdef.getVersion();
+        this.model = tdef.getModel();
+    }
 
     public TypeDefinitionDTO(String name, Long version, String model) {
         this.name = name;
@@ -40,10 +51,11 @@ public class TypeDefinitionDTO {
     @Override
     public String toString() {
         return "TypeDefinitionDTO{" +
-        "name='" + name + '\'' +
-        ", version='" + version + '\'' +
-        ", model='" + model + '\'' +
-        '}';
+            "id=" + id +
+            ", name='" + name + '\'' +
+            ", version='" + version + '\'' +
+            ", model='" + model + '\'' +
+            '}';
     }
 
     public void setName(String name) {
@@ -56,5 +68,13 @@ public class TypeDefinitionDTO {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

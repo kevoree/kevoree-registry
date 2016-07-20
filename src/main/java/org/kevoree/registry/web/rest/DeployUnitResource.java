@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,10 +28,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * REST controller for managing DeployUnit.
@@ -266,7 +264,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<?> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable Long tdefVersion) {
+                                            @PathVariable Long tdefVersion) {
         log.debug("REST request to get DeployUnits from Namespace: {} and TypeDefinition: {}/{}",
             namespace, tdefName, tdefVersion);
         Optional<Namespace> ns = Optional.ofNullable(nsRepository.findOne(namespace));
@@ -300,7 +298,7 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable Long tdefVersion, @PathVariable String name) {
+                                          @PathVariable Long tdefVersion, @PathVariable String name) {
         log.debug("REST request to get DeployUnits {} from Namespace: {} and TypeDefinition: {}/{}", name,
             namespace, tdefName, tdefVersion);
         return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
@@ -323,8 +321,8 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable Long tdefVersion, @PathVariable String name,
-                                         @PathVariable String version) {
+                                          @PathVariable Long tdefVersion, @PathVariable String name,
+                                          @PathVariable String version) {
         log.debug("REST request to get DeployUnits {}-{} from Namespace: {} and TypeDefinition: {}/{}", name, version,
             namespace, tdefName, tdefVersion);
         return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersion(
@@ -348,8 +346,8 @@ public class DeployUnitResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<DeployUnit> getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                         @PathVariable Long tdefVersion, @PathVariable String name,
-                                         @PathVariable String version, @PathVariable String platform) {
+                                                    @PathVariable Long tdefVersion, @PathVariable String name,
+                                                    @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to get DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
         return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
@@ -401,8 +399,8 @@ public class DeployUnitResource {
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                    @PathVariable Long tdefVersion, @PathVariable String name,
-                                    @PathVariable String version, @PathVariable String platform) {
+                                              @PathVariable Long tdefVersion, @PathVariable String name,
+                                              @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
         Namespace ns = nsRepository.findOne(namespace);
@@ -431,7 +429,7 @@ public class DeployUnitResource {
     }
 
     /**
-     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/du/:platform/latest: get the latest deployUnit for a
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/latest-dus/:platform: get the latest deployUnit for a
      * specific platform
      *
      * @param namespace the name of the namespace you want to list deployUnits from
@@ -440,31 +438,55 @@ public class DeployUnitResource {
      * @param platform the name of the platform
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/du/{platform:.+}/latest",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/latest-dus/{platform:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public ResponseEntity<DeployUnit> getLatestDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                          @PathVariable Long tdefVersion, @PathVariable String platform) {
+                                                          @PathVariable Long tdefVersion, @PathVariable String platform) {
         log.debug("REST request to get the latest DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
             namespace, tdefName, tdefVersion, platform);
         if (dus.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            List<DeployUnit> sortedDus = dus.stream()
-                .sorted((du0, du1) -> {
-                    Version v0 = new Version.Builder(du0.getVersion()).build();
-                    Version v1 = new Version.Builder(du1.getVersion()).build();
-                    return SemverUtil.compare(v0, v1);
-                })
-                .collect(Collectors.toList());
+            List<DeployUnit> sortedDus = sortDus(dus, false);
             return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
         }
     }
 
     /**
-     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/du/:platform/release: get the latest released deployUnit
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/latest-dus: get the latest deployUnit for each platform
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/latest-dus",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Collection<DeployUnitDTO>> getLatestDeployUnitForPlatforms(@PathVariable String namespace, @PathVariable String tdefName,
+                                                                                     @PathVariable Long tdefVersion) {
+        log.debug("REST request to get the latest DeployUnits for {}.{}/{} for each platform", namespace, tdefName, tdefVersion);
+        Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
+        if (dus.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            Map<String, DeployUnitDTO> dusByPlatform = new HashMap<>();
+            List<DeployUnit> sortedDus = sortDus(dus, false);
+            for (int i=sortedDus.size() - 1; i > 0; i--) {
+                if (!dusByPlatform.containsKey(sortedDus.get(i).getPlatform())) {
+                    dusByPlatform.put(sortedDus.get(i).getPlatform(), new DeployUnitDTO(sortedDus.get(i)));
+                }
+            }
+            return new ResponseEntity<>(dusByPlatform.values(), HttpStatus.OK);
+        }
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/released-dus/:platform: get the latest released deployUnit
      * for a specific platform
      *
      * @param namespace the name of the namespace you want to list deployUnits from
@@ -473,34 +495,78 @@ public class DeployUnitResource {
      * @param platform the name of the platform
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/du/{platform:.+}/release",
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/released-dus/{platform:.+}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<DeployUnit> getLatestReleasedDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
-                                                          @PathVariable Long tdefVersion, @PathVariable String platform) {
-        log.debug("REST request to get the latest released DeployUnit for {}.{}/{} in platform {}", namespace, tdefName, tdefVersion, platform);
+    public ResponseEntity<DeployUnit> getLatestReleasedDeployUnit(@PathVariable String namespace,
+                                                                  @PathVariable String tdefName, @PathVariable Long tdefVersion, @PathVariable String platform) {
+        log.debug("REST request to get the latest released DeployUnit for {}.{}/{} in platform {}",
+            namespace, tdefName, tdefVersion, platform);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndPlatform(
             namespace, tdefName, tdefVersion, platform);
         if (dus.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            List<DeployUnit> sortedDus = dus.stream()
-                .filter(du -> {
-                    Version v = new Version.Builder(du.getVersion()).build();
-                    return v.getPreReleaseVersion() == null || v.getPreReleaseVersion().isEmpty();
-                })
-                .sorted((du0, du1) -> {
-                    Version v0 = new Version.Builder(du0.getVersion()).build();
-                    Version v1 = new Version.Builder(du1.getVersion()).build();
-                    return SemverUtil.compare(v0, v1);
-                })
-                .collect(Collectors.toList());
+            List<DeployUnit> sortedDus = sortDus(dus, true);
             if (sortedDus.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             } else {
                 return new ResponseEntity<>(sortedDus.get(sortedDus.size() - 1), HttpStatus.OK);
             }
         }
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/released-dus: get the latest released deployUnits
+     * for each platform
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/released-dus",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Collection<DeployUnitDTO>> getLatestReleasedDeployUnitForPlatforms(
+        @PathVariable String namespace, @PathVariable String tdefName, @PathVariable Long tdefVersion) {
+        log.debug("REST request to get the latest released DeployUnits for {}.{}/{} for each platform",
+            namespace, tdefName, tdefVersion);
+        Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
+        if (dus.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            Map<String, DeployUnitDTO> dusByPlatform = new HashMap<>();
+            List<DeployUnit> sortedDus = sortDus(dus, true);
+            if (sortedDus.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            } else {
+                for (int i=sortedDus.size() - 1; i > 0; i--) {
+                    if (!dusByPlatform.containsKey(sortedDus.get(i).getPlatform())) {
+                        dusByPlatform.put(sortedDus.get(i).getPlatform(), new DeployUnitDTO(sortedDus.get(i)));
+                    }
+                }
+                return new ResponseEntity<>(dusByPlatform.values(), HttpStatus.OK);
+            }
+        }
+    }
+
+    private List<DeployUnit> sortDus(Set<DeployUnit> dus, boolean onlyReleases) {
+        Stream<DeployUnit> dusStream = dus.stream();
+        if (onlyReleases) {
+            dusStream = dusStream.filter(du -> {
+                Version v = new Version.Builder(du.getVersion()).build();
+                return v.getPreReleaseVersion() == null || v.getPreReleaseVersion().isEmpty();
+            });
+        }
+        return dusStream
+            .sorted((du0, du1) -> {
+                Version v0 = new Version.Builder(du0.getVersion()).build();
+                Version v1 = new Version.Builder(du1.getVersion()).build();
+                return SemverUtil.compare(v0, v1);
+            })
+            .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,7 @@
 package org.kevoree.registry.web.rest.dto;
 
+import org.kevoree.registry.domain.DeployUnit;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -28,6 +30,14 @@ public class DeployUnitDTO {
     private String model;
 
     public DeployUnitDTO() {}
+
+    public DeployUnitDTO(DeployUnit du) {
+        this.id = du.getId();
+        this.name = du.getName();
+        this.version = du.getVersion();
+        this.platform = du.getPlatform();
+        this.model = du.getModel();
+    }
 
     public DeployUnitDTO(String name, String version, String platform, String model) {
         this.name = name;

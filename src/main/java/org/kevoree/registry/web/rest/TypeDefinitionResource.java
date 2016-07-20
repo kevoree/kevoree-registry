@@ -253,13 +253,13 @@ public class TypeDefinitionResource {
     @RequestMapping(value = "/namespaces/{namespace}/tdef/{name}/latest",
         method = RequestMethod.GET,
         produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<TypeDefinition> getLatestTypeDefinition(@PathVariable String namespace, @PathVariable String name) {
+    public ResponseEntity<TypeDefinitionDTO> getLatestTypeDefinition(@PathVariable String namespace, @PathVariable String name) {
         log.debug("REST request to get the latest TypeDefinition for {}.{}", namespace, name);
         List<TypeDefinition> tdefs = tdefsRepository.findOneByNamespaceNameAndNameOrderByVersionDesc(namespace, name);
         if (tdefs.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
-            return new ResponseEntity<>(tdefs.get(0), HttpStatus.OK);
+            return new ResponseEntity<>(new TypeDefinitionDTO(tdefs.get(0)), HttpStatus.OK);
         }
     }
 }
