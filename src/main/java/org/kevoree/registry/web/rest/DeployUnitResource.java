@@ -471,22 +471,16 @@ public class DeployUnitResource {
                                                                                      @PathVariable Long tdefVersion) {
         log.debug("REST request to get the latest DeployUnits for {}.{}/{} for each platform", namespace, tdefName, tdefVersion);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
-        log.debug("========================= raw dus =============================");
-        dus.forEach(du -> log.debug("DU {} {} {}", du.getName(), du.getVersion(), du.getPlatform()));
-        log.debug("===============================================================");
         if (dus.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } else {
             Map<String, DeployUnitDTO> dusByPlatform = new HashMap<>();
             List<DeployUnit> sortedDus = sortDus(dus, false);
-            log.debug("========================= sorted dus ==========================");
             for (int i=sortedDus.size() - 1; i >= 0; i--) {
-                log.debug("DU {} {} {}", sortedDus.get(i).getName(), sortedDus.get(i).getVersion(), sortedDus.get(i).getPlatform());
                 if (!dusByPlatform.containsKey(sortedDus.get(i).getPlatform())) {
                     dusByPlatform.put(sortedDus.get(i).getPlatform(), new DeployUnitDTO(sortedDus.get(i)));
                 }
             }
-            log.debug("===============================================================");
             return new ResponseEntity<>(dusByPlatform.values(), HttpStatus.OK);
         }
     }
