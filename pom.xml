@@ -543,7 +543,7 @@
                 <configuration>
                     <jvmArguments>-Djava.rmi.server.hostname=localhost -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</jvmArguments>
                     <arguments>
-                        <argument>--spring.profiles.active=prod</argument>
+                        <argument>--spring.profiles.active=dev</argument>
                     </arguments>
                 </configuration>
             </plugin>
