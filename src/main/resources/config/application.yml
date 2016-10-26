@@ -37,7 +37,7 @@ authentication:
 swagger:
     title: Kevoree Registry API
     description: Kevoree Registry API
-    termsOfServiceUrl: http://registry.kevoree.org/
+    termsOfServiceUrl: https://registry.kevoree.org/
     contact:
     license: LGPL-3.0
     licenseUrl: http://opensource.org/licenses/lgpl-3.0.html

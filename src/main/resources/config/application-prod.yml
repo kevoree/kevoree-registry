@@ -4,18 +4,18 @@ server:
 spring:
     profiles:
         active: prod
-    
+
     datasource:
         dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
-        url: 
+        url:
         databaseName: kevoree_registry
         serverName: localhost
         username: kevoree_registry
-        password: 
+        password: dummy
 
     jpa:
-        database-platform: org.hibernate.dialect.PostgreSQL82Dialect
-        database: POSTGRESQL
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+        database: MYSQL
         openInView: false
         show_sql: false
         generate-ddl: false
@@ -27,7 +27,7 @@ spring:
             hibernate.cache.use_query_cache: false
             hibernate.generate_statistics: false
             hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-            
+
 
     mail:
         baseUrl: http://localhost:8080
