@@ -1,5 +1,6 @@
 package org.kevoree.registry;
 
+import com.google.common.base.Joiner;
 import org.kevoree.registry.config.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
-import com.google.common.base.Joiner;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;

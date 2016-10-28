@@ -4,7 +4,11 @@ angular.module('kevoreeRegistryApp')
 
         $scope.activities = [];
         var stompClient = null;
-        var socket = new SockJS('/websocket/tracker');
+        var basePath = window.location.pathname;
+        if (!basePath.endsWith('/')) {
+          basePath += '/';
+        }
+        var socket = new SockJS(basePath+'websocket/tracker');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function() {
             stompClient.subscribe('/topic/activity', function(activity) {

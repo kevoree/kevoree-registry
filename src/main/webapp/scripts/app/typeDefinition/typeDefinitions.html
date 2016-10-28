@@ -90,7 +90,7 @@
 
         <ul class="pagination pagination-sm">
             <li ng-class="{ disabled: page.first }">
-                <a href="#" aria-label="Previous"
+                <a href="" aria-label="Previous"
                    ui-sref="tdefs({ page: (page.number - 1), size: page.size, sort: page.sort })">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
@@ -100,7 +100,7 @@
                 <a ui-sref="tdefs({ page: $index, size: page.size, sort: page.sort })">{{ $index + 1 }}</a>
             </li>
             <li ng-class="{ disabled: page.last }">
-                <a href="#" aria-label="Next"
+                <a href="" aria-label="Next"
                    ui-sref="tdefs({ page: (page.number + 1), size: page.size, sort: page.sort })">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
