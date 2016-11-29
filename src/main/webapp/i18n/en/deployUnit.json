@@ -18,6 +18,8 @@
             "typeDefinitionVersion": "TypeDefinition Version",
             "name": "Name",
             "version": "Version",
+            "created": "Created",
+            "modified": "Modified",
             "model": "Model",
             "platform": "Platform",
             "name_version": "Name / Version",

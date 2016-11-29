@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -64,6 +65,9 @@ public class AccountResourceTest {
     @Inject
     private UserService userService;
 
+    @Inject
+    private Environment env;
+
     @Mock
     private UserService mockUserService;
 
@@ -80,12 +84,14 @@ public class AccountResourceTest {
         doNothing().when(mockMailService).sendActivationEmail(anyObject(), anyString());
 
         AccountResource accountResource = new AccountResource();
+        ReflectionTestUtils.setField(accountResource, "env", env);
         ReflectionTestUtils.setField(accountResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(accountResource, "namespaceRepository", namespaceRepository);
         ReflectionTestUtils.setField(accountResource, "userService", userService);
         ReflectionTestUtils.setField(accountResource, "mailService", mockMailService);
 
         AccountResource accountUserMockResource = new AccountResource();
+      ReflectionTestUtils.setField(accountUserMockResource, "env", env);
         ReflectionTestUtils.setField(accountUserMockResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(accountUserMockResource, "namespaceRepository", namespaceRepository);
         ReflectionTestUtils.setField(accountUserMockResource, "userService", mockUserService);

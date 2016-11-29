@@ -1,8 +1,10 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import com.github.zafarkhaja.semver.Version;
-import org.kevoree.registry.domain.*;
+import org.kevoree.registry.domain.Authority;
+import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
@@ -10,7 +12,6 @@ import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.service.util.SemverUtil;
 import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
 import org.slf4j.Logger;
@@ -25,10 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing models.
@@ -160,6 +161,7 @@ public class TypeDefinitionResource {
                                         tdef.setVersion(tdefDTO.getVersion());
                                         tdef.setModel(tdefDTO.getModel());
                                         tdef.setNamespace(ns);
+                                        tdef.setModified(new Date());
                                         ns.addTypeDefinition(tdef);
                                         tdefsRepository.save(tdef);
                                         return new ResponseEntity<>(HttpStatus.CREATED);

@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 /**
  * DeployUnit DTO
  */
-public class DeployUnitDTO {
+public class DeployUnitDTO extends TimeableDTO {
 
     private Long id;
 
@@ -32,6 +32,7 @@ public class DeployUnitDTO {
     public DeployUnitDTO() {}
 
     public DeployUnitDTO(DeployUnit du) {
+        super(du);
         this.id = du.getId();
         this.name = du.getName();
         this.version = du.getVersion();
@@ -103,6 +104,8 @@ public class DeployUnitDTO {
                 ", version='" + version + '\'' +
                 ", platform='" + platform + '\'' +
                 ", model='" + model + '\'' +
+                ", created='" + created + '\'' +
+                ", modified='" + modified + '\'' +
                 '}';
         }
     }

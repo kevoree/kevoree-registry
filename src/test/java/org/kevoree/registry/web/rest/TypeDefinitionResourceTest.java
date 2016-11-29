@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kevoree.registry.Application;
-import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
@@ -28,6 +27,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,7 +86,7 @@ public class TypeDefinitionResourceTest {
     }
 
     @Before
-    public void initTest() {
+    public void initTest() throws ParseException {
         user = userRepository.findOneByLogin("user").get();
 
         namespace = new Namespace();
@@ -98,6 +102,7 @@ public class TypeDefinitionResourceTest {
         tdef.setName("TestComp");
         tdef.setVersion(1L);
         tdef.setModel("{}");
+        tdef.setCreated(Date.from(Instant.ofEpochMilli(1451606400000L)));
     }
 
     @Test
@@ -153,6 +158,7 @@ public class TypeDefinitionResourceTest {
         tdef.setName(this.tdef.getName());
         tdef.setVersion(this.tdef.getVersion());
         tdef.setModel(this.tdef.getModel());
+        tdef.setModified(new Date());
         tdef.setNamespace(this.namespace);
         namespace.addTypeDefinition(tdef);
         namespaceRepository.saveAndFlush(this.namespace);
@@ -190,6 +196,7 @@ public class TypeDefinitionResourceTest {
         tdef.setName(this.tdef.getName());
         tdef.setVersion(this.tdef.getVersion());
         tdef.setModel(this.tdef.getModel());
+        tdef.setModified(new Date());
         tdef.setNamespace(namespace);
         namespace.addTypeDefinition(tdef);
         namespaceRepository.saveAndFlush(namespace);

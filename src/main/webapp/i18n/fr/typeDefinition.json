@@ -16,6 +16,8 @@
             "selectNamespace": "Sélection du namespace",
             "name": "Nom",
             "version": "Version",
+            "created": "Création",
+            "modified": "Modification",
             "model": "Modèle",
             "name_version": "Nom / Version",
             "deployUnits": "DeployUnits",
@@ -24,4 +26,3 @@
         }
     }
 }
-

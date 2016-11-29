@@ -16,7 +16,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "T_TYPE_DEFINITION")
-public class TypeDefinition implements Serializable {
+public class TypeDefinition extends Timeable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -128,6 +128,8 @@ public class TypeDefinition implements Serializable {
             ", namespace='" + namespace.getName() + '\'' +
             ", deployUnits=" + deployUnits +
             ", model='" + model + '\'' +
+            ", created='" + created + '\'' +
+            ", modified='" + modified + '\'' +
             "}";
     }
 }

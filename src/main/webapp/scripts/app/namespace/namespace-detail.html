@@ -89,25 +89,19 @@
                     <td>
                         <span translate="kevoreeRegistryApp.namespace.name">Name</span>
                     </td>
-                    <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.name}}" readonly>
-                    </td>
+                    <td>{{ namespace.name }}</td>
                 </tr>
                 <tr>
                     <td>
                         <span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
                     </td>
-                    <td>
-                        <input type="text" class="input-sm form-control" value="{{namespace.owner.login}}" readonly>
-                    </td>
+                    <td>{{ namespace.owner.login }}</td>
                 </tr>
                 <tr>
                     <td>
                         <span translate="kevoreeRegistryApp.namespace.members">Members</span>
                     </td>
-                    <td>
-                        <input type="text" class="input-sm form-control" value="{{ namespace.members | list:'login' }}" readonly>
-                    </td>
+                    <td>{{ namespace.members | list:'login' }}</td>
                 </tr>
                 <tr>
                     <td>
@@ -115,7 +109,7 @@
                     </td>
                     <td>
                         <ul class="list-unstyled">
-                            <li ng-repeat="tdef in namespace.typeDefinitions">
+                            <li ng-repeat="tdef in namespace.typeDefinitions | orderBy:'name'">
                                 <a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name + '/' + tdef.version }}</a>
                             </li>
                         </ul>

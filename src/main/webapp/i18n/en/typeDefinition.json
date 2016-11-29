@@ -16,6 +16,8 @@
             "selectNamespace": "Select a namespace",
             "name": "Name",
             "version": "Version",
+            "created": "Created",
+            "modified": "Modified",
             "model": "Model",
             "name_version": "Name / Version",
             "deployUnits": "DeployUnits",

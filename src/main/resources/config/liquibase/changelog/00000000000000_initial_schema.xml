@@ -180,6 +180,12 @@
             <column name="model" type="text">
                 <constraints nullable="false" />
             </column>
+            <column name="created" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="timestamp">
+                <constraints nullable="false" />
+            </column>
         </createTable>
         <addUniqueConstraint tableName="T_TYPE_DEFINITION" columnNames="name, version, namespace_name"/>
         <addForeignKeyConstraint baseColumnNames="namespace_name"
@@ -215,6 +221,12 @@
             </column>
             <column name="nbdownloads" type="bigserial">
                 <constraints nullable="false"/>
+            </column>
+            <column name="created" type="timestamp">
+                <constraints nullable="false" />
+            </column>
+            <column name="modified" type="timestamp">
+                <constraints nullable="false" />
             </column>
         </createTable>
         <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="version, platform, typedefinition_id"/>

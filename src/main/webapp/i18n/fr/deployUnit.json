@@ -18,6 +18,8 @@
             "typeDefinitionVersion": "TypeDefinition Version",
             "name": "Nom",
             "version": "Version",
+            "created": "Création",
+            "modified": "Modification",
             "model": "Modèle",
             "platform": "Plateforme",
             "name_version": "Nom / Version",
@@ -26,4 +28,3 @@
         }
     }
 }
-

@@ -8,54 +8,60 @@
                 </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>
-                    <span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
-                </td>
-                <td>
-                    <input type="text" class="input-sm form-control" value="{{ du.name }}" readonly>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
-                </td>
-                <td>
-                    <input type="text" class="input-sm form-control" value="{{ du.version }}" readonly>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
-                </td>
-                <td>
-                    <input type="text" class="input-sm form-control" value="{{ du.platform }}" readonly>
-                </td>
-            </tr>
-                <tr>
-                    <td>
-                        <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
-                    </td>
-                    <td>
-                        <a ui-sref="nsDetail({ name: du.typeDefinition.namespace.name })">{{ du.typeDefinition.namespace.name }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
-                    </td>
-                    <td>
-                        <a ui-sref="tdefDetail({ id: du.typeDefinition.id })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <span translate="kevoreeRegistryApp.deployUnit.model">Model</span>
-                    </td>
-                    <td>
-                        <hljs hljs-language="json" hljs-source="du.model"></hljs>
-                    </td>
-                </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
+                  </td>
+                  <td>
+                      <a ui-sref="nsDetail({ name: du.typeDefinition.namespace.name })">{{ du.typeDefinition.namespace.name }}</a>
+                  </td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+                  </td>
+                  <td>{{ du.name }}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+                  </td>
+                  <td>{{ du.version }}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+                  </td>
+                  <td>{{ du.platform }}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.created">Created</span>
+                  </td>
+                  <td>{{du.created | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.modified">Modified</span>
+                  </td>
+                  <td>{{du.modified | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
+                  </td>
+                  <td>
+                      <a ui-sref="tdefDetail({ id: du.typeDefinition.id })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
+                  </td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.model">Model</span>
+                  </td>
+                  <td>
+                      <hljs hljs-language="json" hljs-source="du.model"></hljs>
+                  </td>
+              </tr>
             </tbody>
         </table>
     </div>

@@ -31,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,6 +112,8 @@ public class DeployUnitResourceTest {
     public void initTest() {
         tdef = tdefsRepository.findOne(2L);
         deployUnit = new DeployUnitDTO(DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM, DEFAULT_MODEL);
+        deployUnit.setCreated(Date.from(Instant.ofEpochMilli(1451606400000L)));
+        deployUnit.setModified(Date.from(Instant.ofEpochMilli(1451606400000L)));
     }
 
     @Test

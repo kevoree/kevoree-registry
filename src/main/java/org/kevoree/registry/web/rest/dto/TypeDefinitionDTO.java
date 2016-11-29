@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class TypeDefinitionDTO {
+public class TypeDefinitionDTO extends TimeableDTO {
 
     private Long id;
 
@@ -24,16 +24,11 @@ public class TypeDefinitionDTO {
     public TypeDefinitionDTO() {}
 
     public TypeDefinitionDTO(TypeDefinition tdef) {
+        super(tdef);
         this.id = tdef.getId();
         this.name = tdef.getName();
         this.version = tdef.getVersion();
         this.model = tdef.getModel();
-    }
-
-    public TypeDefinitionDTO(String name, Long version, String model) {
-        this.name = name;
-        this.version = version;
-        this.model = model;
     }
 
     public String getName() {
@@ -50,12 +45,23 @@ public class TypeDefinitionDTO {
 
     @Override
     public String toString() {
-        return "TypeDefinitionDTO{" +
-            "id=" + id +
-            ", name='" + name + '\'' +
-            ", version='" + version + '\'' +
-            ", model='" + model + '\'' +
-            '}';
+        if (id == null) {
+            return "TypeDefinitionDTO{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", version='" + version + '\'' +
+                    ", model='" + model + '\'' +
+                    '}';
+        } else {
+            return "TypeDefinitionDTO{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", version='" + version + '\'' +
+                    ", model='" + model + '\'' +
+                    ", created='" + created + '\'' +
+                    ", modified='" + modified + '\'' +
+                    '}';
+        }
     }
 
     public void setName(String name) {

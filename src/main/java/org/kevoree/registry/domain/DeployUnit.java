@@ -18,7 +18,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "T_DEPLOY_UNIT")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class DeployUnit implements Serializable {
+public class DeployUnit extends Timeable implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -141,6 +141,8 @@ public class DeployUnit implements Serializable {
             ", typeDefinitionId=" + typeDefinition.getId() +
             ", nbDownloads=" + nbDownloads +
             ", model='" + model + "'" +
+            ", created='" + created + '\'' +
+            ", modified='" + modified + '\'' +
             '}';
     }
 }

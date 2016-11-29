@@ -6,7 +6,7 @@ spring:
         active: prod
 
     datasource:
-        dataSourceClassName: org.mariadb.jdbc.MySQLDataSource
+        dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
         url:
         databaseName: kevoree_registry
         serverName: 172.17.0.2
@@ -14,8 +14,8 @@ spring:
         password: dummy
 
     jpa:
-        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-        database: MYSQL
+        database-platform: org.hibernate.dialect.PostgreSQL82Dialect
+        database: POSTGRESQL
         openInView: false
         show_sql: false
         generate-ddl: false

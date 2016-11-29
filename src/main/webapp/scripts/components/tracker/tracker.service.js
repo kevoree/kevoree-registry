@@ -3,7 +3,7 @@
 angular.module('kevoreeRegistryApp').factory('Tracker', function($rootScope) {
   var stompClient = null;
   function sendActivity() {
-    stompClient.send('/websocket/activity', {}, JSON.stringify({'page': $rootScope.toState.name}));
+    stompClient.send('/websocket/activity', {}, JSON.stringify({ 'page': $rootScope.toState.name }));
 
   }
   return {
@@ -14,6 +14,7 @@ angular.module('kevoreeRegistryApp').factory('Tracker', function($rootScope) {
       }
       var socket = new SockJS(basePath + 'websocket/activity');
       stompClient = Stomp.over(socket);
+      stompClient.debug = function () {};
       stompClient.connect({}, function() {
         sendActivity();
         $rootScope.$on('$stateChangeStart', function() {
@@ -22,6 +23,7 @@ angular.module('kevoreeRegistryApp').factory('Tracker', function($rootScope) {
       });
     },
     sendActivity: function() {
+      console.log(stompClient);
       if (stompClient != null) {
         sendActivity();
       }
