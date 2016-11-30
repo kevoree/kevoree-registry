@@ -2,6 +2,7 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.github.zafarkhaja.semver.Version;
+import org.joda.time.DateTime;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -145,8 +146,13 @@ public class DeployUnitResource {
                                 Optional<TypeDefinition> tdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion);
                                 if (tdef.isPresent()) {
                                     if (du.getTypeDefinition().equals(tdef.get())) {
+                                        DateTime lastModified = DateTime.now();
+                                        String login = SecurityUtils.getCurrentLogin();
                                         du.setModel(deployUnit.getModel());
-                                        du.setModified(new Date());
+                                        du.getTypeDefinition().setLastModifiedDate(lastModified);
+                                        du.getTypeDefinition().setLastModifiedBy(login);
+                                        du.setLastModifiedBy(login);
+                                        du.setLastModifiedDate(lastModified);
                                         DeployUnit result = duRepository.save(du);
                                         return new ResponseEntity<>(result, HttpStatus.OK);
                                     } else {
@@ -417,7 +423,7 @@ public class DeployUnitResource {
                         namespace, tdefName, tdefVersion, name, version, platform)
                         .map(du -> {
                             // delete du
-                            du.getTypeDefinition().setModified(new Date());
+                            du.getTypeDefinition().setLastModifiedDate(new DateTime());
                             duRepository.delete(du.getId());
                             tdefsRepository.save(du.getTypeDefinition());
                             return new ResponseEntity<>(HttpStatus.OK);

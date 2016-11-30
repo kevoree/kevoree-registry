@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-public class TypeDefinitionDTO extends TimeableDTO {
+public class TypeDefinitionDTO extends AbstractAuditingDTO {
 
     private Long id;
 
@@ -58,8 +58,9 @@ public class TypeDefinitionDTO extends TimeableDTO {
                     ", name='" + name + '\'' +
                     ", version='" + version + '\'' +
                     ", model='" + model + '\'' +
-                    ", created='" + created + '\'' +
-                    ", modified='" + modified + '\'' +
+                    ", createdBy='" + getCreatedBy() + '\'' +
+                    ", lastModifiedBy='" + getLastModifiedBy()+ '\'' +
+                    ", lastModifiedDate='" + getLastModifiedDate()+ '\'' +
                     '}';
         }
     }

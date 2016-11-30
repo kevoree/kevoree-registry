@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -161,7 +160,7 @@ public class TypeDefinitionResource {
                                         tdef.setVersion(tdefDTO.getVersion());
                                         tdef.setModel(tdefDTO.getModel());
                                         tdef.setNamespace(ns);
-                                        tdef.setModified(new Date());
+                                        tdef.setCreatedBy(SecurityUtils.getCurrentLogin());
                                         ns.addTypeDefinition(tdef);
                                         tdefsRepository.save(tdef);
                                         return new ResponseEntity<>(HttpStatus.CREATED);

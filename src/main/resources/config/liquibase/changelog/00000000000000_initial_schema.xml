@@ -180,12 +180,14 @@
             <column name="model" type="text">
                 <constraints nullable="false" />
             </column>
-            <column name="created" type="timestamp">
-                <constraints nullable="false" />
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
             </column>
-            <column name="modified" type="timestamp">
-                <constraints nullable="false" />
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
             </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
         </createTable>
         <addUniqueConstraint tableName="T_TYPE_DEFINITION" columnNames="name, version, namespace_name"/>
         <addForeignKeyConstraint baseColumnNames="namespace_name"
@@ -198,7 +200,9 @@
         <loadData encoding="UTF-8"
                   file="config/liquibase/type_definitions.csv"
                   separator=";"
-                  tableName="T_TYPE_DEFINITION"/>
+                  tableName="T_TYPE_DEFINITION">
+            <column name="created_date" type="timestamp"/>
+        </loadData>
 
         <createTable tableName="T_DEPLOY_UNIT">
             <column name="id" type="bigint" autoIncrement="true">
@@ -222,12 +226,14 @@
             <column name="nbdownloads" type="bigserial">
                 <constraints nullable="false"/>
             </column>
-            <column name="created" type="timestamp">
-                <constraints nullable="false" />
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
             </column>
-            <column name="modified" type="timestamp">
-                <constraints nullable="false" />
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
             </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
         </createTable>
         <addUniqueConstraint tableName="T_DEPLOY_UNIT" columnNames="version, platform, typedefinition_id"/>
         <addForeignKeyConstraint baseColumnNames="typedefinition_id"
@@ -240,7 +246,9 @@
         <loadData encoding="UTF-8"
                   file="config/liquibase/deploy_units.csv"
                   separator=";"
-                  tableName="T_DEPLOY_UNIT"/>
+                  tableName="T_DEPLOY_UNIT">
+            <column name="created_date" type="timestamp"/>
+        </loadData>
 
         <createTable tableName="T_USER_NAMESPACE">
             <column name="name" type="varchar(50)">

@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 /**
  * DeployUnit DTO
  */
-public class DeployUnitDTO extends TimeableDTO {
+public class DeployUnitDTO extends AbstractAuditingDTO {
 
     private Long id;
 
@@ -104,8 +104,9 @@ public class DeployUnitDTO extends TimeableDTO {
                 ", version='" + version + '\'' +
                 ", platform='" + platform + '\'' +
                 ", model='" + model + '\'' +
-                ", created='" + created + '\'' +
-                ", modified='" + modified + '\'' +
+                ", createdBy='" + getCreatedBy() + '\'' +
+                ", lastModifiedBy='" + getLastModifiedBy()+ '\'' +
+                ", lastModifiedDate='" + getLastModifiedDate()+ '\'' +
                 '}';
         }
     }

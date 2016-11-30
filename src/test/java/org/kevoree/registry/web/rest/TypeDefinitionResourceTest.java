@@ -1,5 +1,6 @@
 package org.kevoree.registry.web.rest;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,12 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,7 +98,6 @@ public class TypeDefinitionResourceTest {
         tdef.setName("TestComp");
         tdef.setVersion(1L);
         tdef.setModel("{}");
-        tdef.setCreated(Date.from(Instant.ofEpochMilli(1451606400000L)));
     }
 
     @Test
@@ -158,7 +153,7 @@ public class TypeDefinitionResourceTest {
         tdef.setName(this.tdef.getName());
         tdef.setVersion(this.tdef.getVersion());
         tdef.setModel(this.tdef.getModel());
-        tdef.setModified(new Date());
+        tdef.setCreatedBy("user");
         tdef.setNamespace(this.namespace);
         namespace.addTypeDefinition(tdef);
         namespaceRepository.saveAndFlush(this.namespace);
@@ -196,7 +191,7 @@ public class TypeDefinitionResourceTest {
         tdef.setName(this.tdef.getName());
         tdef.setVersion(this.tdef.getVersion());
         tdef.setModel(this.tdef.getModel());
-        tdef.setModified(new Date());
+        tdef.setCreatedBy("user");
         tdef.setNamespace(namespace);
         namespace.addTypeDefinition(tdef);
         namespaceRepository.saveAndFlush(namespace);
@@ -209,24 +204,34 @@ public class TypeDefinitionResourceTest {
         newNs.addMember(user);
         namespaceRepository.saveAndFlush(newNs);
 
-        // add namespace to user
+        // add user to namespace
         user.addNamespace(newNs);
         userRepository.saveAndFlush(user);
 
         // validate db
         Namespace dbNewNs = namespaceRepository.findOne(newNs.getName());
         assertThat(dbNewNs).isNotNull();
+        assertThat(dbNewNs.getOwner()).isEqualTo(user);
+
+        // create same name/version but different namespace
+        TypeDefinitionDTO newTdef = new TypeDefinitionDTO();
+        newTdef.setName(this.tdef.getName());
+        newTdef.setVersion(this.tdef.getVersion());
+        newTdef.setModel("{}");
 
         // create a new TypeDefinition with same name and version but using the newNs
         restTdefsMockMvc.perform(post("/api/namespaces/{namespaces}/tdefs", newNs.getName())
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(tdef)))
+            .content(TestUtil.convertObjectToJsonBytes(newTdef)))
             .andExpect(status().isCreated());
 
-        // Validate the namespace in db
+        // validate the tdef in db
         TypeDefinition dbTdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(
             newNs.getName(), tdef.getName(), tdef.getVersion()).get();
         assertThat(dbTdef.getNamespace().getName()).isEqualTo(newNs.getName());
+        assertThat(dbTdef.getCreatedBy()).isEqualTo("user");
+        assertThat(dbTdef.getCreatedDate().getMillis()).isLessThan(DateTime.now().getMillis());
+        // validate the namespace in db
         Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(newNs.getName(), user.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);
     }

@@ -1,5 +1,6 @@
 package org.kevoree.registry.web.rest;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,8 +113,6 @@ public class DeployUnitResourceTest {
     public void initTest() {
         tdef = tdefsRepository.findOne(2L);
         deployUnit = new DeployUnitDTO(DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM, DEFAULT_MODEL);
-        deployUnit.setCreated(Date.from(Instant.ofEpochMilli(1451606400000L)));
-        deployUnit.setModified(Date.from(Instant.ofEpochMilli(1451606400000L)));
     }
 
     @Test
@@ -124,9 +123,6 @@ public class DeployUnitResourceTest {
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
-
-        // get the latest modified timestamp before creating the DU
-        long tdefLastModified = tdef.getModified().getTime();
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
@@ -146,7 +142,7 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
-        assertThat(testDeployUnit.getTypeDefinition().getModified().getTime()).isGreaterThan(tdefLastModified);
+        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getMillis()).isLessThan(DateTime.now().getMillis());
     }
 
     @Test
@@ -313,10 +309,8 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
-        // tdef latest modified timestamp
-        long tdefLatestModified = this.tdef.getModified().getTime();
-        // du latest modified timestamp
-        long duLatestModified = this.deployUnit.getModified().getTime();
+        // tdef creation timestamp
+        long tdefLastModified = this.tdef.getLastModifiedDate().getMillis();
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
@@ -340,10 +334,12 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
-        // tdef modified timestamp should not change
-        assertThat(testDeployUnit.getTypeDefinition().getModified().getTime()).isEqualTo(tdefLatestModified);
-        // but deployUnit modified timestamp should have changed
-        assertThat(testDeployUnit.getModified().getTime()).isGreaterThan(duLatestModified);
+        // tdef last modified timestamp should be greater than now
+        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getMillis()).isGreaterThan(tdefLastModified);
+        // deployUnit should have a creation timestamp
+        assertThat(testDeployUnit.getCreatedDate().getMillis()).isLessThan(DateTime.now().getMillis());
+        // deployUnit should also have a creation login
+        assertThat(testDeployUnit.getCreatedBy()).isEqualTo("kevoree");
     }
 
     @Test

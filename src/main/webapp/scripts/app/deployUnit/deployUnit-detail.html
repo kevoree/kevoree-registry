@@ -38,13 +38,25 @@
                   <td>
                       <span translate="kevoreeRegistryApp.deployUnit.created">Created</span>
                   </td>
-                  <td>{{du.created | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                  <td>{{du.createdDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.createdBy">Created by</span>
+                  </td>
+                  <td>{{ du.createdBy }}</td>
               </tr>
               <tr>
                   <td>
                       <span translate="kevoreeRegistryApp.deployUnit.modified">Modified</span>
                   </td>
-                  <td>{{du.modified | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                  <td>{{du.lastModifiedDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+              </tr>
+              <tr>
+                  <td>
+                      <span translate="kevoreeRegistryApp.deployUnit.modifiedBy">Modified by</span>
+                  </td>
+                  <td>{{ du.modifiedBy }}</td>
               </tr>
               <tr>
                   <td>

@@ -1,5 +1,6 @@
 package org.kevoree.registry.service;
 
+import org.joda.time.DateTime;
 import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Date;
 
 /**
  * DeployUnitService
@@ -34,13 +34,16 @@ public class DeployUnitService {
     private DeployUnitRepository duRepository;
 
     public DeployUnit create(TypeDefinition tdef, DeployUnitDTO dto) {
+        String login = SecurityUtils.getCurrentLogin();
         DeployUnit du = new DeployUnit();
         du.setName(dto.getName());
         du.setVersion(dto.getVersion());
         du.setPlatform(dto.getPlatform());
         du.setModel(dto.getModel());
         du.setTypeDefinition(tdef);
-        tdef.setModified(new Date());
+        du.setCreatedBy(login);
+        tdef.setLastModifiedBy(login);
+        tdef.setLastModifiedDate(DateTime.now());
         tdefRepository.save(tdef);
         return duRepository.save(du);
     }
