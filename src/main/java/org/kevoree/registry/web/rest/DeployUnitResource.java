@@ -146,6 +146,7 @@ public class DeployUnitResource {
                                 if (tdef.isPresent()) {
                                     if (du.getTypeDefinition().equals(tdef.get())) {
                                         du.setModel(deployUnit.getModel());
+                                        du.setModified(new Date());
                                         DeployUnit result = duRepository.save(du);
                                         return new ResponseEntity<>(result, HttpStatus.OK);
                                     } else {
@@ -416,7 +417,9 @@ public class DeployUnitResource {
                         namespace, tdefName, tdefVersion, name, version, platform)
                         .map(du -> {
                             // delete du
+                            du.getTypeDefinition().setModified(new Date());
                             duRepository.delete(du.getId());
+                            tdefsRepository.save(du.getTypeDefinition());
                             return new ResponseEntity<>(HttpStatus.OK);
                         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
                 } else {

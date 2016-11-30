@@ -125,6 +125,9 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
+        // get the latest modified timestamp before creating the DU
+        long tdefLastModified = tdef.getModified().getTime();
+
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
             NAMESPACE, TDEF_NAME, TDEF_VERSION)
@@ -143,6 +146,7 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
+        assertThat(testDeployUnit.getTypeDefinition().getModified().getTime()).isGreaterThan(tdefLastModified);
     }
 
     @Test
@@ -309,6 +313,11 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
 
+        // tdef latest modified timestamp
+        long tdefLatestModified = this.tdef.getModified().getTime();
+        // du latest modified timestamp
+        long duLatestModified = this.deployUnit.getModified().getTime();
+
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
         this.deployUnit.setModel(UPDATED_MODEL);
@@ -331,6 +340,10 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
+        // tdef modified timestamp should not change
+        assertThat(testDeployUnit.getTypeDefinition().getModified().getTime()).isEqualTo(tdefLatestModified);
+        // but deployUnit modified timestamp should have changed
+        assertThat(testDeployUnit.getModified().getTime()).isGreaterThan(duLatestModified);
     }
 
     @Test

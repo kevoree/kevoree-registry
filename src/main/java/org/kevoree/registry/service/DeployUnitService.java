@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 /**
  * DeployUnitService
@@ -39,6 +40,8 @@ public class DeployUnitService {
         du.setPlatform(dto.getPlatform());
         du.setModel(dto.getModel());
         du.setTypeDefinition(tdef);
+        tdef.setModified(new Date());
+        tdefRepository.save(tdef);
         return duRepository.save(du);
     }
 
