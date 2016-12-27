@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  kevoree-registry-postgres:
+    container_name: kevoree-registry-postgres
+    image: postgres:9.6.1
+    # volumes:
+    #     - ~/volumes/jhipster/jhipsterSampleApplication/mysql/:/var/lib/mysql/
+    environment:
+      - POSTGRES_USER=kevoree_registry
+      - POSTGRES_PASSWORD=kevoree_registry

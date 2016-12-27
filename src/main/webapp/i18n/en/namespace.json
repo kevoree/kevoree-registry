@@ -1,0 +1,35 @@
+{
+    "kevoreeRegistryApp": {
+        "namespace" : {
+            "home": {
+                "title": "Namespaces",
+                "createLabel": "New namespace",
+                "createOrEditLabel": "Create or edit a Namespace"
+            },
+            "delete": {
+                "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?",
+                "warning1": "Every TypeDefinition & DeployUnit in this namespace will be deleted forever.",
+                "warning2": "This cannot be undone!"
+            },
+            "detail": {
+                "title": "Namespace"
+            },
+            "addMember": {
+                "title": "Add a member to <strong>{{ name }}</strong>",
+                "action": "Add a member",
+                "user": "Name the user to add"
+            },
+            "removeMember": {
+                "title": "Remove a member from <strong>{{ name }}</strong>",
+                "action": "Remove a member",
+                "user": "Select the user to remove"
+            },
+            "name": "Name",
+            "owner": "Owner",
+            "members": "Members",
+            "typeDefinitions": "TypeDefinitions",
+            "filterPlaceholder": "Filter namespaces...",
+            "filter": "Filter"
+        }
+    }
+}

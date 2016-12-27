@@ -1,0 +1,30 @@
+{
+    "kevoreeRegistryApp": {
+        "typeDefinition" : {
+            "home": {
+                "title": "TypeDefinitions",
+                "createLabel": "New TypeDefinition",
+                "createTitle": "Create a new TypeDefinition"
+            },
+            "delete": {
+                "question": "Are you sure you want to delete TypeDefinition <strong>{{ name }}/{{ version }}</strong>?"
+            },
+            "detail": {
+                "title": "Type Definition"
+            },
+            "namespace": "Namespace",
+            "selectNamespace": "Select a namespace",
+            "name": "Name",
+            "version": "Version",
+            "created": "Created",
+            "createdBy": "Created by",
+            "modified": "Modified",
+            "modifiedBy": "Modified by",
+            "model": "Model",
+            "name_version": "Name / Version",
+            "deployUnits": "DeployUnits",
+            "filterPlaceholder": "Filter TypeDefinitions...",
+            "filter": "Filter"
+        }
+    }
+}

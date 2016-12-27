@@ -1,0 +1,32 @@
+{
+    "kevoreeRegistryApp": {
+        "deployUnit" : {
+            "home": {
+                "title": "DeployUnit",
+                "createLabel": "Nouvelle DeployUnit",
+                "createTitle": "Créer une nouvelle DeployUnit"
+            },
+            "delete": {
+                "question": "Etes-vous certain de vouloir supprimer la DeployUnit:"
+            },
+            "detail": {
+                "title": "Deploy Unit"
+            },
+            "namespace": "Namespace",
+            "selectNamespace": "Sélection du namespace",
+            "typeDefinition": "TypeDefinition",
+            "typeDefinitionVersion": "TypeDefinition Version",
+            "name": "Nom",
+            "version": "Version",
+            "created": "Création",
+            "createdBy": "Crée par",
+            "modified": "Modification",
+            "modifiedBy": "Modifié par",
+            "model": "Modèle",
+            "platform": "Plateforme",
+            "name_version": "Nom / Version",
+            "filter": "Filtrer",
+            "filterPlaceholder": "Filtrer les DeployUnits..."
+        }
+    }
+}

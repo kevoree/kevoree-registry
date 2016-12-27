@@ -1,0 +1,218 @@
+<div class="well">
+    <fieldset>
+        <legend>Filter by:</legend>
+        <div class="col-xs-6 col-sm-2">
+            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.namespace.name" placeholder="Namespace">
+        </div>
+        <div class="col-xs-6 col-sm-3">
+            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.name" placeholder="TypeDefinition">
+        </div>
+        <div class="col-xs-6 col-sm-4">
+            <input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
+        </div>
+        <div class="col-xs-6 col-sm-2">
+            <input type="text" class="form-control input-sm" ng-model="search.version" placeholder="Version">
+        </div>
+    </fieldset>
+    <hr/>
+    <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="myModelLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form name="form" role="form" novalidate
+                      class="ng-scope ng-invalid ng-invalid-required ng-dirty ng-valid-minlength"
+                      ng-submit="confirmCreate()">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                                ng-click="clear()">&times;</button>
+                        <h4 class="modal-title" id="myModelLabel" translate="kevoreeRegistryApp.deployUnit.home.createTitle">Create a new DeployUnit</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert" ng-show="createError">
+                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearCreateError()">&times;</span></button>
+                            <strong>Error: </strong>{{createError}}
+                        </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.deployUnit.selectNamespace">Select a namespace</label>
+                            <select class="form-control" ng-model="du.namespace" ng-options="ns.name as ns.name for (i, ns) in namespaces"></select>
+                        </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.deployUnit.name">Name</label>
+                            <input type="text" class="form-control" ng-model="du.name">
+                        </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.deployUnit.version">Version</label>
+                            <input type="text" class="form-control" ng-model="du.version">
+                        </div>
+                        <div class="form-group">
+                            <label translate="kevoreeRegistryApp.deployUnit.model">Model</label>
+                            <textarea class="form-control" ng-model="du.model"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                        </button>
+                        <button type="submit" ng-disabled="form.$invalid" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-save"></span>&nbsp;<span translate="entity.action.save">Save</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteConfirmation">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form name="form" ng-submit="confirmDelete(du.id)">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                                ng-click="clear()">&times;</button>
+                        <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert" ng-if="deleteError">
+                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearDeleteError()">&times;</span></button>
+                            <strong>Error: </strong>{{deleteError}}
+                        </div>
+                        <p translate="kevoreeRegistryApp.deployUnit.delete.question" translate-values="du">Are you sure you want to delete the DeployUnit:</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+                                    </td>
+                                    <td>{{ du.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+                                    </td>
+                                    <td>{{ du.version }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+                                    </td>
+                                    <td>{{ du.platform }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
+                                    </td>
+                                    <td>{{ du.typeDefinition.namespace.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
+                                    </td>
+                                    <td>{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
+                        </button>
+                        <button type="submit" ng-disabled="form.$invalid" class="btn btn-danger">
+                            <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span translate="entity.action.delete">Delete</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <table class="table table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.namespace.name')">
+                            <span>Namespace</span>
+                            <i ng-if="orderColumn === 'typeDefinition.namespace.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.name')">
+                            TypeDefinition
+                            <i ng-if="orderColumn === 'typeDefinition.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('name')">
+                            Name
+                            <i ng-if="orderColumn === 'name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('version')">
+                            Version
+                            <i ng-if="orderColumn === 'version'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('platform')">
+                            Platform
+                            <i ng-if="orderColumn === 'platform'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-if="filteredDus.length === 0" ng-init="filteredDus = []">
+                    <td colspan="5" class="text-center">
+                        <em>No DeployUnit found</em>
+                    </td>
+                </tr>
+                <tr ng-repeat="du in filteredDus = (page.content | filter:search | orderBy:orderColumn:reverse )">
+                    <td class="col-xs-2">
+                        {{ du.typeDefinition.namespace.name }}
+                    </td>
+                    <td class="col-xs-3">
+                        {{ du.typeDefinition.name + '/' + du.typeDefinition.version }}
+                    </td>
+                    <td class="col-xs-4">
+                        <a ui-sref="duDetail({ id: du.id })">{{ du.name }}</a>
+                    </td>
+                    <td class="col-xs-2">
+                        {{ du.version }}
+                    </td>
+                    <td class="col-xs-1">
+                        {{ du.platform }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <ul class="pagination pagination-sm">
+            <li ng-class="{ disabled: page.first }">
+                <a href="" aria-label="Previous"
+                   ui-sref="dus({ page: (page.number - 1), size: page.size, sort: page.sort })">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li ng-class="{ active: ($index === page.number) }"
+                ng-repeat="i in asArray(page.totalPages) track by $index">
+                <a ui-sref="dus({ page: $index, size: page.size, sort: page.sort })">{{ $index + 1 }}</a>
+            </li>
+            <li ng-class="{ disabled: page.last }">
+                <a href="" aria-label="Next"
+                   ui-sref="dus({ page: (page.number + 1), size: page.size, sort: page.sort })">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="btn-group pull-right">
+            <a
+                ui-sref="dus({ page: page.number, size: size, sort: page.sort })"
+                class="btn btn-sm btn-default"
+                ng-class="{ active: (size === page.size) }"
+                ng-repeat="size in sizes">{{ size }}</a>
+        </div>
+    </div>
+</div>

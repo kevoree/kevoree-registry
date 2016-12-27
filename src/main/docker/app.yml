@@ -1,0 +1,24 @@
+version: '2'
+
+services:
+  kevoree-registry:
+    image: kevoree/registry:jhipster
+    external_links:
+      - kevoree-registry-postgres:postgres
+      - kevoree-registry-mail:mail
+    environment:
+      - JHIPSTER_SLEEP=30 # gives time for the database to boot before the application
+    ports:
+      - localhost:8080:8080
+    volumes:
+      - ./config:/config
+
+  kevoree-registry-postgres:
+    extends:
+      file: postgres.yml
+      service: kevoree-registry-postgres
+
+  kevoree-registry-mail:
+    extends:
+      file: mail.yml
+      service: kevoree-registry-mail

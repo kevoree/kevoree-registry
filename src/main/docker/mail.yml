@@ -1,0 +1,19 @@
+version: '2'
+
+services:
+  kevoree-registry-mail:
+    container_name: kevoree-registry-mail
+    image: tvial/docker-mailserver:v2
+    # build: .
+    hostname: mail
+    domainname: kevoree.org
+    # do not bind ports to hosts => security
+    # we don't care because we just want to send mails, not receive them
+    # ports:
+    #   - "25:25"
+    #   - "143:143"
+    #   - "587:587"
+    #   - "993:993"
+    volumes:
+      - ./maildata:/var/mail
+      - ./mail-config/:/tmp/docker-mailserver/

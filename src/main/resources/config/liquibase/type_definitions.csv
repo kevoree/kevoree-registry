@@ -1,0 +1,9 @@
+id;name;version;namespace_name;model;created_by
+1;Ticker;1;kevoree;{};kevoree
+2;ConsolePrinter;1;kevoree;{};kevoree
+3;JavaNode;1;kevoree;{};kevoree
+4;JavascriptNode;1;kevoree;{};kevoree
+5;WSGroup;1;kevoree;{};kevoree
+6;Foo;1;user;{};user
+7;Ticker;2;kevoree;{};kevoree
+8;Ticker;3;kevoree;{};kevoree
