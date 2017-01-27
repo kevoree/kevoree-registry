@@ -2,16 +2,19 @@ package org.kevoree.registry.config.audit;
 
 import org.kevoree.registry.domain.PersistentAuditEvent;
 import org.springframework.boot.actuate.audit.AuditEvent;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 
-@Configuration
+@Component
 public class AuditEventConverter {
 
     /**
      * Convert a list of PersistentAuditEvent to a list of AuditEvent
+     *
      * @param persistentAuditEvents the list to convert
      * @return the converted list.
      */
@@ -19,16 +22,23 @@ public class AuditEventConverter {
         if (persistentAuditEvents == null) {
             return Collections.emptyList();
         }
-
         List<AuditEvent> auditEvents = new ArrayList<>();
-
         for (PersistentAuditEvent persistentAuditEvent : persistentAuditEvents) {
-            AuditEvent auditEvent = new AuditEvent(persistentAuditEvent.getAuditEventDate().toDate(), persistentAuditEvent.getPrincipal(),
-                    persistentAuditEvent.getAuditEventType(), convertDataToObjects(persistentAuditEvent.getData()));
-            auditEvents.add(auditEvent);
+            auditEvents.add(convertToAuditEvent(persistentAuditEvent));
         }
-
         return auditEvents;
+    }
+
+    /**
+     * Convert a PersistentAuditEvent to an AuditEvent
+     *
+     * @param persistentAuditEvent the event to convert
+     * @return the converted list.
+     */
+    public AuditEvent convertToAuditEvent(PersistentAuditEvent persistentAuditEvent) {
+        Instant instant = persistentAuditEvent.getAuditEventDate().atZone(ZoneId.systemDefault()).toInstant();
+        return new AuditEvent(Date.from(instant), persistentAuditEvent.getPrincipal(),
+                persistentAuditEvent.getAuditEventType(), convertDataToObjects(persistentAuditEvent.getData()));
     }
 
     /**
@@ -41,16 +51,15 @@ public class AuditEventConverter {
         Map<String, Object> results = new HashMap<>();
 
         if (data != null) {
-            for (String key : data.keySet()) {
-                results.put(key, data.get(key));
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                results.put(entry.getKey(), entry.getValue());
             }
         }
-
         return results;
     }
 
     /**
-     * Internal conversion. This method will allow to save additionnals data.
+     * Internal conversion. This method will allow to save additional data.
      * By default, it will save the object as string
      *
      * @param data the data to convert
@@ -60,16 +69,18 @@ public class AuditEventConverter {
         Map<String, String> results = new HashMap<>();
 
         if (data != null) {
-            for (String key : data.keySet()) {
-                Object object = data.get(key);
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                Object object = entry.getValue();
 
                 // Extract the data that will be saved.
                 if (object instanceof WebAuthenticationDetails) {
                     WebAuthenticationDetails authenticationDetails = (WebAuthenticationDetails) object;
                     results.put("remoteAddress", authenticationDetails.getRemoteAddress());
                     results.put("sessionId", authenticationDetails.getSessionId());
+                } else if (object != null) {
+                    results.put(entry.getKey(), object.toString());
                 } else {
-                    results.put(key, object.toString());
+                    results.put(entry.getKey(), "null");
                 }
             }
         }

@@ -1,27 +1,56 @@
 'use strict';
 
-angular.module('kevoreeRegistryApp')
-    .controller('HealthController', function ($scope, MonitoringService) {
-        $scope.updatingHealth = true;
+angular
+	.module('kevoreeRegistryApp')
+	.controller('HealthController', function (HealthService, $uibModal) {
+		var vm = this;
 
-        $scope.refresh = function () {
-            $scope.updatingHealth = true;
-            MonitoringService.checkHealth().then(function (reponse) {
-                $scope.healthCheck = reponse;
-                $scope.updatingHealth = false;
-            }, function (reponse) {
-                $scope.healthCheck = reponse.data;
-                $scope.updatingHealth = false;
-            });
-        };
+		vm.updatingHealth = true;
+		vm.getLabelClass = getLabelClass;
+		vm.refresh = refresh;
+		vm.showHealth = showHealth;
+		vm.baseName = HealthService.getBaseName;
+		vm.subSystemName = HealthService.getSubSystemName;
 
-        $scope.refresh();
+		vm.refresh();
 
-        $scope.getLabelClass = function (statusState) {
-            if (statusState === 'UP') {
-                return 'label-success';
-            } else {
-                return 'label-danger';
-            }
-        };
-    });
+		function getLabelClass(statusState) {
+			if (statusState === 'UP') {
+				return 'label-success';
+			} else {
+				return 'label-danger';
+			}
+		}
+
+		function refresh() {
+			vm.updatingHealth = true;
+			HealthService.checkHealth().then(function (response) {
+				vm.healthData = HealthService.transformHealthData(response);
+				vm.updatingHealth = false;
+			}, function (response) {
+				vm.healthData = HealthService.transformHealthData(response.data);
+				vm.updatingHealth = false;
+			});
+		}
+
+		function showHealth(health) {
+			$uibModal.open({
+				templateUrl: 'app/admin/health/health.modal.html',
+				controller: 'HealthModalController',
+				controllerAs: 'vm',
+				size: 'lg',
+				resolve: {
+					currentHealth: function () {
+						return health;
+					},
+					baseName: function () {
+						return vm.baseName;
+					},
+					subSystemName: function () {
+						return vm.subSystemName;
+					}
+
+				}
+			});
+		}
+	});

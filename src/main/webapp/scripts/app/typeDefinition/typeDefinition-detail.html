@@ -1,87 +1,87 @@
 <div class="well">
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th translate="entity.detail.field">Field</th>
-                    <th translate="entity.detail.value">Value</th>
-                </tr>
-            </thead>
-            <tbody>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
-                  </td>
-                  <td>
-                      <a ui-sref="nsDetail({ name: tdef.namespace.name })">{{ tdef.namespace.name }}</a>
-                  </td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>
-                  </td>
-                  <td>{{ tdef.name }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
-                  </td>
-                  <td>{{ tdef.version }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.created">Created</span>
-                  </td>
-                  <td>{{ tdef.createdDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</span>
-                  </td>
-                  <td>{{ tdef.createdBy }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.modified">Modified</span>
-                  </td>
-                  <td>{{ tdef.lastModifiedDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</span>
-                  </td>
-                  <td>{{ tdef.modifiedBy }}</td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
-                  </td>
-                  <td>
-                    <div ng-repeat="(platform, dus) in tdef.deployUnits">
-                      <strong>{{platform}}</strong>
-                      <ul class="list-unstyled">
-                          <li ng-repeat="du in dus | orderBy:'name'">
-                              <a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version }}</a>
-                          </li>
-                      </ul>
-                    </div>
-                  </td>
-              </tr>
-              <tr>
-                  <td>
-                      <span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
-                  </td>
-                  <td>
-                      <hljs hljs-language="json" hljs-source="tdef.model"></hljs>
-                  </td>
-              </tr>
-            </tbody>
-        </table>
-    </div>
+	<div class="table-responsive">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th translate="entity.detail.field">Field</th>
+					<th translate="entity.detail.value">Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+					</td>
+					<td>
+						<a ui-sref="nsDetail({ name: tdef.namespace.name })">{{ tdef.namespace.name }}</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.name">Name</span>
+					</td>
+					<td>{{ tdef.name }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
+					</td>
+					<td>{{ tdef.version }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.created">Created</span>
+					</td>
+					<td>{{ tdef.createdDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</span>
+					</td>
+					<td>{{ tdef.createdBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.modified">Modified</span>
+					</td>
+					<td>{{ tdef.lastModifiedDate | date:'yyyy-MM-dd HH:mm:ss Z' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</span>
+					</td>
+					<td>{{ tdef.modifiedBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+					</td>
+					<td>
+						<div ng-repeat="(platform, dus) in tdef.deployUnits">
+							<strong>{{ platform }}</strong>
+							<ul class="list-unstyled">
+								<li ng-repeat="du in dus | orderBy:'name'">
+									<a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version }}</a>
+								</li>
+							</ul>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
+					</td>
+					<td>
+						<div hljs hljs-language="json">{{ tdef.model }}</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 
-    <button type="submit"
-            ui-sref="tdefs"
-            class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.typeDefinition.home.title"> Back</span>
-    </button>
+	<button type="submit" ui-sref="tdefs" class="btn btn-info">
+		<span class="glyphicon glyphicon-arrow-left"></span>
+		<span>&nbsp;</span>
+		<span translate="kevoreeRegistryApp.typeDefinition.home.title">Back</span>
+	</button>
 </div>

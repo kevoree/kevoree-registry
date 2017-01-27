@@ -1,20 +1,19 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
-import org.apache.commons.lang.StringUtils;
-import org.kevoree.registry.domain.Authority;
-import org.kevoree.registry.domain.Namespace;
+import org.apache.commons.lang3.StringUtils;
 import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.MailService;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.web.rest.dto.ErrorDTO;
-import org.kevoree.registry.web.rest.dto.UserDTO;
+import org.kevoree.registry.service.dto.UserDTO;
+import org.kevoree.registry.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing the current user's account.
@@ -52,33 +50,38 @@ public class AccountResource {
   private MailService mailService;
 
   /**
-   * POST  /register -> register the user.
+   * POST  /register : register the user.
+   *
+   * @param managedUserVM the managed user View Model
+   * @return the ResponseEntity with status 201 (Created) if the user is registered or 400 (Bad Request) if the login or e-mail is already in use
    */
-  @RequestMapping(value = "/register",
-    method = RequestMethod.POST,
-    produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = "/register",
+          produces={MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
   @Timed
-  public ResponseEntity<?> registerAccount(@Valid @RequestBody UserDTO userDTO, HttpServletRequest request) {
-    return userRepository.findOneByLogin(userDTO.getLogin())
-      .map(user -> new ResponseEntity<>(new ErrorDTO("login already in use"), HttpStatus.BAD_REQUEST))
-      .orElseGet(() -> Optional.ofNullable(namespaceRepository.findOne(userDTO.getLogin()))
-        .map(ns -> new ResponseEntity<>(new ErrorDTO("login already in use"), HttpStatus.BAD_REQUEST))
-        .orElseGet(() -> userRepository.findOneByEmail(userDTO.getEmail())
-          .map(user -> new ResponseEntity<>(new ErrorDTO("e-mail address already in use"), HttpStatus.BAD_REQUEST))
-          .orElseGet(() -> {
-            User user = userService.createUserInformation(userDTO.getLogin(), userDTO.getPassword(),
-              userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail().toLowerCase(),
-              userDTO.getLangKey());
-//            String baseUrl = request.getScheme() + // "http"
-//              "://" +                                // "://"
-//              request.getServerName() +              // "myhost"
-//              ":" +                                  // ":"
-//              request.getServerPort();               // "80"
-            mailService.sendActivationEmail(user, env.getProperty("spring.mail.baseUrl", "http://localhost"));
-            return new ResponseEntity<>(HttpStatus.CREATED);
-          }))
-      );
+  public ResponseEntity<?> registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
+
+    HttpHeaders textPlainHeaders = new HttpHeaders();
+    textPlainHeaders.setContentType(MediaType.TEXT_PLAIN);
+
+    return userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase())
+            .map(user -> new ResponseEntity<>("login already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
+            .orElseGet(() -> Optional.ofNullable(namespaceRepository.findOne(managedUserVM.getLogin().toLowerCase()))
+                    .map(ns -> new ResponseEntity<>("namespace already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
+                    .orElseGet(() -> userRepository.findOneByEmail(managedUserVM.getEmail())
+                            .map(user -> new ResponseEntity<>("e-mail address already in use", textPlainHeaders, HttpStatus.BAD_REQUEST))
+                            .orElseGet(() -> {
+                              User user = userService
+                                      .createUser(managedUserVM.getLogin(), managedUserVM.getPassword(),
+                                              managedUserVM.getFirstName(), managedUserVM.getLastName(),
+                                              managedUserVM.getEmail().toLowerCase(), managedUserVM.getLangKey());
+
+                              mailService.sendActivationEmail(user);
+                              return new ResponseEntity<>(HttpStatus.CREATED);
+                            })
+                    )
+            );
   }
+
   /**
    * GET  /activate -> activate the registered user.
    */
@@ -104,28 +107,18 @@ public class AccountResource {
     return request.getRemoteUser();
   }
 
+
   /**
-   * GET  /account -> get the current user.
+   * GET  /account : get the current user.
+   *
+   * @return the ResponseEntity with status 200 (OK) and the current user in body, or status 500 (Internal Server Error) if the user couldn't be returned
    */
-  @RequestMapping(value = "/account",
-    method = RequestMethod.GET,
-    produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping("/account")
   @Timed
   public ResponseEntity<UserDTO> getAccount() {
     return Optional.ofNullable(userService.getUserWithAuthorities())
-      .map(user -> new ResponseEntity<>(
-        new UserDTO(
-          user.getLogin(),
-          null,
-          user.getFirstName(),
-          user.getLastName(),
-          user.getEmail(),
-          user.getLangKey(),
-          user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toList()),
-          user.getNamespaces().stream().map(Namespace::getName).collect(Collectors.toList())
-        ),
-        HttpStatus.OK))
-      .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+            .map(user -> new ResponseEntity<>(new UserDTO(user), HttpStatus.OK))
+            .orElse(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   /**
@@ -138,9 +131,9 @@ public class AccountResource {
   public ResponseEntity<String> saveAccount(@RequestBody UserDTO userDTO) {
     return userRepository
       .findOneByLogin(userDTO.getLogin())
-      .filter(u -> u.getLogin().equals(SecurityUtils.getCurrentLogin()))
+      .filter(u -> u.getLogin().equals(SecurityUtils.getCurrentUserLogin()))
       .map(u -> {
-        userService.updateUserInformation(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail());
+        userService.updateUser(userDTO.getFirstName(), userDTO.getLastName(), userDTO.getEmail(), userDTO.getLangKey());
         return new ResponseEntity<String>(HttpStatus.OK);
       })
       .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));

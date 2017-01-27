@@ -14,4 +14,7 @@ public interface NamespaceRepository extends JpaRepository<Namespace, String> {
 
     @Query("select n from Namespace n, IN (n.members) AS m where n.name = ?1 and m.login = ?2")
     Optional<Namespace> findOneByNameAndMemberName(String name, String userName);
+
+    @Query("select n from Namespace n, IN (n.owner) AS o where n.name = ?1 and o.login = ?2")
+    Optional<Namespace> findOneByNameAndOwnerLogin(String name, String ownerName);
 }

@@ -1,40 +1,21 @@
 package org.kevoree.registry;
 
-import org.kevoree.registry.config.Constants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.kevoree.registry.config.DefaultProfileUtil;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 
 /**
- * This is an helper Java class that provides an alternative to creating a web.xml.
+ * This is a helper Java class that provides an alternative to creating a web.xml.
+ * This will be invoked only when the application is deployed to a servlet container like Tomcat, JBoss etc.
  */
 public class ApplicationWebXml extends SpringBootServletInitializer {
 
-    private final Logger log = LoggerFactory.getLogger(ApplicationWebXml.class);
-
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.profiles(addDefaultProfile())
-                .showBanner(false)
-                .sources(Application.class);
-    }
-
-    /**
-     * Set a default profile if it has not been set.
-     * <p/>
-     * <p>
-     * Please use -Dspring.profiles.active=dev
-     * </p>
-     */
-    private String addDefaultProfile() {
-        String profile = System.getProperty("spring.profiles.active");
-        if (profile != null) {
-            log.info("Running with Spring profile(s) : {}", profile);
-            return profile;
-        }
-
-        log.warn("No Spring profile configured, running with default configuration");
-        return Constants.SPRING_PROFILE_DEVELOPMENT;
+        /**
+         * set a default to use when no profile is configured.
+         */
+        DefaultProfileUtil.addDefaultProfile(application.application());
+        return application.sources(Application.class);
     }
 }

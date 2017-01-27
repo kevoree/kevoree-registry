@@ -1,17 +1,12 @@
 package org.kevoree.registry.config;
 
-import com.codahale.metrics.MetricRegistry;
-import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import liquibase.integration.spring.SpringLiquibase;
+import org.h2.tools.Server;
+import org.kevoree.registry.config.liquibase.AsyncSpringLiquibase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
-import org.springframework.context.ApplicationContextException;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -20,75 +15,54 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
-import java.util.Arrays;
+import java.sql.SQLException;
 
 @Configuration
 @EnableJpaRepositories("org.kevoree.registry.repository")
 @EnableJpaAuditing(auditorAwareRef = "springSecurityAuditorAware")
 @EnableTransactionManagement
-public class DatabaseConfiguration implements EnvironmentAware {
+public class DatabaseConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(DatabaseConfiguration.class);
 
-    private RelaxedPropertyResolver propertyResolver;
-
+    @Inject
     private Environment env;
 
-    @Autowired(required = false)
-    private MetricRegistry metricRegistry;
-
-    @Override
-    public void setEnvironment(Environment env) {
-        this.env = env;
-        this.propertyResolver = new RelaxedPropertyResolver(env, "spring.datasource.");
-    }
-
-    @Bean(destroyMethod = "shutdown")
-    @ConditionalOnMissingClass(name = "org.kevoree.registry.config.HerokuDatabaseConfiguration")
-    @Profile("!" + Constants.SPRING_PROFILE_CLOUD)
-    public DataSource dataSource() {
-        log.debug("Configuring Datasource");
-        if (propertyResolver.getProperty("url") == null && propertyResolver.getProperty("databaseName") == null) {
-            log.error("Your database connection pool configuration is incorrect! The application" +
-                    "cannot start. Please check your Spring profile, current profiles are: {}",
-                    Arrays.toString(env.getActiveProfiles()));
-
-            throw new ApplicationContextException("Database connection pool is not configured correctly");
-        }
-        HikariConfig config = new HikariConfig();
-        config.setDataSourceClassName(propertyResolver.getProperty("dataSourceClassName"));
-        if (propertyResolver.getProperty("url") == null || "".equals(propertyResolver.getProperty("url"))) {
-            config.addDataSourceProperty("databaseName", propertyResolver.getProperty("databaseName"));
-            config.addDataSourceProperty("serverName", propertyResolver.getProperty("serverName"));
-        } else {
-            config.addDataSourceProperty("url", propertyResolver.getProperty("url"));
-        }
-        config.addDataSourceProperty("user", propertyResolver.getProperty("username"));
-        config.addDataSourceProperty("password", propertyResolver.getProperty("password"));
-
-        if (metricRegistry != null) {
-            config.setMetricRegistry(metricRegistry);
-        }
-        return new HikariDataSource(config);
+    /**
+     * Open the TCP port for the H2 database, so it is available remotely.
+     *
+     * @return the H2 database TCP server
+     * @throws SQLException if the server failed to start
+     */
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    @Profile(Constants.SPRING_PROFILE_DEVELOPMENT)
+    public Server h2TCPServer() throws SQLException {
+        return Server.createTcpServer("-tcp","-tcpAllowOthers");
     }
 
     @Bean
-    public SpringLiquibase liquibase(DataSource dataSource) {
-        SpringLiquibase liquibase = new SpringLiquibase();
+    public SpringLiquibase liquibase(DataSource dataSource, LiquibaseProperties liquibaseProperties) {
+
+        // Use liquibase.integration.spring.SpringLiquibase if you don't want Liquibase to start asynchronously
+        SpringLiquibase liquibase = new AsyncSpringLiquibase();
         liquibase.setDataSource(dataSource);
         liquibase.setChangeLog("classpath:config/liquibase/master.xml");
-        liquibase.setContexts("development, production");
-        if (env.acceptsProfiles(Constants.SPRING_PROFILE_FAST)) {
+        liquibase.setContexts(liquibaseProperties.getContexts());
+        liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
+        liquibase.setDropFirst(liquibaseProperties.isDropFirst());
+        if (env.acceptsProfiles(Constants.SPRING_PROFILE_NO_LIQUIBASE)) {
             liquibase.setShouldRun(false);
         } else {
+            liquibase.setShouldRun(liquibaseProperties.isEnabled());
             log.debug("Configuring Liquibase");
         }
         return liquibase;
     }
 
     @Bean
-    public Hibernate4Module hibernate4Module() {
-        return new Hibernate4Module();
+    public Hibernate5Module hibernate5Module() {
+        return new Hibernate5Module();
     }
 }

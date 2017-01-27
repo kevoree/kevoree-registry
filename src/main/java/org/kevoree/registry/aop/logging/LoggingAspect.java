@@ -25,21 +25,33 @@ public class LoggingAspect {
     @Inject
     private Environment env;
 
+    /**
+     * Pointcut that matches all repositories, services and Web REST endpoints.
+     */
     @Pointcut("within(org.kevoree.registry.repository..*) || within(org.kevoree.registry.service..*) || within(org.kevoree.registry.web.rest..*)")
-    public void loggingPoincut() {}
+    public void loggingPointcut() {
+        // Method is empty as this is just a Poincut, the implementations are in the advices.
+    }
 
-    @AfterThrowing(pointcut = "loggingPoincut()", throwing = "e")
+    /**
+     * Advice that logs methods throwing exceptions.
+     */
+    @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
-            log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(), e.getCause(), e);
+            log.error("Exception in {}.{}() with cause = \'{}\' and exception = \'{}\'", joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(), e.getCause() != null? e.getCause() : "NULL", e.getMessage(), e);
+
         } else {
             log.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(), e.getCause());
+                    joinPoint.getSignature().getName(), e.getCause() != null? e.getCause() : "NULL");
         }
     }
 
-    @Around("loggingPoincut()")
+    /**
+     * Advice that logs when a method is entered and exited.
+     */
+    @Around("loggingPointcut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         if (log.isDebugEnabled()) {
             log.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),

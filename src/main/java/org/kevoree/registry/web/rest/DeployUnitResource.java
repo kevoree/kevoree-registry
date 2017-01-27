@@ -2,7 +2,7 @@ package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.github.zafarkhaja.semver.Version;
-import org.joda.time.DateTime;
+import io.swagger.annotations.ApiParam;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -29,6 +29,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,7 +79,8 @@ public class DeployUnitResource {
     public ResponseEntity<?> createDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                               @PathVariable Long tdefVersion,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
-        log.debug("REST request to create DeployUnit: {} for {}.{}/{}", deployUnit, namespace, tdefName, tdefVersion);
+        log.debug("REST user \"{}\" request to create DeployUnit: {} for {}.{}/{}", SecurityUtils.getCurrentUserLogin(),
+                deployUnit, namespace, tdefName, tdefVersion);
         if (deployUnit.getId() == null) {
             return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion)
                 .map(tdef -> {
@@ -127,8 +129,8 @@ public class DeployUnitResource {
                                               @PathVariable Long tdefVersion, @PathVariable String name,
                                               @PathVariable String version, @PathVariable String platform,
                                               @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
-        log.debug("REST request to update DeployUnit {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
-            version, platform, namespace, tdefName, tdefVersion);
+        log.debug("REST user \"{}\" request to update DeployUnit {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}",
+                SecurityUtils.getCurrentUserLogin(), name, version, platform, namespace, tdefName, tdefVersion);
         if (deployUnit.getId() == null) {
             return createDeployUnit(namespace, tdefName, tdefVersion, deployUnit);
         }
@@ -146,8 +148,8 @@ public class DeployUnitResource {
                                 Optional<TypeDefinition> tdef = tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion);
                                 if (tdef.isPresent()) {
                                     if (du.getTypeDefinition().equals(tdef.get())) {
-                                        DateTime lastModified = DateTime.now();
-                                        String login = SecurityUtils.getCurrentLogin();
+                                        ZonedDateTime lastModified = ZonedDateTime.now();
+                                        String login = SecurityUtils.getCurrentUserLogin();
                                         du.setModel(deployUnit.getModel());
                                         du.getTypeDefinition().setLastModifiedDate(lastModified);
                                         du.getTypeDefinition().setLastModifiedBy(login);
@@ -190,9 +192,9 @@ public class DeployUnitResource {
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public List<DeployUnit> getDeployUnits() {
+    public List<DeployUnit> getDeployUnits(@ApiParam Pageable pageable) {
         log.debug("REST request to get all DeployUnits");
-        return duRepository.findAll();
+        return duRepository.findAll(pageable).getContent();
     }
 
     /**
@@ -375,7 +377,7 @@ public class DeployUnitResource {
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
-        log.debug("REST request to delete DeployUnit : {}", id);
+        log.debug("REST user \"{}\" request to delete DeployUnit : {}", SecurityUtils.getCurrentUserLogin(), id);
         return Optional.ofNullable(duRepository.findOne(id))
             .map(du -> deleteDeployUnit(
                 du.getTypeDefinition().getNamespace().getName(),
@@ -408,8 +410,8 @@ public class DeployUnitResource {
     public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                               @PathVariable Long tdefVersion, @PathVariable String name,
                                               @PathVariable String version, @PathVariable String platform) {
-        log.debug("REST request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
-            version, platform, namespace, tdefName, tdefVersion);
+        log.debug("REST user \"{}\" request to delete DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}",
+                SecurityUtils.getCurrentUserLogin(), name, version, platform, namespace, tdefName, tdefVersion);
         Namespace ns = nsRepository.findOne(namespace);
         if (ns == null) {
             return new ResponseEntity<>(new ErrorDTO("unable to find namespace "+name), HttpStatus.NOT_FOUND);
@@ -418,12 +420,12 @@ public class DeployUnitResource {
             if (user != null) {
                 Authority admin = authRepository.findOne(AuthoritiesConstants.ADMIN);
                 if (user.getAuthorities().contains(admin)
-                    || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentLogin()).isPresent()) {
+                    || nsRepository.findOneByNameAndMemberName(namespace, SecurityUtils.getCurrentUserLogin()).isPresent()) {
                     return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
                         namespace, tdefName, tdefVersion, name, version, platform)
                         .map(du -> {
                             // delete du
-                            du.getTypeDefinition().setLastModifiedDate(new DateTime());
+                            du.getTypeDefinition().setLastModifiedDate(ZonedDateTime.now());
                             duRepository.delete(du.getId());
                             tdefsRepository.save(du.getTypeDefinition());
                             return new ResponseEntity<>(HttpStatus.OK);

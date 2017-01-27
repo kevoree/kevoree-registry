@@ -1,7 +1,8 @@
 package org.kevoree.registry.web.rest.dto;
 
-import org.joda.time.DateTime;
 import org.kevoree.registry.domain.AbstractAuditingEntity;
+
+import java.time.ZonedDateTime;
 
 /**
  *
@@ -11,7 +12,7 @@ abstract class AbstractAuditingDTO {
 
     private String createdBy;
     private String lastModifiedBy;
-    private DateTime lastModifiedDate;
+    private ZonedDateTime lastModifiedDate;
 
     AbstractAuditingDTO() {}
 
@@ -37,11 +38,11 @@ abstract class AbstractAuditingDTO {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    public DateTime getLastModifiedDate() {
+    public ZonedDateTime getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public void setLastModifiedDate(DateTime lastModifiedDate) {
+    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
 }

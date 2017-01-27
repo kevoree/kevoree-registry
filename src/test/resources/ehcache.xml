@@ -1,39 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
-         name="CM1"
-         updateCheck="false"
-         maxBytesLocalHeap="16M">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
 
-    <diskStore path="java.io.tmpdir"/>
+    <cache-template name="simple">
+        <expiry>
+            <ttl unit="seconds">3600</ttl>
+        </expiry>
+        <heap>100</heap>
+    </cache-template>
 
-    <defaultCache
-            eternal="false"
-            overflowToDisk="false"
-            />
+    <cache alias="org.kevoree.registry.domain.User" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.User"
-           timeToLiveSeconds="3600">
-    </cache>
+    <cache alias="org.kevoree.registry.domain.Namespace" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.Authority"
-           timeToLiveSeconds="3600">
-    </cache>
+    <cache alias="org.kevoree.registry.domain.TypeDefinition" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.User.authorities"
-           timeToLiveSeconds="3600">
-    </cache>
+    <cache alias="org.kevoree.registry.domain.DeployUnit" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.PersistentToken"
-           timeToLiveSeconds="3600">
-    </cache>
+    <cache alias="org.kevoree.registry.domain.Authority" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.User.persistentTokens"
-           timeToLiveSeconds="3600">
-    </cache>
+    <cache alias="org.kevoree.registry.domain.User.authorities" uses-template="simple"/>
 
-    <cache name="org.kevoree.registry.domain.PersistentAuditEvent"
-           timeToLiveSeconds="3600">
-    </cache>
-</ehcache>
+    <cache alias="org.kevoree.registry.domain.PersistentToken" uses-template="simple"/>
 
+    <cache alias="org.kevoree.registry.domain.User.persistentTokens" uses-template="simple"/>
+
+    <!-- jhipster-needle-ehcache-add-entry -->
+</config>

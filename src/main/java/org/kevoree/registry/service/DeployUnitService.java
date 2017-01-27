@@ -1,8 +1,8 @@
 package org.kevoree.registry.service;
 
-import org.joda.time.DateTime;
 import org.kevoree.registry.domain.DeployUnit;
 import org.kevoree.registry.domain.TypeDefinition;
+import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.DeployUnitRepository;
 import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.time.ZonedDateTime;
 
 /**
  * DeployUnitService
@@ -34,7 +35,7 @@ public class DeployUnitService {
     private DeployUnitRepository duRepository;
 
     public DeployUnit create(TypeDefinition tdef, DeployUnitDTO dto) {
-        String login = SecurityUtils.getCurrentLogin();
+        String login = SecurityUtils.getCurrentUserLogin();
         DeployUnit du = new DeployUnit();
         du.setName(dto.getName());
         du.setVersion(dto.getVersion());
@@ -43,7 +44,7 @@ public class DeployUnitService {
         du.setTypeDefinition(tdef);
         du.setCreatedBy(login);
         tdef.setLastModifiedBy(login);
-        tdef.setLastModifiedDate(DateTime.now());
+        tdef.setLastModifiedDate(ZonedDateTime.now());
         tdefRepository.save(tdef);
         return duRepository.save(du);
     }
@@ -54,14 +55,11 @@ public class DeployUnitService {
      * a new DeployUnit within the specified TypeDefinition; false otherwise
      */
     public boolean canCreate(Long tdefId) {
-        return userRepository.findOneByLogin(SecurityUtils.getCurrentLogin())
-            .map(user -> {
-                if (userService.hasAuthority(AuthoritiesConstants.ADMIN)) {
-                    return true;
-                }
-                TypeDefinition tdef = tdefRepository.findOne(tdefId);
-                return user.getNamespaces().contains(tdef.getNamespace());
-            })
-            .orElse(false);
+        User user = userService.getUserWithAuthorities();
+        if (userService.hasAuthority(user, AuthoritiesConstants.ADMIN)) {
+            return true;
+        }
+        TypeDefinition tdef = tdefRepository.findOne(tdefId);
+        return user.getNamespaces().contains(tdef.getNamespace());
     }
 }

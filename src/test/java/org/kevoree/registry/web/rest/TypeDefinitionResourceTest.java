@@ -1,6 +1,5 @@
 package org.kevoree.registry.web.rest;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +14,10 @@ import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.text.ParseException;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,10 +39,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @see TypeDefinitionResource
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
 public class TypeDefinitionResourceTest {
 
     private static final String NS_NAME = "testnamespace";
@@ -230,7 +226,7 @@ public class TypeDefinitionResourceTest {
             newNs.getName(), tdef.getName(), tdef.getVersion()).get();
         assertThat(dbTdef.getNamespace().getName()).isEqualTo(newNs.getName());
         assertThat(dbTdef.getCreatedBy()).isEqualTo("user");
-        assertThat(dbTdef.getCreatedDate().getMillis()).isLessThan(DateTime.now().getMillis());
+        assertThat(dbTdef.getCreatedDate().getNano()).isLessThan(ZonedDateTime.now().getNano());
         // validate the namespace in db
         Namespace dbNs = namespaceRepository.findOneByNameAndMemberName(newNs.getName(), user.getLogin()).get();
         assertThat(dbNs.getTypeDefinitions()).containsExactly(dbTdef);

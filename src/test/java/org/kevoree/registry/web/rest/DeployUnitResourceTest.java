@@ -1,6 +1,5 @@
 package org.kevoree.registry.web.rest;
 
-import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,15 +15,13 @@ import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,8 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.time.Instant;
-import java.util.Date;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,10 +43,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @see DeployUnitResource
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = Application.class)
-@WebAppConfiguration
-@IntegrationTest
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = Application.class)
 public class DeployUnitResourceTest {
 
     private static final String NAMESPACE = "kevoree";
@@ -122,7 +116,7 @@ public class DeployUnitResourceTest {
 
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
@@ -142,7 +136,7 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
-        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getMillis()).isLessThan(DateTime.now().getMillis());
+        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getNano()).isLessThan(ZonedDateTime.now().getNano());
     }
 
     @Test
@@ -150,7 +144,7 @@ public class DeployUnitResourceTest {
     public void createDeployUnitForUnknownTdef() throws Exception {
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
@@ -165,7 +159,7 @@ public class DeployUnitResourceTest {
     public void createDeployUnitWithoutBeingMember() throws Exception {
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
@@ -180,7 +174,7 @@ public class DeployUnitResourceTest {
     public void createDeployUnitForUnknownNamespace() throws Exception {
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Create the DeployUnit
         restDeployUnitMockMvc.perform(post("/api/namespaces/{namespace}/tdefs/{name}/{version}/dus",
@@ -236,7 +230,7 @@ public class DeployUnitResourceTest {
         // Get all the deployUnits
         restDeployUnitMockMvc.perform(get("/api/dus?sort=id,desc"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(deployUnit.getId().intValue())))
                 .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
                 .andExpect(jsonPath("$.[*].version").value(hasItem(DEFAULT_VERSION)))
@@ -254,7 +248,7 @@ public class DeployUnitResourceTest {
         // Get the deployUnit
         restDeployUnitMockMvc.perform(get("/api/dus/{id}", deployUnit.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(deployUnit.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
@@ -279,7 +273,7 @@ public class DeployUnitResourceTest {
                 deployUnit.getVersion(),
                 deployUnit.getPlatform()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.id").value(deployUnit.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
@@ -307,10 +301,10 @@ public class DeployUnitResourceTest {
 
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // tdef creation timestamp
-        long tdefLastModified = this.tdef.getLastModifiedDate().getMillis();
+        int tdefLastModified = this.tdef.getLastModifiedDate().getNano();
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
@@ -335,11 +329,13 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
         // tdef last modified timestamp should be greater than now
-        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getMillis()).isGreaterThan(tdefLastModified);
+        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getNano()).isGreaterThan(tdefLastModified);
         // deployUnit should have a creation timestamp
-        assertThat(testDeployUnit.getCreatedDate().getMillis()).isLessThan(DateTime.now().getMillis());
+        assertThat(testDeployUnit.getCreatedDate().getNano()).isLessThan(ZonedDateTime.now().getNano());
         // deployUnit should also have a creation login
-        assertThat(testDeployUnit.getCreatedBy()).isEqualTo("kevoree");
+        assertThat(testDeployUnit.getCreatedBy()).isEqualTo("system");
+        // deployUnit should have update the lastModifiedBy to "kevoree"
+        assertThat(testDeployUnit.getLastModifiedBy()).isEqualTo("kevoree");
     }
 
     @Test
@@ -352,7 +348,7 @@ public class DeployUnitResourceTest {
 
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
@@ -390,7 +386,7 @@ public class DeployUnitResourceTest {
 
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
@@ -426,7 +422,7 @@ public class DeployUnitResourceTest {
 
         // add "kevoree" as current user in the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
-            new TestingAuthenticationToken("kevoree", null, AuthoritiesConstants.USER));
+            new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
         // Update the deployUnit
         this.deployUnit.setId(du.getId());

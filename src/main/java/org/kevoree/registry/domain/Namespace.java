@@ -1,13 +1,14 @@
 package org.kevoree.registry.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Set;
 public class Namespace implements Serializable {
 
     @Id
-    @Pattern(regexp = "^[a-z0-9]+(\\.[a-z0-9]+)*$")
+    @Pattern(regexp = Constants.NS_NAME_REGEX)
     @Size(min = 1, max = 50)
     @Column(length = 50, unique = true, nullable = false)
     private String name;
@@ -30,13 +31,11 @@ public class Namespace implements Serializable {
     private User owner;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "namespaces")
-    @JsonIgnoreProperties({
-        "authorities", "namespaces", "firstName", "lastName", "email", "activated", "langKey", "activationKey",
-        "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" })
+    @JsonIgnore
     private Set<User> members = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "namespace")
-    @JsonIgnoreProperties({ "namespace" })
+    @OneToMany(mappedBy = "namespace")
+    @JsonIgnore
     private Set<TypeDefinition> tdefs = new HashSet<>();
 
     public String getName() {
@@ -109,20 +108,20 @@ public class Namespace implements Serializable {
 
     @Override
     public String toString() {
-        String membersStr = "";
-        Iterator<User> userIt = members.iterator();
-        while (userIt.hasNext()) {
-            membersStr += userIt.next().getLogin();
-            if (userIt.hasNext()) {
-                membersStr += ", ";
-            }
-        }
+//        String membersStr = "";
+//        Iterator<User> userIt = members.iterator();
+//        while (userIt.hasNext()) {
+//            membersStr += userIt.next().getLogin();
+//            if (userIt.hasNext()) {
+//                membersStr += ", ";
+//            }
+//        }
 
         return "Namespace{" +
             "name='" + name + '\'' +
             ", owner=" + owner.getLogin() +
-            ", members=[" + membersStr + "]" +
-            ", tdefs=" + tdefs +
+//            ", members=[" + membersStr + "]" +
+//            ", tdefs=" + tdefs +
             "}";
     }
 }

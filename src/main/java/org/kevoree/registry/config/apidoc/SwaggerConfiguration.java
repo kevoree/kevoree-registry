@@ -1,20 +1,25 @@
 package org.kevoree.registry.config.apidoc;
 
 import org.kevoree.registry.config.Constants;
-import com.mangofactory.swagger.configuration.SpringSwaggerConfig;
-import com.mangofactory.swagger.plugin.EnableSwagger;
-import com.mangofactory.swagger.plugin.SwaggerSpringMvcPlugin;
-import com.wordnik.swagger.model.ApiInfo;
+import org.kevoree.registry.config.JHipsterProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StopWatch;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import static springfox.documentation.builders.PathSelectors.regex;
 
 /**
  * Swagger configuration.
@@ -24,50 +29,49 @@ import org.springframework.util.StopWatch;
  * have access to the Swagger view.
  */
 @Configuration
-@EnableSwagger
-@Profile("!" + Constants.SPRING_PROFILE_FAST)
-public class SwaggerConfiguration implements EnvironmentAware {
+@EnableSwagger2
+@Import(springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration.class)
+@Profile(Constants.SPRING_PROFILE_SWAGGER)
+public class SwaggerConfiguration {
 
     private final Logger log = LoggerFactory.getLogger(SwaggerConfiguration.class);
 
     public static final String DEFAULT_INCLUDE_PATTERN = "/api/.*";
 
-    private RelaxedPropertyResolver propertyResolver;
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.propertyResolver = new RelaxedPropertyResolver(environment, "swagger.");
-    }
-
     /**
-     * Swagger Spring MVC configuration.
+     * Swagger Springfox configuration.
+     *
+     * @param jHipsterProperties the properties of the application
+     * @return the Swagger Springfox configuration
      */
     @Bean
-    public SwaggerSpringMvcPlugin swaggerSpringMvcPlugin(SpringSwaggerConfig springSwaggerConfig) {
+    public Docket swaggerSpringfoxDocket(JHipsterProperties jHipsterProperties) {
         log.debug("Starting Swagger");
         StopWatch watch = new StopWatch();
         watch.start();
-        SwaggerSpringMvcPlugin swaggerSpringMvcPlugin = new SwaggerSpringMvcPlugin(springSwaggerConfig)
-            .apiInfo(apiInfo())
-            .genericModelSubstitutes(ResponseEntity.class)
-            .includePatterns(DEFAULT_INCLUDE_PATTERN);
+        Contact contact = new Contact(
+                jHipsterProperties.getSwagger().getContactName(),
+                jHipsterProperties.getSwagger().getContactUrl(),
+                jHipsterProperties.getSwagger().getContactEmail());
 
-        swaggerSpringMvcPlugin.build();
+        ApiInfo apiInfo = new ApiInfo(
+                jHipsterProperties.getSwagger().getTitle(),
+                jHipsterProperties.getSwagger().getDescription(),
+                jHipsterProperties.getSwagger().getVersion(),
+                jHipsterProperties.getSwagger().getTermsOfServiceUrl(),
+                contact,
+                jHipsterProperties.getSwagger().getLicense(),
+                jHipsterProperties.getSwagger().getLicenseUrl());
+
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo)
+                .forCodeGeneration(true)
+                .genericModelSubstitutes(ResponseEntity.class)
+                .select()
+                .paths(regex(DEFAULT_INCLUDE_PATTERN))
+                .build();
         watch.stop();
         log.debug("Started Swagger in {} ms", watch.getTotalTimeMillis());
-        return swaggerSpringMvcPlugin;
-    }
-
-    /**
-     * API Info as it appears on the swagger-ui page.
-     */
-    private ApiInfo apiInfo() {
-        return new ApiInfo(
-                propertyResolver.getProperty("title"),
-                propertyResolver.getProperty("description"),
-                propertyResolver.getProperty("termsOfServiceUrl"),
-                propertyResolver.getProperty("contact"),
-                propertyResolver.getProperty("license"),
-                propertyResolver.getProperty("licenseUrl"));
+        return docket;
     }
 }

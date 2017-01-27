@@ -1,104 +1,154 @@
 'use strict';
 
-angular.module('kevoreeRegistryApp')
-    .factory('Auth', function Auth($rootScope, $state, $q, $translate, Principal, AuthServerProvider, Account, Register, Activate, Password, Tracker) {
-        return {
-            login: function (credentials, callback) {
-                var cb = callback || angular.noop;
-                var deferred = $q.defer();
+angular
+	.module('kevoreeRegistryApp')
+	.factory('Auth', function Auth($rootScope, $state, $q, $sessionStorage, $translate, Principal, AuthServerProvider, Account, Register, Activate, Password, Tracker) {
+		var service = {
+			activateAccount: activateAccount,
+			authorize: authorize,
+			changePassword: changePassword,
+			createAccount: createAccount,
+			getPreviousState: getPreviousState,
+			login: login,
+			logout: logout,
+			resetPreviousState: resetPreviousState,
+			storePreviousState: storePreviousState,
+			updateAccount: updateAccount
+		};
 
-                AuthServerProvider.login(credentials).then(function (data) {
-                    // retrieve the logged account information
-                    Principal.identity(true).then(function(account) {
-                        // After the login the language will be changed to
-                        // the language selected by the user during his registration
-                        $translate.use(account.langKey);
-                        Tracker.sendActivity();
-                    });
-                    deferred.resolve(data);
+		return service;
 
-                    return cb();
-                }).catch(function (err) {
-                    this.logout();
-                    deferred.reject(err);
-                    return cb(err);
-                }.bind(this));
+		function activateAccount(key, callback) {
+			var cb = callback || angular.noop;
 
-                return deferred.promise;
-            },
+			return Activate.get(key,
+				function (response) {
+					return cb(response);
+				},
+				function (err) {
+					return cb(err);
+				}.bind(this)).$promise;
+		}
 
-            logout: function () {
-                AuthServerProvider.logout();
-                Principal.authenticate(null);
-            },
+		function authorize(force) {
+			var authReturn = Principal.identity(force).then(authThen);
 
-            authorize: function() {
-                return Principal.identity()
-                    .then(function() {
-                        var isAuthenticated = Principal.isAuthenticated();
+			return authReturn;
 
-                        if ($rootScope.toState.data.roles && $rootScope.toState.data.roles.length > 0 && !Principal.isInAnyRole($rootScope.toState.data.roles)) {
-                            if (isAuthenticated) {
-                                // user is signed in but not authorized for desired state
-                                $state.go('accessdenied');
-                            }
-                            else {
-                                // user is not authenticated. stow the state they wanted before you
-                                // send them to the signin state, so you can return them when you're done
-                                $rootScope.returnToState = $rootScope.toState;
-                                $rootScope.returnToStateParams = $rootScope.toStateParams;
+			function authThen() {
+				var isAuthenticated = Principal.isAuthenticated();
 
-                                // now, send them to the signin state so they can log in
-                                $state.go('login');
-                            }
-                        }
-                    });
-            },
-            createAccount: function (account, callback) {
-                var cb = callback || angular.noop;
+				// an authenticated user can't access to login and register pages
+				if (isAuthenticated && $rootScope.toState.parent === 'account' && ($rootScope.toState.name === 'login' || $rootScope.toState.name === 'register')) {
+					$state.go('home');
+				}
 
-                return Register.save(account,
-                    function () {
-                        return cb(account);
-                    },
-                    function (err) {
-                        this.logout();
-                        return cb(err);
-                    }.bind(this)).$promise;
-            },
+				// recover and clear previousState after external login redirect (e.g. oauth2)
+				if (isAuthenticated && !$rootScope.fromState.name && getPreviousState()) {
+					var previousState = getPreviousState();
+					resetPreviousState();
+					$state.go(previousState.name, previousState.params);
+				}
 
-            updateAccount: function (account, callback) {
-                var cb = callback || angular.noop;
+				if ($rootScope.toState.data.authorities && $rootScope.toState.data.authorities.length > 0 && !Principal.hasAnyAuthority($rootScope.toState.data.authorities)) {
+					if (isAuthenticated) {
+						// user is signed in but not authorized for desired state
+						$state.go('accessdenied');
+					} else {
+						// user is not authenticated. stow the state they wanted before you
+						// send them to the login service, so you can return them when you're done
+						storePreviousState($rootScope.toState.name, $rootScope.toStateParams);
+						$state.go('login');
+					}
+				}
+			}
+		}
 
-                return Account.save(account,
-                    function () {
-                        return cb(account);
-                    },
-                    function (err) {
-                        return cb(err);
-                    }.bind(this)).$promise;
-            },
+		function changePassword(newPassword, callback) {
+			var cb = callback || angular.noop;
 
-            activateAccount: function (key, callback) {
-                var cb = callback || angular.noop;
+			return Password.save(newPassword, function () {
+				return cb();
+			}, function (err) {
+				return cb(err);
+			}).$promise;
+		}
 
-                return Activate.get(key,
-                    function (response) {
-                        return cb(response);
-                    },
-                    function (err) {
-                        return cb(err);
-                    }.bind(this)).$promise;
-            },
+		function createAccount(account, callback) {
+			var cb = callback || angular.noop;
 
-            changePassword: function (newPassword, callback) {
-                var cb = callback || angular.noop;
+			return Register.save(account,
+				function () {
+					return cb(account);
+				},
+				function (err) {
+					this.logout();
+					return cb(err);
+				}.bind(this)).$promise;
+		}
 
-                return Password.save(newPassword, function () {
-                    return cb();
-                }, function (err) {
-                    return cb(err);
-                }).$promise;
-            }
-        };
-    });
+		function login(credentials, callback) {
+			var cb = callback || angular.noop;
+			var deferred = $q.defer();
+
+			AuthServerProvider.login(credentials)
+				.then(loginThen)
+				.catch(function (err) {
+					this.logout();
+					deferred.reject(err);
+					return cb(err);
+				}.bind(this));
+
+			function loginThen(data) {
+				Principal.identity(true).then(function (account) {
+					// After the login the language will be changed to
+					// the language selected by the user during his registration
+					if (account !== null) {
+						$translate.use(account.langKey).then(function () {
+							$translate.refresh();
+						});
+					}
+					Tracker.sendActivity();
+					deferred.resolve(data);
+				});
+				return cb();
+			}
+
+			return deferred.promise;
+		}
+
+
+		function logout() {
+			AuthServerProvider.logout();
+			Principal.authenticate(null);
+		}
+
+		function updateAccount(account, callback) {
+			var cb = callback || angular.noop;
+
+			return Account.save(account,
+				function () {
+					return cb(account);
+				},
+				function (err) {
+					return cb(err);
+				}.bind(this)).$promise;
+		}
+
+		function getPreviousState() {
+			var previousState = $sessionStorage.previousState;
+			return previousState;
+		}
+
+		function resetPreviousState() {
+			delete $sessionStorage.previousState;
+		}
+
+		function storePreviousState(previousStateName, previousStateParams) {
+			var previousState = {
+				"name": previousStateName,
+				"params": previousStateParams
+			};
+			$sessionStorage.previousState = previousState;
+		}
+	});

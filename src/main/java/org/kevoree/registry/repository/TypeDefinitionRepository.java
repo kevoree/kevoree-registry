@@ -3,7 +3,6 @@ package org.kevoree.registry.repository;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,5 +18,5 @@ public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition, 
 
     Set<TypeDefinition> findByNamespaceName(String namespaceName);
 
-    List<TypeDefinition> findOneByNamespaceNameAndNameOrderByVersionDesc(String ns, String name);
+    Optional<TypeDefinition> findFirst1ByNamespaceNameAndNameOrderByVersionDesc(String ns, String name);
 }

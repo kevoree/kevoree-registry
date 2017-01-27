@@ -54,7 +54,7 @@ Browser Upgrade Prompt
     display: inline-block;
     width: 347px;
     height: 497px;
-    background: url("../images/hipster.png") no-repeat center top;
+    background: url("../images/kevoree.png") no-repeat center top;
     background-size: contain;
 }
 
@@ -99,6 +99,12 @@ only screen and (                min-resolution: 2dppx) {
     font-size: 10px;
 }
 
+
+.break {
+    white-space: normal;
+    word-break:break-all;
+}
+
 .voffset  { margin-top: 2px; }
 .voffset1 { margin-top: 5px; }
 .voffset2 { margin-top: 10px; }
@@ -132,6 +138,15 @@ ul#strength {
     width:20px;
 }
 /* end Password strength bar style */
+
+.kevoree {
+    display: inline-block;
+    width: 347px;
+    height: 497px;
+    background: url("../images/kevoree.png") no-repeat center top;
+    background-size: contain;
+}
+
 
 .pagination {
     margin: 0;

@@ -6,18 +6,20 @@ import org.kevoree.registry.domain.User;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
+import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.util.RandomUtil;
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
+import org.kevoree.registry.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -44,86 +46,204 @@ public class UserService {
     @Inject
     private AuthorityRepository authorityRepository;
 
+    @Inject
+    public JdbcTokenStore jdbcTokenStore;
+
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
-        userRepository.findOneByActivationKey(key)
-            .map(user -> {
-                // activate given user for the registration key.
-                user.setActivated(true);
-                user.setActivationKey(null);
-                userRepository.save(user);
-                log.debug("Activated user: {}", user);
-                return user;
-            });
-        return Optional.empty();
+        return userRepository.findOneByActivationKey(key)
+                .map(user -> {
+                    // activate given user for the registration key.
+                    user.setActivated(true);
+                    user.setActivationKey(null);
+                    log.debug("Activated user: {}", user);
+                    return user;
+                });
     }
 
-    public User createUserInformation(String login, String password, String firstName, String lastName, String email,
-                                      String langKey) {
+//    public Optional<User> completePasswordReset(String newPassword, String key) {
+//        log.debug("Reset user password for reset key {}", key);
+//
+//        return userRepository.findOneByResetKey(key)
+//                .filter(user -> {
+//                    ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
+//                    return user.getResetDate().isAfter(oneDayAgo);
+//                })
+//                .map(user -> {
+//                    user.setPassword(passwordEncoder.encode(newPassword));
+//                    user.setResetKey(null);
+//                    user.setResetDate(null);
+//                    return user;
+//                });
+//    }
+
+//    public Optional<User> requestPasswordReset(String mail) {
+//        return userRepository.findOneByEmail(mail)
+//                .filter(User::getActivated)
+//                .map(user -> {
+//                    user.setResetKey(RandomUtil.generateResetKey());
+//                    user.setResetDate(ZonedDateTime.now());
+//                    return user;
+//                });
+//    }
+
+    @Transactional
+    public User createUser(String login, String password, String firstName, String lastName, String email,
+                           String langKey) {
         User newUser = new User();
-        Authority authority = authorityRepository.findOne("ROLE_USER");
-        Set<Authority> authorities = new HashSet<>();
-        String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(login);
-        // new user gets initially a generated password
-        newUser.setPassword(encryptedPassword);
+        newUser.setPassword(passwordEncoder.encode(password)); // encode password
         newUser.setFirstName(firstName);
         newUser.setLastName(lastName);
         newUser.setEmail(email);
         newUser.setLangKey(langKey);
-        // new user is not active
-        newUser.setActivated(false);
-        // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+        newUser.setActivated(false); // not active by default
+        newUser.setActivationKey(RandomUtil.generateActivationKey()); // random activation key
+
+        // set Authority to default "USER"
+        Set<Authority> authorities = new HashSet<>();
+        Authority authority = authorityRepository.findOne(AuthoritiesConstants.USER);
         authorities.add(authority);
         newUser.setAuthorities(authorities);
+
+        // save user
         userRepository.save(newUser);
 
-        // new user gets its own namespace
+        // create associated namespace
         Namespace ns = new Namespace();
         ns.setName(newUser.getLogin());
         ns.setOwner(newUser);
         ns.addMember(newUser);
-        namespaceRepository.save(ns);
-
         newUser.addNamespace(ns);
-        userRepository.save(newUser);
+        namespaceRepository.save(ns);
 
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
-    public void updateUserInformation(String firstName, String lastName, String email) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentLogin()).ifPresent(u -> {
-            u.setFirstName(firstName);
-            u.setLastName(lastName);
-            u.setEmail(email);
-            userRepository.save(u);
-            log.debug("Changed Information for User: {}", u);
+    @Transactional
+    public User createUser(ManagedUserVM managedUserVM) {
+        User user = new User();
+        user.setLogin(managedUserVM.getLogin());
+        user.setFirstName(managedUserVM.getFirstName());
+        user.setLastName(managedUserVM.getLastName());
+        user.setEmail(managedUserVM.getEmail());
+        user.setPassword(passwordEncoder.encode(RandomUtil.generatePassword())); // randomly generated password
+        user.setActivated(true); // activated by default
+        // TODO
+        //user.setResetKey(RandomUtil.generateResetKey());
+        //user.setResetDate(ZonedDateTime.now());
+
+        if (managedUserVM.getLangKey() == null) {
+            user.setLangKey("en"); // default language
+        } else {
+            user.setLangKey(managedUserVM.getLangKey());
+        }
+
+        if (managedUserVM.getAuthorities() != null) {
+            Set<Authority> authorities = new HashSet<>();
+            managedUserVM.getAuthorities().forEach(
+                    authority -> authorities.add(authorityRepository.findOne(authority))
+            );
+            user.setAuthorities(authorities);
+        }
+
+        // save user
+        userRepository.save(user);
+
+        // new user gets its own namespace
+        Namespace ns = new Namespace();
+        ns.setName(user.getLogin());
+        ns.setOwner(user);
+        ns.addMember(user);
+        user.addNamespace(ns);
+        namespaceRepository.save(ns);
+
+        log.debug("Created Information for User: {}", user);
+        return user;
+    }
+
+    public void updateUser(String firstName, String lastName, String email, String langKey) {
+        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setEmail(email);
+            user.setLangKey(langKey);
+            log.debug("Changed Information for User: {}", user);
+        });
+    }
+
+    public void updateUser(Long id, String login, String firstName, String lastName, String email,
+                           boolean activated, String langKey, Set<String> authorities) {
+
+        Optional.of(userRepository
+                .findOne(id))
+                .ifPresent(user -> {
+                    user.setLogin(login);
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setEmail(email);
+                    user.setActivated(activated);
+                    user.setLangKey(langKey);
+                    Set<Authority> managedAuthorities = user.getAuthorities();
+                    managedAuthorities.clear();
+                    authorities.forEach(
+                            authority -> managedAuthorities.add(authorityRepository.findOne(authority))
+                    );
+                    log.debug("Changed Information for User: {}", user);
+                });
+    }
+
+    public void deleteUser(String login) {
+        jdbcTokenStore.findTokensByUserName(login).forEach(token ->
+                jdbcTokenStore.removeAccessToken(token));
+        userRepository.findOneByLogin(login).ifPresent(user -> {
+            userRepository.delete(user);
+            log.debug("Deleted User: {}", user);
         });
     }
 
     public void changePassword(String password) {
-        userRepository.findOneByLogin(SecurityUtils.getCurrentLogin()).ifPresent(u-> {
+        userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).ifPresent(user -> {
             String encryptedPassword = passwordEncoder.encode(password);
-            u.setPassword(encryptedPassword);
-            userRepository.save(u);
-            log.debug("Changed password for User: {}", u);
-        } );
+            user.setPassword(encryptedPassword);
+            log.debug("Changed password for User: {}", user);
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
+        return userRepository.findOneByLogin(login).map(user -> {
+            user.getAuthorities().size();
+            return user;
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> getUserWithAuthoritiesAndNamespacesByLogin(String login) {
+        return userRepository.findOneByLogin(login).map(user -> {
+            user.getAuthorities().size();
+            user.getNamespaces().size();
+            return user;
+        });
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserWithAuthorities(Long id) {
+        User user = userRepository.findOne(id);
+        user.getAuthorities().size(); // eagerly load the association
+        return user;
     }
 
     @Transactional(readOnly = true)
     public User getUserWithAuthorities() {
-        User currentUser = userRepository.findOneByLogin(SecurityUtils.getCurrentLogin()).get();
-        if (currentUser != null) {
-            currentUser.getAuthorities().size(); // eagerly load the association
+        Optional<User> optionalUser = userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin());
+        User user = null;
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            user.getAuthorities().size(); // eagerly load the association
         }
-        return currentUser;
-    }
-
-    public boolean hasAuthority(String authority) {
-        User user = this.getUserWithAuthorities();
-        return this.hasAuthority(user, authority);
+        return user;
     }
 
     public boolean hasAuthority(User user, String authority) {
@@ -140,10 +260,18 @@ public class UserService {
      */
     @Scheduled(cron = "0 0 1 * * ?")
     public void removeNotActivatedUsers() {
-        DateTime now = new DateTime();
+        ZonedDateTime now = ZonedDateTime.now();
         List<User> users = userRepository.findAllByActivatedIsFalseAndCreatedDateBefore(now.minusDays(3));
         for (User user : users) {
             log.debug("Deleting not activated user and namespace {}", user.getLogin());
+            for (Namespace ns : user.getNamespaces()) {
+                if (ns.getOwner().equals(user)) {
+                    namespaceRepository.delete(ns);
+                } else {
+                    ns.removeMember(user);
+                    namespaceRepository.save(ns);
+                }
+            }
             userRepository.delete(user);
         }
     }

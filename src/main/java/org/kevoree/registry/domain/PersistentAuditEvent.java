@@ -1,7 +1,5 @@
 package org.kevoree.registry.domain;
 
-import org.hibernate.annotations.Type;
-import org.joda.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.HashMap;
@@ -13,7 +11,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "T_PERSISTENT_AUDIT_EVENT")
-public class PersistentAuditEvent  {
+public class PersistentAuditEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,16 +23,14 @@ public class PersistentAuditEvent  {
     private String principal;
 
     @Column(name = "event_date")
-    @Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalDateTime")
-    private LocalDateTime auditEventDate;
-
+    private java.time.LocalDateTime auditEventDate;
     @Column(name = "event_type")
     private String auditEventType;
 
     @ElementCollection
-    @MapKeyColumn(name="name")
-    @Column(name="value")
-    @CollectionTable(name="T_PERSISTENT_AUDIT_EVENT_DATA", joinColumns=@JoinColumn(name="event_id"))
+    @MapKeyColumn(name = "name")
+    @Column(name = "value")
+    @CollectionTable(name = "T_PERSISTENT_AUDIT_EVENT_DATA", joinColumns=@JoinColumn(name="event_id"))
     private Map<String, String> data = new HashMap<>();
 
     public Long getId() {
@@ -53,11 +49,11 @@ public class PersistentAuditEvent  {
         this.principal = principal;
     }
 
-    public LocalDateTime getAuditEventDate() {
+    public java.time.LocalDateTime getAuditEventDate() {
         return auditEventDate;
     }
 
-    public void setAuditEventDate(LocalDateTime auditEventDate) {
+    public void setAuditEventDate(java.time.LocalDateTime auditEventDate) {
         this.auditEventDate = auditEventDate;
     }
 

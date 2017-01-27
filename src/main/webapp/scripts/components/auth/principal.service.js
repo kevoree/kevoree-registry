@@ -1,70 +1,94 @@
 'use strict';
 
-angular.module('kevoreeRegistryApp')
-    .factory('Principal', function Principal($q, Account, Tracker) {
-        var _identity,
-            _authenticated = false;
+angular
+	.module('kevoreeRegistryApp')
+	.factory('Principal', function ($q, Account, Tracker) {
+		var _identity,
+			_authenticated = false;
 
-        return {
-            isIdentityResolved: function () {
-                return angular.isDefined(_identity);
-            },
-            isAuthenticated: function () {
-                return _authenticated;
-            },
-            isInRole: function (role) {
-                if (!_authenticated || !_identity.roles) {
-                    return false;
-                }
+		var service = {
+			authenticate: authenticate,
+			hasAnyAuthority: hasAnyAuthority,
+			hasAuthority: hasAuthority,
+			identity: identity,
+			isAuthenticated: isAuthenticated,
+			isIdentityResolved: isIdentityResolved
+		};
 
-                return _identity.roles.indexOf(role) !== -1;
-            },
-            isInAnyRole: function (roles) {
-                if (!_authenticated || !_identity.roles) {
-                    return false;
-                }
+		return service;
 
-                for (var i = 0; i < roles.length; i++) {
-                    if (this.isInRole(roles[i])) {
-                        return true;
-                    }
-                }
+		function authenticate(identity) {
+			_identity = identity;
+			_authenticated = identity !== null;
+		}
 
-                return false;
-            },
-            authenticate: function (identity) {
-                _identity = identity;
-                _authenticated = identity !== null;
-            },
-            identity: function (force) {
-                var deferred = $q.defer();
+		function hasAnyAuthority(authorities) {
+			if (!_authenticated || !_identity || !_identity.authorities) {
+				return false;
+			}
 
-                if (force === true) {
-                    _identity = undefined;
-                }
+			for (var i = 0; i < authorities.length; i++) {
+				if (_identity.authorities.indexOf(authorities[i]) !== -1) {
+					return true;
+				}
+			}
 
-                // check and see if we have retrieved the identity data from the server.
-                // if we have, reuse it by immediately resolving
-                if (angular.isDefined(_identity)) {
-                    deferred.resolve(_identity);
+			return false;
+		}
 
-                    return deferred.promise;
-                }
+		function hasAuthority(authority) {
+			if (!_authenticated) {
+				return $q.when(false);
+			}
 
-                // retrieve the identity data from the server, update the identity object, and then resolve.
-                Account.get().$promise
-                    .then(function (account) {
-                        _identity = account.data;
-                        _authenticated = true;
-                        deferred.resolve(_identity);
-                        Tracker.connect();
-                    })
-                    .catch(function() {
-                        _identity = null;
-                        _authenticated = false;
-                        deferred.resolve(_identity);
-                    });
-                return deferred.promise;
-            }
-        };
-    });
+			return this.identity().then(function (_id) {
+				return _id.authorities && _id.authorities.indexOf(authority) !== -1;
+			}, function () {
+				return false;
+			});
+		}
+
+		function identity(force) {
+			var deferred = $q.defer();
+
+			if (force === true) {
+				_identity = undefined;
+			}
+
+			// check and see if we have retrieved the identity data from the server.
+			// if we have, reuse it by immediately resolving
+			if (angular.isDefined(_identity)) {
+				deferred.resolve(_identity);
+
+				return deferred.promise;
+			}
+
+			// retrieve the identity data from the server, update the identity object, and then resolve.
+			Account.get().$promise
+				.then(getAccountThen)
+				.catch(getAccountCatch);
+
+			return deferred.promise;
+
+			function getAccountThen(account) {
+				_identity = account.data;
+				_authenticated = true;
+				deferred.resolve(_identity);
+				Tracker.connect();
+			}
+
+			function getAccountCatch() {
+				_identity = null;
+				_authenticated = false;
+				deferred.resolve(_identity);
+			}
+		}
+
+		function isAuthenticated() {
+			return _authenticated;
+		}
+
+		function isIdentityResolved() {
+			return angular.isDefined(_identity);
+		}
+	});

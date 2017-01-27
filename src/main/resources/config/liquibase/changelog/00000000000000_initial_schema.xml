@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <databaseChangeLog
-    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <property name="now" value="now()" dbms="mysql,h2"/>
     <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+    <property name="now" value="GETDATE()" dbms="mssql"/>
 
-    <changeSet id="00000000000000" author="jhipster" dbms="postgresql">
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle,mssql"/>
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
+
+    <changeSet id="00000000000000" author="jhipster" dbms="postgresql,oracle">
         <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="1"/>
     </changeSet>
 
@@ -17,7 +25,7 @@
     -->
     <changeSet id="00000000000001" author="jhipster">
         <createTable tableName="T_USER">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="login" type="varchar(50)">
@@ -105,7 +113,7 @@
                   tableName="T_USER_AUTHORITY"/>
 
         <createTable tableName="T_PERSISTENT_AUDIT_EVENT">
-            <column name="event_id" type="bigint" autoIncrement="true">
+            <column name="event_id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="principal" type="varchar(255)">
@@ -165,7 +173,7 @@
                   tableName="T_NAMESPACE"/>
 
         <createTable tableName="T_TYPE_DEFINITION">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(50)">
@@ -205,7 +213,7 @@
         </loadData>
 
         <createTable tableName="T_DEPLOY_UNIT">
-            <column name="id" type="bigint" autoIncrement="true">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
@@ -279,17 +287,17 @@
     </changeSet>
 
     <!-- Manage the OAuth authentication -->
-    <changeSet id="2" author="jhipster">
+    <changeSet id="00000000000002" author="jhipster">
         <createTable tableName="oauth_client_details">
-            <column name="client_id" type="VARCHAR(256)">
+            <column name="client_id" type="varchar(255)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="resource_ids" type="VARCHAR(256)"/>
-            <column name="client_secret" type="VARCHAR(256)"/>
-            <column name="scope" type="VARCHAR(256)"/>
-            <column name="authorized_grant_types" type="VARCHAR(256)"/>
-            <column name="web_server_redirect_uri" type="VARCHAR(256)"/>
-            <column name="authorities" type="VARCHAR(256)"/>
+            <column name="resource_ids" type="varchar(255)"/>
+            <column name="client_secret" type="varchar(255)"/>
+            <column name="scope" type="varchar(255)"/>
+            <column name="authorized_grant_types" type="varchar(255)"/>
+            <column name="web_server_redirect_uri" type="varchar(255)"/>
+            <column name="authorities" type="varchar(255)"/>
             <column name="access_token_validity" type="INT"/>
             <column name="refresh_token_validity" type="INT"/>
             <column name="additional_information" type="VARCHAR(4096)"/>
@@ -297,52 +305,60 @@
         </createTable>
 
         <createTable tableName="oauth_client_token">
-            <column name="token_id" type="VARCHAR(256)"/>
-            <column name="token" type="BLOB"/>
-            <column name="authentication_id" type="VARCHAR(256)"/>
-            <column name="user_name" type="VARCHAR(256)"/>
-            <column name="client_id" type="VARCHAR(256)"/>
+            <column name="token_id" type="varchar(255)"/>
+            <column name="token" type="LONGBLOB"/>
+            <column name="authentication_id" type="varchar(255)"/>
+            <column name="user_name" type="varchar(50)"/>
+            <column name="client_id" type="varchar(255)"/>
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="user_name"
-            baseTableName="oauth_client_token"
-            constraintName="fk_oauth_client_token_user_name"
-            referencedColumnNames="login"
-            referencedTableName="T_USER"/>
+                                 baseTableName="oauth_client_token"
+                                 constraintName="fk_oauth_client_token_user_name"
+                                 referencedColumnNames="login"
+                                 referencedTableName="T_USER"/>
 
         <createTable tableName="oauth_access_token">
-            <column name="token_id" type="VARCHAR(256)"/>
-            <column name="token" type="BLOB"/>
-            <column name="authentication_id" type="VARCHAR(256)"/>
-            <column name="user_name" type="VARCHAR(256)"/>
-            <column name="client_id" type="VARCHAR(256)"/>
-            <column name="authentication" type="BLOB"/>
-            <column name="refresh_token" type="VARCHAR(256)"/>
+            <column name="token_id" type="varchar(255)"/>
+            <column name="token" type="LONGBLOB"/>
+            <column name="authentication_id" type="varchar(255)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="user_name" type="varchar(50)"/>
+            <column name="client_id" type="varchar(255)"/>
+            <column name="authentication" type="LONGBLOB"/>
+            <column name="refresh_token" type="varchar(255)"/>
         </createTable>
 
         <addForeignKeyConstraint baseColumnNames="user_name"
-            baseTableName="oauth_client_token"
-            constraintName="fk_oauth_access_token_user_name"
-            referencedColumnNames="login"
-            referencedTableName="T_USER"/>
+                                 baseTableName="oauth_access_token"
+                                 constraintName="fk_oauth_access_token_user_name"
+                                 referencedColumnNames="login"
+                                 referencedTableName="T_USER"/>
 
         <createTable tableName="oauth_refresh_token">
-            <column name="token_id" type="VARCHAR(256)"/>
-            <column name="token" type="BLOB"/>
-            <column name="authentication" type="BLOB"/>
+            <column name="token_id" type="varchar(255)"/>
+            <column name="token" type="LONGBLOB"/>
+            <column name="authentication" type="LONGBLOB"/>
         </createTable>
 
         <createTable tableName="oauth_code">
-            <column name="code" type="VARCHAR(256)"/>
+            <column name="code" type="varchar(255)"/>
+            <column name="authentication" type="LONGBLOB"/>
         </createTable>
 
         <createTable tableName="oauth_approvals">
-            <column name="userId" type="VARCHAR(256)"/>
-            <column name="clientId" type="VARCHAR(256)"/>
-            <column name="scope" type="VARCHAR(256)"/>
-            <column name="status" type="VARCHAR(256)"/>
+            <column name="userId" type="varchar(255)"/>
+            <column name="clientId" type="varchar(255)"/>
+            <column name="scope" type="varchar(255)"/>
+            <column name="status" type="varchar(255)"/>
             <column name="expiresAt" type="timestamp"/>
             <column name="lastModifiedAt" type="timestamp"/>
         </createTable>
+
+        <loadData encoding="UTF-8"
+                  file="config/liquibase/oauth_client_details.csv"
+                  separator=";"
+                  tableName="oauth_client_details"/>
     </changeSet>
 </databaseChangeLog>

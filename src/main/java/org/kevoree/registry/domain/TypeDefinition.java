@@ -1,7 +1,8 @@
 package org.kevoree.registry.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Type;
+import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -23,7 +24,7 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
     private Long id;
 
     @NotNull
-    @Pattern(regexp = "^[A-Z][\\w]*$")
+    @Pattern(regexp = Constants.TDEF_NAME_REGEX)
     @Size(min = 1, max = 50)
     @Column(length = 50)
     private String name;
@@ -35,13 +36,13 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
     @JsonIgnoreProperties({ "typeDefinitions" })
     private Namespace namespace;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "typeDefinition")
-    @JsonIgnoreProperties({ "typeDefinition" })
+    @OneToMany(mappedBy = "typeDefinition")
+    @JsonIgnore
     private Set<DeployUnit> deployUnits = new HashSet<>();
 
     @NotNull
-    @Type(type="org.hibernate.type.StringClobType")
     @Column(name = "model")
+    @Lob
     private String model;
 
     public Long getId() {
@@ -125,8 +126,8 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
             "id='" + id + "'" +
             ", name='" + name + "'" +
             ", version='" + version + "'" +
-            ", namespace='" + namespace.getName() + '\'' +
-            ", deployUnits=" + deployUnits +
+//            ", namespace='" + namespace.getName() + '\'' +
+//            ", deployUnits=" + deployUnits +
             ", model='" + model + '\'' +
             ", createdBy='" + getCreatedBy() + '\'' +
             ", createdDate='" + getCreatedDate()+ '\'' +

@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('MetricsController', function ($scope, MonitoringService) {
+    .controller('MetricsController', function ($scope, MetricsService) {
         $scope.metrics = {};
         $scope.updatingMetrics = true;
 
         $scope.refresh = function () {
             $scope.updatingMetrics = true;
-            MonitoringService.getMetrics().then(function (promise) {
+            MetricsService.getMetrics().then(function (promise) {
                 $scope.metrics = promise;
                 $scope.updatingMetrics = false;
             }, function (promise) {
@@ -42,7 +42,7 @@ angular.module('kevoreeRegistryApp')
         $scope.refresh();
 
         $scope.refreshThreadDumpData = function () {
-            MonitoringService.threadDump().then(function (data) {
+            MetricsService.threadDump().then(function (data) {
                 $scope.threadDump = data;
 
                 $scope.threadDumpRunnable = 0;

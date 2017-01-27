@@ -1,43 +1,92 @@
-# Disable the spring security default configuration from spring-boot-actuator
-management.security.enabled: true
-security.basic.enabled: false
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overriden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
 
-# Disable Jolokia - An http/json bridge for remote JMX access
-endpoints.jolokia.enabled: false
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
 
-# security configuration (this key should be unique for your application, and kept secret)
-jhipster.security.rememberme.key: kevoree_registry
-
-async:
-    corePoolSize: 2
-    maxPoolSize: 50
-    queueCapacity: 10000
-
+management:
+    context-path: /management
+    health:
+        mail:
+            enabled: false # When using the MailService, configure an SMTP server and set this to true
 spring:
+    application:
+        name: registry
+    profiles:
+        # The commented value for `active` can be replaced with valid Spring profiles to load.
+        # Otherwise, it will be filled in by maven when building the WAR file
+        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+        active: #spring.profiles.active#
+    jackson:
+        serialization.write_dates_as_timestamps: false
+    jpa:
+        open-in-view: false
+        hibernate:
+            ddl-auto: none
+            naming:
+                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    messages:
+        basename: i18n/messages
+    mvc:
+        favicon:
+            enabled: false
+    thymeleaf:
+        mode: XHTML
+
+security:
+    basic:
+        enabled: false
+    oauth2:
+      client:
+        client-id: kevoree_registryapp
+        client-secret: kevoree_registryapp_secret
+
+server:
+    session:
+        cookie:
+            http-only: true
+
+# ===================================================================
+# JHipster specific properties
+# ===================================================================
+jhipster:
+    async:
+        corePoolSize: 2
+        maxPoolSize: 50
+        queueCapacity: 10000
+    cors: #By default CORS are not enabled. Uncomment to enable.
+        allowed-origins: "*"
+        allowed-methods: GET
+        allowed-headers: "*"
+        exposed-headers:
+        allow-credentials: false
+        max-age: 1800
+    security:
+      authentication:
+        oauth:
+          clientId: kevoree_registryapp
+          secret: kevoree_registryapp_secret
     mail:
-        host: localhost
-        port: 25
-        user:
-        password:
-        protocol: smtp
-        tls: false
-        auth: false
         from: registry@kevoree.org
+    swagger:
+        title: Kevoree Registry API
+        description: Kevoree Registry REST API documentation
+        version: 0.0.1
+        termsOfServiceUrl:
+        contactName:
+        contactUrl:
+        contactEmail: contact@kevoree.org
+        license: LGPL-3.0
+        licenseUrl:
+    ribbon:
+        # comma separated list of profiles to show a ribbon on the GUI
+        displayOnActiveProfiles: dev
 
-    messageSource:
-        cacheSeconds: 1
-
-authentication:
-    oauth:
-        clientid: kevoree_registryapp
-        secret: kevoree_registryapp_secret
-        # Token is valid 30 minutes
-        tokenValidityInSeconds: 1800
-
-swagger:
-    title: Kevoree Registry API
-    description: Kevoree Registry API
-    termsOfServiceUrl: https://registry.kevoree.org/
-    contact:
-    license: LGPL-3.0
-    licenseUrl: http://opensource.org/licenses/lgpl-3.0.html

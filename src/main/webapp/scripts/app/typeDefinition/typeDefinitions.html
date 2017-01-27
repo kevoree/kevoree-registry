@@ -1,118 +1,114 @@
 <div class="well">
-    <fieldset>
-        <legend>Filter by:</legend>
-        <div class="col-sm-2">
-            <input type="text" class="form-control input-sm" ng-model="search.namespace.name" placeholder="Namespace">
-        </div>
-        <div class="col-xs-6 col-sm-7">
-            <input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
-        </div>
-        <div class="col-xs-6 col-sm-2">
-            <input type="text" class="form-control input-sm" ng-model="search.version" placeholder="Version">
-        </div>
-    </fieldset>
-    <hr/>
+	<fieldset>
+		<legend>Filter by:</legend>
+		<div class="col-sm-2">
+			<input type="text" class="form-control input-sm" ng-model="search.namespace.name" placeholder="Namespace">
+		</div>
+		<div class="col-xs-6 col-sm-7">
+			<input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
+		</div>
+		<div class="col-xs-6 col-sm-2">
+			<input type="text" class="form-control input-sm" ng-model="search.version" placeholder="Version">
+		</div>
+	</fieldset>
+	<hr/>
 
-    <div class="modal fade" id="deleteTypeDefinitionConfirmation">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form name="form" ng-submit="confirmDelete(tdef.id)">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                                ng-click="clear()">&times;</button>
-                        <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-danger" role="alert" ng-show="deleteError">
-                            <button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearDeleteError()">&times;</span></button>
-                            <strong>Error: </strong>{{deleteError}}
-                        </div>
-                        <p translate="kevoreeRegistryApp.typeDefinition.delete.question" translate-values="{name: '{{tdef.name}}', version: '{{tdef.version}}'}">Are you sure you want to delete Type Definition {{tdef.name}}/{{tdef.version}}?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
-                        </button>
-                        <button type="submit" ng-disabled="form.$invalid" class="btn btn-danger">
-                            <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span translate="entity.action.delete">Delete</span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+	<div class="modal fade" id="deleteTypeDefinitionConfirmation">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<form name="form" ng-submit="confirmDelete(tdef.id)">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
+						<h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
+					</div>
+					<div class="modal-body">
+						<div class="alert alert-danger" role="alert" ng-show="deleteError">
+							<button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearDeleteError()">&times;</span></button>
+							<strong>Error: </strong>{{deleteError}}
+						</div>
+						<p translate="kevoreeRegistryApp.typeDefinition.delete.question" translate-values="{name: '{{tdef.name}}', version: '{{tdef.version}}'}">Are you sure you want to delete Type Definition {{tdef.name}}/{{tdef.version}}?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+              <span class="glyphicon glyphicon-ban-circle"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.cancel">Cancel</span>
+            </button>
+						<button type="submit" ng-disabled="form.$invalid" class="btn btn-danger">
+              <span class="glyphicon glyphicon-remove-circle"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.delete">Delete</span>
+            </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 
-    <div class="row-fluid">
-        <table class="table table-bordered table-condensed table-striped">
-            <thead>
-                <tr>
-                    <th>
-                        <a href="" class="nocolor block" ng-click="changeOrderBy('namespace.name')">
-                            <span>Namespace</span>
-                            <i ng-if="orderColumn === 'namespace.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a href="" class="nocolor block" ng-click="changeOrderBy('name')">
-                            Name
-                            <i ng-if="orderColumn === 'name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
-                        </a>
-                    </th>
-                    <th>
-                        <a href="" class="nocolor block" ng-click="changeOrderBy('version')">
-                            Version
-                            <i ng-if="orderColumn === 'version'" class="glyphicon pull-right" ng-class="orderClasses"></i>
-                        </a>
-                    </th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-if="filteredTdefs.length === 0" ng-init="filteredTdefs = []">
-                    <td colspan="4" class="text-center">
-                        <em>No TypeDefinition found</em>
-                    </td>
-                </tr>
-                <tr ng-repeat="tdef in filteredTdefs = (page.content | filter:search | orderBy:orderColumn:reverse)">
-                    <td class="col-xs-2">{{ tdef.namespace.name }}</td>
-                    <td class="col-xs-7">
-                        <a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name }}</a>
-                    </td>
-                    <td class="col-xs-2">{{ tdef.version }}</td>
-                    <td class="col-xs-1">
-                        <a href="" ng-click="delete(tdef.id, $event)">
-                            <span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)" translate="entity.action.delete">Delete</span>
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+	<div class="row-fluid">
+		<table class="table table-bordered table-condensed table-striped">
+			<thead>
+				<tr>
+					<th>
+						<a href="" class="nocolor block" ng-click="changeOrderBy('namespace.name')">
+							<span>Namespace</span>
+							<i ng-if="orderColumn === 'namespace.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+						</a>
+					</th>
+					<th>
+						<a href="" class="nocolor block" ng-click="changeOrderBy('name')">
+							<span>Name</span>
+							<i ng-if="orderColumn === 'name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+						</a>
+					</th>
+					<th>
+						<a href="" class="nocolor block" ng-click="changeOrderBy('version')">
+							<span>Version</span>
+							<i ng-if="orderColumn === 'version'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+						</a>
+					</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-if="filteredTdefs.length === 0" ng-init="filteredTdefs = []">
+					<td colspan="4" class="text-center">
+						<em>No TypeDefinition found</em>
+					</td>
+				</tr>
+				<tr ng-repeat="tdef in filteredTdefs = (page.content | filter:search | orderBy:orderColumn:reverse)">
+					<td class="col-xs-2">{{ tdef.namespace.name }}</td>
+					<td class="col-xs-7">
+						<a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name }}</a>
+					</td>
+					<td class="col-xs-2">{{ tdef.version }}</td>
+					<td class="col-xs-1">
+						<a href="" ng-click="delete(tdef.id, $event)">
+							<span class="label label-danger" ng-if="isInRole('ROLE_ADMIN') || isMember(tdef)" translate="entity.action.delete">Delete</span>
+						</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 
-        <ul class="pagination pagination-sm">
-            <li ng-class="{ disabled: page.first }">
-                <a href="" aria-label="Previous"
-                   ui-sref="tdefs({ page: (page.number - 1), size: page.size, sort: page.sort })">
-                    <span aria-hidden="true">&laquo;</span>
-                </a>
-            </li>
-            <li ng-class="{ active: ($index === page.number) }"
-                ng-repeat="i in asArray(page.totalPages) track by $index">
-                <a ui-sref="tdefs({ page: $index, size: page.size, sort: page.sort })">{{ $index + 1 }}</a>
-            </li>
-            <li ng-class="{ disabled: page.last }">
-                <a href="" aria-label="Next"
-                   ui-sref="tdefs({ page: (page.number + 1), size: page.size, sort: page.sort })">
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
-        </ul>
+		<ul class="pagination pagination-sm">
+			<li ng-class="{ disabled: page.first }">
+				<a href="" aria-label="Previous" ui-sref="tdefs({ page: (page.number - 1), size: page.size, sort: page.sort })">
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li ng-class="{ active: ($index === page.number) }" ng-repeat="i in asArray(page.totalPages) track by $index">
+				<a ui-sref="tdefs({ page: $index, size: page.size, sort: page.sort })">{{ $index + 1 }}</a>
+			</li>
+			<li ng-class="{ disabled: page.last }">
+				<a href="" aria-label="Next" ui-sref="tdefs({ page: (page.number + 1), size: page.size, sort: page.sort })">
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		</ul>
 
-        <div class="btn-group pull-right">
-            <a
-                ui-sref="tdefs({ page: page.number, size: size, sort: page.sort })"
-                class="btn btn-sm btn-default"
-                ng-class="{ active: (size === page.size) }"
-                ng-repeat="size in sizes">{{ size }}</a>
-        </div>
-    </div>
+		<div class="btn-group pull-right">
+			<a ui-sref="tdefs({ page: page.number, size: size, sort: page.sort })" class="btn btn-sm btn-default" ng-class="{ active: (size === page.size) }" ng-repeat="size in sizes">{{ size }}</a>
+		</div>
+	</div>
 </div>

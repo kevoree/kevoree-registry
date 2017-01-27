@@ -1,36 +1,26 @@
 angular.module('kevoreeRegistryApp')
-    .controller('TrackerController', function ($scope) {
-        // This controller uses a Websocket connection to receive user activities in real-time.
+	.controller('TrackerController', function ($scope, Tracker) {
+		// This controller uses a Websocket connection to receive user activities in real-time.
+		$scope.activities = [];
 
-        $scope.activities = [];
-        var stompClient = null;
-        var basePath = window.location.pathname;
-        if (!basePath.endsWith('/')) {
-          basePath += '/';
-        }
-        var socket = new SockJS(basePath+'websocket/tracker');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function() {
-            stompClient.subscribe('/topic/activity', function(activity) {
-                showActivity(JSON.parse(activity.body));
-            });
-        });
+		Tracker.receive().then(null, null, function (activity) {
+			showActivity(activity);
+		});
 
-        function showActivity(activity) {
-            var existingActivity = false;
-            for (var index = 0; index < $scope.activities.length; index++) {
-                if($scope.activities[index].sessionId == activity.sessionId) {
-                    existingActivity = true;
-                    if (activity.page == 'logout') {
-                        $scope.activities.splice(index, 1);
-                    } else {
-                        $scope.activities[index] = activity;
-                    }
-                }
-            }
-            if (!existingActivity && (activity.page != 'logout')) {
-                $scope.activities.push(activity);
-            }
-            $scope.$apply();
-        }
-    });
+		function showActivity(activity) {
+			var existingActivity = false;
+			for (var index = 0; index < $scope.activities.length; index++) {
+				if ($scope.activities[index].sessionId === activity.sessionId) {
+					existingActivity = true;
+					if (activity.page === 'logout') {
+						$scope.activities.splice(index, 1);
+					} else {
+						$scope.activities[index] = activity;
+					}
+				}
+			}
+			if (!existingActivity && (activity.page !== 'logout')) {
+				$scope.activities.push(activity);
+			}
+		}
+	});

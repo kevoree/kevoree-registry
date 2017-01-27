@@ -1,9 +1,7 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
+import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -17,7 +15,6 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "T_DEPLOY_UNIT")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class DeployUnit extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -32,7 +29,7 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
     private String name;
 
     @NotNull
-    @Pattern(regexp = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$")
+    @Pattern(regexp = Constants.DU_VERSION_REGEX)
     @Size(min = 1, max = 50)
     @Column(name = "version", nullable = false, length = 50)
     private String version;
@@ -43,12 +40,13 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
     private String platform;
 
     @ManyToOne
+    @JoinColumn(name="typedefinition_id")
     @JsonIgnoreProperties({ "nbdownloads", "deployUnits" })
     private TypeDefinition typeDefinition;
 
     @NotNull
-    @Type(type="org.hibernate.type.StringClobType")
     @Column(name = "model")
+    @Lob
     private String model;
 
     @NotNull
@@ -138,7 +136,7 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
             ", name='" + name + "'" +
             ", version='" + version + "'" +
             ", platform='" + platform + "'" +
-            ", typeDefinitionId=" + typeDefinition.getId() +
+//            ", typeDefinitionId=" + typeDefinition.getId() +
             ", nbDownloads=" + nbDownloads +
             ", model='" + model + "'" +
             ", createdBy='" + getCreatedBy() + '\'' +
