@@ -9,3 +9,10 @@ id;name;version;platform;typedefinition_id;model;nbdownloads;created_by
 8;org.kevoree.library.java.ws;1.0.0;java;5;{};0;kevoree
 9;foo-du;42.0.0-SNAPSHOT;java;6;{};0;user
 10;foo-du;41.0.0;java;6;{};0;user
+11;kevoree-comp-ticker;2.0.0;js;7;{"foo": "bar"};0;kevoree
+12;kevoree-comp-ticker;3.0.0;js;8;{};0;kevoree
+13;kevoree-comp-ticker;3.1.0-alpha;js;8;{};0;kevoree
+14;kevoree-comp-ticker;3.1.0;js;8;{};0;kevoree
+15;org.kevoree.library.java.toys;3.0.0;java;8;{};0;kevoree
+16;org.kevoree.library.java.toys;5.4.0-SNAPSHOT;java;8;{};0;kevoree
+17;Org.Kevoree.Library.Ticker;5.4.0-SNAPSHOT;dotnet;8;{};0;kevoree

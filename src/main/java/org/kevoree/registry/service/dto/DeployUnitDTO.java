@@ -1,32 +1,20 @@
-package org.kevoree.registry.web.rest.dto;
+package org.kevoree.registry.service.dto;
 
 import org.kevoree.registry.domain.DeployUnit;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
-
 /**
- * DeployUnit DTO
+ *
+ * Created by leiko on 4/13/17.
  */
 public class DeployUnitDTO extends AbstractAuditingDTO {
 
     private Long id;
-
-    @NotNull
-    @Size(min = 1, max = 50)
+    private String namespace;
+    private String tdefName;
+    private Long tdefVersion;
     private String name;
-
-    @Pattern(regexp = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?(?:\\+[0-9A-Za-z-]+)?$")
-    @NotNull
-    @Size(min = 1, max = 50)
     private String version;
-
-    @NotNull
-    @Size(min = 1, max = 50)
     private String platform;
-
-    @NotNull
     private String model;
 
     public DeployUnitDTO() {}
@@ -34,21 +22,29 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
     public DeployUnitDTO(DeployUnit du) {
         super(du);
         this.id = du.getId();
+        this.namespace = du.getTypeDefinition().getNamespace().getName();
+        this.tdefName = du.getTypeDefinition().getName();
+        this.tdefVersion = du.getTypeDefinition().getVersion();
         this.name = du.getName();
         this.version = du.getVersion();
-        this.platform = du.getPlatform();
         this.model = du.getModel();
-    }
-
-    public DeployUnitDTO(String name, String version, String platform, String model) {
-        this.name = name;
-        this.version = version;
-        this.platform = platform;
-        this.model = model;
+        this.platform = du.getPlatform();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getTdefName() {
+        return tdefName;
+    }
+
+    public Long getTdefVersion() {
+        return tdefVersion;
     }
 
     public String getName() {
@@ -67,9 +63,20 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
         return model;
     }
 
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public void setTdefName(String tdefName) {
+        this.tdefName = tdefName;
+    }
+
+    public void setTdefVersion(Long tdefVersion) {
+        this.tdefVersion = tdefVersion;
     }
 
     public void setName(String name) {
@@ -90,24 +97,14 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
 
     @Override
     public String toString() {
-        if (id == null) {
-            return "DeployUnitDTO{" +
-                "name='" + name + '\'' +
-                ", version='" + version + '\'' +
-                ", platform='" + platform + '\'' +
-                ", model='" + model + '\'' +
-                '}';
-        } else {
-            return "DeployUnitDTO{" +
-                "id=" + id +
+        return "DeployUnitDTO{" +
+                "id=" + id + '\'' +
+                ", namespace='" + namespace + '\'' +
+                ", tdefName='" + tdefName + '\'' +
+                ", tdefVersion='" + tdefVersion + '\'' +
                 ", name='" + name + '\'' +
                 ", version='" + version + '\'' +
                 ", platform='" + platform + '\'' +
-                ", model='" + model + '\'' +
-                ", createdBy='" + getCreatedBy() + '\'' +
-                ", lastModifiedBy='" + getLastModifiedBy()+ '\'' +
-                ", lastModifiedDate='" + getLastModifiedDate()+ '\'' +
-                '}';
-        }
+                "}";
     }
 }

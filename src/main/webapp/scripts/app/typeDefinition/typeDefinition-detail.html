@@ -57,7 +57,7 @@
 						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
 					</td>
 					<td>
-						<div ng-repeat="(platform, dus) in tdef.deployUnits">
+						<div ng-repeat="duId in tdef.deployUnits">
 							<strong>{{ platform }}</strong>
 							<ul class="list-unstyled">
 								<li ng-repeat="du in dus | orderBy:'name'">

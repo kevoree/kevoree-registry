@@ -1,11 +1,15 @@
 <div class="well">
 	<div ng-if="namespace.owner.login === user.login" class="btn-group pull-right" role="group">
 		<button ng-click="addMember()" class="btn btn-primary">
-            <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
-        </button>
+			<span class="glyphicon glyphicon-plus-sign"></span>
+			<span>&nbsp;</span>
+			<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
+		</button>
 		<button ng-click="removeMember()" class="btn btn-warning">
-            <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.removeMember.action"> Remove a member</span>
-        </button>
+			<span class="glyphicon glyphicon-minus-sign"></span>
+			<span>&nbsp;</span>
+			<span translate="kevoreeRegistryApp.namespace.removeMember.action"> Remove a member</span>
+		</button>
 	</div>
 
 	<div class="modal fade" id="addMemberModal">
@@ -30,11 +34,15 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
-                        </button>
+							<span class="glyphicon glyphicon-ban-circle"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.cancel">Cancel</span>
+						</button>
 						<button type="submit" ng-disabled="form.$invalid" class="btn btn-success">
-                            <span class="glyphicon glyphicon-plus-sign"></span>&nbsp;<span translate="entity.action.add">Add</span>
-                        </button>
+							<span class="glyphicon glyphicon-plus-sign"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.add">Add</span>
+						</button>
 					</div>
 				</form>
 			</div>
@@ -57,17 +65,21 @@
 						<div class="modal-body">
 							<div class="form-group">
 								<label translate="kevoreeRegistryApp.namespace.removeMember.user">Select the user to remove</label>
-								<select class="form-control" ng-model="selectedMember" ng-options="member as member.login for member in namespace.members"></select>
+								<select class="form-control" ng-model="selectedMember" ng-options="member as member for member in namespace.members"></select>
 							</div>
 						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-                            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span translate="entity.action.cancel">Cancel</span>
-                        </button>
+							<span class="glyphicon glyphicon-ban-circle"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.cancel">Cancel</span>
+						</button>
 						<button type="submit" ng-disabled="form.$invalid" class="btn btn-warning">
-                            <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;<span translate="entity.action.remove">Remove</span>
-                        </button>
+							<span class="glyphicon glyphicon-minus-sign"></span>
+							<span>&nbsp;</span>
+							<span translate="entity.action.remove">Remove</span>
+						</button>
 					</div>
 				</form>
 			</div>
@@ -93,13 +105,13 @@
 					<td>
 						<span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
 					</td>
-					<td>{{ namespace.owner.login }}</td>
+					<td>{{ namespace.owner }}</td>
 				</tr>
 				<tr>
 					<td>
 						<span translate="kevoreeRegistryApp.namespace.members">Members</span>
 					</td>
-					<td>{{ namespace.members | list:'login' }}</td>
+					<td>{{ namespace.members | list }}</td>
 				</tr>
 				<tr>
 					<td>
@@ -107,7 +119,7 @@
 					</td>
 					<td>
 						<ul class="list-unstyled">
-							<li ng-repeat="tdef in namespace.typeDefinitions | orderBy:'name'">
+							<li ng-repeat="tdef in typeDefinitions | orderBy:'name'">
 								<a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name + '/' + tdef.version }}</a>
 							</li>
 						</ul>
@@ -118,6 +130,8 @@
 	</div>
 
 	<button type="submit" ui-sref="namespaces" class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.namespace.home.title"> Back</span>
-    </button>
+		<span class="glyphicon glyphicon-arrow-left"></span>
+		<span>&nbsp;</span>
+		<span translate="kevoreeRegistryApp.namespace.home.title"> Back</span>
+	</button>
 </div>

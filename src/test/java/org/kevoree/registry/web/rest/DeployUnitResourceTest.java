@@ -13,7 +13,7 @@ import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
+import org.kevoree.registry.service.dto.DeployUnitDTO;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -106,7 +106,11 @@ public class DeployUnitResourceTest {
     @Before
     public void initTest() {
         tdef = tdefsRepository.findOne(2L);
-        deployUnit = new DeployUnitDTO(DEFAULT_NAME, DEFAULT_VERSION, DEFAULT_PLATFORM, DEFAULT_MODEL);
+        deployUnit = new DeployUnitDTO();
+        deployUnit.setName(DEFAULT_NAME);
+        deployUnit.setVersion(DEFAULT_VERSION);
+        deployUnit.setPlatform(DEFAULT_PLATFORM);
+        deployUnit.setModel(DEFAULT_MODEL);
     }
 
     @Test

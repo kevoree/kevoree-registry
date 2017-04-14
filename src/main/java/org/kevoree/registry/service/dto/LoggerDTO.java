@@ -1,4 +1,4 @@
-package org.kevoree.registry.web.rest.dto;
+package org.kevoree.registry.service.dto;
 
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.annotation.JsonCreator;

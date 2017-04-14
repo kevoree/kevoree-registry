@@ -13,11 +13,13 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.NamespaceService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.service.dto.ErrorDTO;
+import org.kevoree.registry.service.dto.NamedDTO;
 import org.kevoree.registry.service.dto.NamespaceDTO;
+import org.kevoree.registry.service.dto.UserDTO;
 import org.kevoree.registry.service.mapper.NamespaceMapper;
-import org.kevoree.registry.web.rest.dto.ErrorDTO;
-import org.kevoree.registry.web.rest.dto.NamedDTO;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
+import org.kevoree.registry.web.rest.vm.NamespaceDetailVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -30,10 +32,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing models.
@@ -67,10 +71,13 @@ public class NamespaceResource {
      */
     @GetMapping("/namespaces")
     @Timed
-    public ResponseEntity<List<NamespaceDTO>> getNamespaces(@ApiParam Pageable pageable) throws URISyntaxException {
+    public ResponseEntity<List<NamespaceDetailVM>> getNamespaces(@ApiParam Pageable pageable) throws URISyntaxException {
         log.debug("REST request to get pageable namespaces for user: {}", SecurityUtils.getCurrentUserLogin());
         Page<Namespace> page = namespaceRepository.findAll(pageable);
-        List<NamespaceDTO> namespaceDTOs = namespaceMapper.namespacesToNamespaceDTOs(page.getContent());
+        List<NamespaceDetailVM> namespaceDTOs = page.getContent()
+                .stream()
+                .map(NamespaceDetailVM::new)
+                .collect(Collectors.toList());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/namespaces");
         return new ResponseEntity<>(namespaceDTOs, headers, HttpStatus.OK);
     }
@@ -78,13 +85,42 @@ public class NamespaceResource {
     /**
      * GET  /namespaces/:name -> get a precise namespace
      */
-    @GetMapping("/namespaces/{name:" + Constants.TDEF_NAME_REGEX + "}")
+    @GetMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}")
     @Timed
-    public ResponseEntity<Namespace> getNamespace(@PathVariable String name) {
+    @Transactional
+    public ResponseEntity<NamespaceDTO> getNamespace(@PathVariable String name) {
         log.debug("REST request to get namespace: {}", name);
         return Optional.ofNullable(namespaceRepository.findOne(name))
-            .map(namespace -> new ResponseEntity<>(namespace,HttpStatus.OK))
+            .map(namespace -> {
+                namespace.getTypeDefinitions().size();
+                return new ResponseEntity<>(namespaceMapper.namespaceToNamespaceDTO(namespace), HttpStatus.OK);
+            })
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /namespaces/:name/members -> get namespace members
+     */
+    @GetMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}/members")
+    @Timed
+    public ResponseEntity<List<String>> getNamespaceMembers(@PathVariable String name) {
+        log.debug("REST request to get namespace members: {}", name);
+        return Optional.ofNullable(namespaceRepository.findOne(name))
+                .map(namespace -> new ResponseEntity<>(namespace.getMembers().stream()
+                        .map(User::getLogin).collect(Collectors.toList()), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
+     * GET  /namespaces/:name/owner -> get namespace's owner
+     */
+    @GetMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}/owner")
+    @Timed
+    public ResponseEntity<UserDTO> getNamespaceOwner(@PathVariable String name) {
+        log.debug("REST request to get namespace owner: {}", name);
+        return Optional.ofNullable(namespaceRepository.findOne(name))
+                .map(namespace -> new ResponseEntity<>(new UserDTO(namespace.getOwner()), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
@@ -167,7 +203,7 @@ public class NamespaceResource {
     /**
      * DELETE  /namespace/{name}/members/{member} -> remove a member from a namespace
      */
-    @DeleteMapping("/namespaces/{name:" + Constants.TDEF_NAME_REGEX + "}/members/{member:" + Constants.LOGIN_REGEX + "}")
+    @DeleteMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}/members/{member:" + Constants.LOGIN_REGEX + "}")
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> removeMemberFromNamespace(@PathVariable String name, @PathVariable String member) {
@@ -211,7 +247,7 @@ public class NamespaceResource {
     /**
      * DELETE  /namespaces/{name} -> delete the "name" namespace.
      */
-    @DeleteMapping("/namespaces/{name:" + Constants.TDEF_NAME_REGEX + "}")
+    @DeleteMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}")
     @Timed
     @Secured(AuthoritiesConstants.USER)
     public ResponseEntity<?> delete(@PathVariable String name) {

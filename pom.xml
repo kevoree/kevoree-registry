@@ -693,9 +693,6 @@
     </profile>
     <profile>
       <id>dev2</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
       <dependencies>
         <dependency>
           <groupId>org.springframework.boot</groupId>

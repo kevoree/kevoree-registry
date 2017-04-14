@@ -1,6 +1,7 @@
 package org.kevoree.registry.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.kevoree.registry.config.Constants;
 import org.kevoree.registry.domain.Authority;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
@@ -11,9 +12,11 @@ import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.service.TypeDefinitionService;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.web.rest.dto.ErrorDTO;
-import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
+import org.kevoree.registry.service.dto.ErrorDTO;
+import org.kevoree.registry.service.dto.TypeDefinitionDTO;
+import org.kevoree.registry.service.mapper.TypeDefinitionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -25,9 +28,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing models.
@@ -42,6 +44,9 @@ public class TypeDefinitionResource {
     private TypeDefinitionRepository tdefsRepository;
 
     @Inject
+    private TypeDefinitionService tdefsService;
+
+    @Inject
     private UserRepository userRepository;
 
     @Inject
@@ -53,45 +58,28 @@ public class TypeDefinitionResource {
     @Inject
     private NamespaceRepository namespaceRepository;
 
+    @Inject
+    private TypeDefinitionMapper tdefMapper;
+
     /**
      * GET  /tdefs -> returns all tdefs
      */
     @GetMapping("/tdefs")
     @Timed
-    List<TypeDefinition> getTypeDefinitions() {
+    public Set<TypeDefinitionDTO> getTypeDefinitions() {
         log.debug("REST request to get all TypeDefinitions");
-        return tdefsRepository.findAll();
+        return tdefsService.getAll();
     }
-
-//    /**
-//     * GET  /tdefs -> returns all latest tdefs
-//     */
-//    @RequestMapping(value = "/tdefs/latest",
-//            method = RequestMethod.GET,
-//            produces = MediaType.APPLICATION_JSON_VALUE)
-//    @Timed
-//    List<TypeDefinition> getLatestTypeDefinitions() {
-//        log.debug("REST request to get all latest TypeDefinitions");
-//        List<TypeDefinition> latestTdefs = new ArrayList<>();
-//        for (TypeDefinition tdef : tdefsRepository.findAllDistinctName()) {
-//            Optional<TypeDefinition> latestTdef = tdefsRepository.findFirst1ByNamespaceNameAndNameOrderByVersionDesc(
-//                    tdef.getNamespace().getName(), tdef.getName());
-//            if (latestTdef.isPresent()) {
-//                latestTdefs.add(latestTdef.get());
-//            }
-//        }
-//
-//        return latestTdefs;
-//    }
 
     /**
      * GET  /tdefs -> returns all tdefs
      */
     @GetMapping("/tdefs/page")
     @Timed
-    public Page<TypeDefinition> getPageableTypeDefinitions(Pageable pageable) {
-        log.debug("REST request to get paged TypeDefinitions (index={}, size={})", pageable.getPageNumber(), pageable.getPageSize());
-        return tdefsRepository.findAll(pageable);
+    public Page<TypeDefinitionDTO> getPageableTypeDefinitions(Pageable pageable) {
+        log.debug("REST request to get paged TypeDefinitions (index={}, size={})", pageable.getPageNumber(),
+                pageable.getPageSize());
+        return tdefsService.getPage(pageable);
     }
 
     /**
@@ -102,53 +90,89 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/tdefs/{id:[\\d]+}")
     @Timed
-    public ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable Long id) {
-        log.debug("REST request to get TypeDefinition : {}", id);
-        TypeDefinition tdef = tdefsRepository.findOne(id);
-        return Optional.ofNullable(tdef)
-            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<TypeDefinitionDTO> getTypeDefinition(@PathVariable Long id) {
+        log.debug("REST request to get TypeDefinition by id={}", id);
+        return Optional.of(tdefsService.findOne(id))
+                .map(tdef -> new ResponseEntity<>(tdefMapper.typeDefinitionToTypeDefinitionDTO(tdef), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+
     /**
-     * GET  /namespaces/:namespace/tdefs -> get a list of typeDefinitions from a specific namespace
+     * GET  /namespaces/:namespace/tdefs -> get the typeDefinitions of a specific namespace
      */
-    @GetMapping("/namespaces/{namespace}/tdefs")
+    @GetMapping("/namespaces/{namespace:" + Constants.NS_NAME_REGEX + "}/tdefs")
     @Timed
-    ResponseEntity<Set<TypeDefinition>> getTypeDefinitions(@PathVariable String namespace) {
-        log.debug("REST request to get TypeDefinitions from Namespace: {}", namespace);
-        return new ResponseEntity<>(tdefsRepository.findByNamespaceName(namespace), HttpStatus.OK);
+    public ResponseEntity<Set<TypeDefinitionDTO>> getNamespaceTdefs(@PathVariable String namespace,
+                                                                    @RequestParam(required = false) String version) {
+        log.debug("REST request to get namespace tdefs: {}", namespace);
+        Set<TypeDefinitionDTO> tdefs = tdefsService.getAllByNamespace(namespace);
+        // TODO try to do this in one big SQL query?
+        Map<String, TypeDefinitionDTO> latestTdefs = new HashMap<>();
+        if (version != null && version.equals("latest")) {
+            tdefs.forEach(tdef -> {
+                TypeDefinitionDTO latest = latestTdefs.get(tdef.getName());
+                if (latest != null) {
+                    if (latest.getVersion() < tdef.getVersion()) {
+                        latestTdefs.put(tdef.getName(), tdef);
+                    }
+                } else {
+                    latestTdefs.put(tdef.getName(), tdef);
+                }
+            });
+
+            tdefs = latestTdefs.values().stream().collect(Collectors.toSet());
+        }
+        return new ResponseEntity<>(tdefs, HttpStatus.OK);
     }
 
     /**
      * GET  /namespaces/:namespace/tdefs/:name -> get a list of typeDefinitions from a specific namespace and name
      */
-    @GetMapping("/namespaces/{namespace}/tdefs/{name}")
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}")
     @Timed
-    ResponseEntity<Set<TypeDefinition>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace, @PathVariable String name) {
+    ResponseEntity<Set<TypeDefinitionDTO>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace,
+                                                                             @PathVariable String name) {
         log.debug("REST request to get TypeDefinitions: {}.{}", namespace, name);
-        return new ResponseEntity<>(tdefsRepository.findByNamespaceNameAndName(namespace, name), HttpStatus.OK);
+        return new ResponseEntity<>(tdefsService.getAllByNamespaceAndName(namespace, name), HttpStatus.OK);
+    }
+
+    /**
+     * GET /namespaces/:namespace/tdef/:name/latest -> the latest tdef of a specfic namespace and name
+     *
+     * @param namespace the name of the namespace you want to find TypeDefinition from
+     * @param name the name of the latest typeDefinition
+     * @return the ResponseEntity with status 200 (OK) and with body the typeDefinition, or with status 404 (Not Found)
+     */
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}/latest")
+    public ResponseEntity<TypeDefinitionDTO> getLatestTypeDefinition(@PathVariable String namespace,
+                                                                     @PathVariable String name) {
+        log.debug("REST request to get the latest TypeDefinition for {}.{}", namespace, name);
+        return tdefsService.findLatestByNamespaceAndName(namespace, name)
+                .map(tdef -> new ResponseEntity<>(new TypeDefinitionDTO(tdef), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
      * GET  /namespaces/:namespace/tdefs/:name/:version -> get a precise type definition
      */
-    @GetMapping("/namespaces/{namespace}/tdefs/{name}/{version}")
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}/{version:[\\d]+}")
     @Timed
-    ResponseEntity<TypeDefinition> getTypeDefinition(@PathVariable String namespace, @PathVariable String name, @PathVariable Long version) {
+    public ResponseEntity<TypeDefinitionDTO> getTypeDefinition(@PathVariable String namespace, @PathVariable String name,
+                                                        @PathVariable Long version) {
         log.debug("REST request to get TypeDefinition: {}.{}/{}", namespace, name, version);
-        return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version)
-            .map(tdef -> new ResponseEntity<>(tdef, HttpStatus.OK))
+        return tdefsService.findByNamespaceAndNameAndVersion(namespace, name, version)
+            .map(tdef -> new ResponseEntity<>(tdefMapper.typeDefinitionToTypeDefinitionDTO(tdef), HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**
      * POST  /namespaces/:namespace/tdefs -> add type definition
      */
-    @PostMapping("/namespaces/{namespace}/tdefs")
+    @PostMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs")
     @Timed
     @Secured(AuthoritiesConstants.USER)
-    ResponseEntity<?> addTypeDefinition(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
+    public ResponseEntity<?> addTypeDefinition(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
         log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin())
             .map(user ->
@@ -179,10 +203,11 @@ public class TypeDefinitionResource {
     /**
      * DELETE  /namespaces/{namespace}/tdefs/{name}/{version} -> delete the namespace.Name/Version TypeDefinition
      */
-    @DeleteMapping("/namespaces/{namespace}/tdefs/{name}/{version}")
+    @DeleteMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}/{version:[\\d]+}")
     @Timed
     @Secured(AuthoritiesConstants.USER)
-    public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name, @PathVariable Long version) {
+    public ResponseEntity<?> delete(@PathVariable String namespace, @PathVariable String name,
+                                    @PathVariable Long version) {
         log.debug("REST request to delete TypeDefinition : {}.{}/{}", namespace, name, version);
         Namespace ns = namespaceRepository.findOne(namespace);
         if (ns == null) {
@@ -217,7 +242,7 @@ public class TypeDefinitionResource {
     /**
      * DELETE  /namespaces/{namespace}/tdefs/{name} -> delete all namespace.Name TypeDefinitions
      */
-    @DeleteMapping("/namespaces/{namespace}/tdefs/{name}")
+    @DeleteMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}")
     @Timed
     @Secured(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteAll(@PathVariable String namespace, @PathVariable String name) {
@@ -256,23 +281,5 @@ public class TypeDefinitionResource {
         log.debug("REST request to delete TypeDefinition with id: {}", id);
         TypeDefinition tdef = tdefsRepository.findOne(id);
         return this.delete(tdef.getNamespace().getName(), tdef.getName(), tdef.getVersion());
-    }
-
-    /**
-     * GET /namespaces/:namespace/tdef/:name/latest
-     *
-     * @param namespace the name of the namespace you want to find TypeDefinition from
-     * @param name the name of the latest typeDefinition
-     * @return the ResponseEntity with status 200 (OK) and with body the typeDefinition, or with status 404 (Not Found)
-     */
-    @GetMapping("/namespaces/{namespace}/tdef/{name}/latest")
-    public ResponseEntity<TypeDefinitionDTO> getLatestTypeDefinition(@PathVariable String namespace, @PathVariable String name) {
-        log.debug("REST request to get the latest TypeDefinition for {}.{}", namespace, name);
-        Optional<TypeDefinition> tdef = tdefsRepository.findFirst1ByNamespaceNameAndNameOrderByVersionDesc(namespace, name);
-        if (!tdef.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new TypeDefinitionDTO(tdef.get()), HttpStatus.OK);
-        }
     }
 }

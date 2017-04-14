@@ -3,6 +3,7 @@ package org.kevoree.registry.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.github.zafarkhaja.semver.Version;
 import io.swagger.annotations.ApiParam;
+import org.kevoree.registry.config.Constants;
 import org.kevoree.registry.domain.*;
 import org.kevoree.registry.repository.AuthorityRepository;
 import org.kevoree.registry.repository.DeployUnitRepository;
@@ -12,16 +13,17 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.service.dto.DeployUnitDTO;
+import org.kevoree.registry.service.dto.ErrorDTO;
+import org.kevoree.registry.service.mapper.DeployUnitMapper;
 import org.kevoree.registry.service.util.SemverUtil;
-import org.kevoree.registry.web.rest.dto.DeployUnitDTO;
-import org.kevoree.registry.web.rest.dto.ErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +63,9 @@ public class DeployUnitResource {
     @Inject
     private UserService userService;
 
+    @Inject
+    private DeployUnitMapper duMapper;
+
     /**
      * POST  /namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus : Create a new deployUnit.
      *
@@ -71,14 +76,13 @@ public class DeployUnitResource {
      * @return the ResponseEntity with status 201 (Created) and with body the new deployUnit, or with status 400 (Bad Request) if the deployUnit has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
-        method = RequestMethod.POST,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus")
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> createDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                               @PathVariable Long tdefVersion,
-                                              @Valid @RequestBody DeployUnitDTO deployUnit) throws URISyntaxException {
+                                              @Valid @RequestBody DeployUnitDTO deployUnit)
+            throws URISyntaxException {
         log.debug("REST user \"{}\" request to create DeployUnit: {} for {}.{}/{}", SecurityUtils.getCurrentUserLogin(),
                 deployUnit, namespace, tdefName, tdefVersion);
         if (deployUnit.getId() == null) {
@@ -120,9 +124,7 @@ public class DeployUnitResource {
      * or with status 500 (Internal Server Error) if the deployUnit couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus/{name}/{version}/{platform:.+}")
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> updateDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
@@ -188,25 +190,22 @@ public class DeployUnitResource {
     /**
      * GET  /dus -> returns all dus
      */
-    @RequestMapping(value = "/dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/dus")
     @Timed
-    public List<DeployUnit> getDeployUnits(@ApiParam Pageable pageable) {
+    public List<DeployUnitDTO> getDeployUnits(@ApiParam Pageable pageable) {
         log.debug("REST request to get all DeployUnits");
-        return duRepository.findAll(pageable).getContent();
+        return duMapper.deployUnitsToDeployUnitDTOs(duRepository.findAll(pageable).getContent());
     }
 
     /**
      * GET  /dus/page -> returns pageable dus
      */
-    @RequestMapping(value = "/dus/page",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/dus/page")
     @Timed
-    public Page<DeployUnit> getPageableDeployUnits(Pageable pageable) {
+    public Page<DeployUnitDTO> getPageableDeployUnits(Pageable pageable) {
         log.debug("REST request to get paged DeployUnits (index={}, size={})", pageable.getPageNumber(), pageable.getPageSize());
-        return duRepository.findAll(pageable);
+        Page<DeployUnit> page = duRepository.findAll(pageable);
+        return new PageImpl<>(duMapper.deployUnitsToDeployUnitDTOs(page.getContent()), pageable, page.getTotalElements());
     }
 
     /**
@@ -215,15 +214,13 @@ public class DeployUnitResource {
      * @param id the id of the deployUnit to retrieve
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/dus/{id:[\\d]+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/dus/{id:[\\d]+}")
     @Timed
-    public ResponseEntity<DeployUnit> getDeployUnit(@PathVariable Long id) {
+    public ResponseEntity<DeployUnitDTO> getDeployUnit(@PathVariable Long id) {
         log.debug("REST request to get DeployUnit : {}", id);
         DeployUnit deployUnit = duRepository.findOne(id);
         return Optional.ofNullable(deployUnit)
-            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
+            .map(du -> new ResponseEntity<>(new DeployUnitDTO(du), HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -233,13 +230,11 @@ public class DeployUnitResource {
      * @param namespace the name of the namespace you want to list deployUnits from
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/dus")
     @Timed
-    public Set<DeployUnit> getDeployUnits(@PathVariable String namespace) {
+    public Set<DeployUnitDTO> getDeployUnits(@PathVariable String namespace) {
         log.debug("REST request to get DeployUnits from Namespace : {}", namespace);
-        return duRepository.findByNamespace(namespace);
+        return duMapper.deployUnitsToDeployUnitDTOs(duRepository.findByNamespace(namespace));
     }
 
     /**
@@ -250,38 +245,57 @@ public class DeployUnitResource {
      * @param tdefName the name of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/dus")
     @Timed
-    public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName) {
+    public Set<DeployUnitDTO> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName) {
         log.debug("REST request to get DeployUnits from Namespace: {} and TypeDefinition: {}", namespace, tdefName);
-        return duRepository.findByNamespaceAndTypeDefinition(namespace, tdefName);
+        return duMapper.deployUnitsToDeployUnitDTOs(duRepository.findByNamespaceAndTypeDefinition(namespace, tdefName));
     }
 
     /**
-     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus : get the all the deployUnits attached to a
-     * specified namespace and a specified typeDefinition name and version
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus : get all the deployUnits attached to a
+     * specific "namespace.TypeDefinition/version"
+     * Filtering results by query params "platform" and "version"
+     *   - platform: comma separated list of strings (ie. js,java)
+     *   - version:  latest | release | semver range
      *
      * @param namespace the name of the namespace you want to list deployUnits from
      * @param tdefName the name of the typeDefinition
      * @param tdefVersion the version of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus")
     @Timed
     public ResponseEntity<?> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
-                                            @PathVariable Long tdefVersion) {
-        log.debug("REST request to get DeployUnits from Namespace: {} and TypeDefinition: {}/{}",
-            namespace, tdefName, tdefVersion);
+                                            @PathVariable Long tdefVersion,
+                                            @RequestParam(required = false) String platform,
+                                            @RequestParam(required = false) String version) {
+        log.debug("REST request to get all deployUnits from {}.{}/{} (platform={},version={})",
+            namespace, tdefName, tdefVersion, platform, version);
         Optional<Namespace> ns = Optional.ofNullable(nsRepository.findOne(namespace));
         if (ns.isPresent()) {
             if (tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion).isPresent()) {
-                Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(
-                    namespace, tdefName, tdefVersion);
-                return new ResponseEntity<>(dus, HttpStatus.OK);
+                Set<DeployUnit> dus = duRepository
+                        .findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion)
+                        .stream()
+                        .filter(duService.filterByPlatform(platform))
+                        .collect(Collectors.toSet());
+
+                if (version != null) {
+                    switch (version) {
+                        case "latest":
+                            dus = duService.onlyLatests(dus);
+                            break;
+                        case "release":
+                            dus = duService.onlyReleases(dus);
+                            break;
+                        default:
+                            dus = duService.satisfies(dus, version);
+                            break;
+                    }
+                }
+
+                return new ResponseEntity<>(duMapper.deployUnitsToDeployUnitDTOs(dus), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(
                     new ErrorDTO("Unable to find TypeDefinition " + namespace + "." + tdefName + "/" + tdefVersion),
@@ -302,16 +316,14 @@ public class DeployUnitResource {
      * @param name the name of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name:.+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus/{name:.+}")
     @Timed
-    public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
+    public Set<DeployUnitDTO> getDeployUnitsByName(@PathVariable String namespace, @PathVariable String tdefName,
                                           @PathVariable Long tdefVersion, @PathVariable String name) {
         log.debug("REST request to get DeployUnits {} from Namespace: {} and TypeDefinition: {}/{}", name,
             namespace, tdefName, tdefVersion);
-        return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
-            namespace, tdefName, tdefVersion, name);
+        return duMapper.deployUnitsToDeployUnitDTOs(duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndName(
+                namespace, tdefName, tdefVersion, name));
     }
 
     /**
@@ -325,17 +337,17 @@ public class DeployUnitResource {
      * @param version the version of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version:.+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus/{name}/{version:.+}")
     @Timed
-    public Set<DeployUnit> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
+    public Set<DeployUnitDTO> getDeployUnitsByNameAndVersion(@PathVariable String namespace, @PathVariable String tdefName,
                                           @PathVariable Long tdefVersion, @PathVariable String name,
                                           @PathVariable String version) {
         log.debug("REST request to get DeployUnits {}-{} from Namespace: {} and TypeDefinition: {}/{}", name, version,
             namespace, tdefName, tdefVersion);
-        return duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersion(
-            namespace, tdefName, tdefVersion, name, version);
+        return duMapper.deployUnitsToDeployUnitDTOs(
+                duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersion(
+                        namespace, tdefName, tdefVersion, name, version)
+        );
     }
 
     /**
@@ -350,18 +362,16 @@ public class DeployUnitResource {
      * @param platform the platform of the DeployUnits
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus/{name}/{version}/{platform:.+}")
     @Timed
-    public ResponseEntity<DeployUnit> getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
+    public ResponseEntity<DeployUnitDTO> getDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                                     @PathVariable Long tdefVersion, @PathVariable String name,
                                                     @PathVariable String version, @PathVariable String platform) {
         log.debug("REST request to get DeployUnits {}-{}-{} from Namespace: {} and TypeDefinition: {}/{}", name,
             version, platform, namespace, tdefName, tdefVersion);
         return duRepository.findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
             namespace, tdefName, tdefVersion, name, version, platform)
-            .map(du -> new ResponseEntity<>(du, HttpStatus.OK))
+            .map(du -> new ResponseEntity<>(new DeployUnitDTO(du), HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -371,9 +381,7 @@ public class DeployUnitResource {
      * @param id the id of the deployUnit to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @RequestMapping(value = "/dus/{id}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/dus/{id}")
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable Long id) {
@@ -402,9 +410,7 @@ public class DeployUnitResource {
      * @param platform the platform of the DeployUnits
      * @return the ResponseEntity with status 200 (OK), or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/dus/{name}/{version}/{platform:.+}",
-        method = RequestMethod.DELETE,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/dus/{name}/{version}/{platform:.+}")
     @Timed
     @RolesAllowed(AuthoritiesConstants.USER)
     public ResponseEntity<?> deleteDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
@@ -449,9 +455,7 @@ public class DeployUnitResource {
      * @param platform the name of the platform
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/latest-dus/{platform:.+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/latest-dus/{platform:.+}")
     @Timed
     public ResponseEntity<DeployUnit> getLatestDeployUnit(@PathVariable String namespace, @PathVariable String tdefName,
                                                           @PathVariable Long tdefVersion, @PathVariable String platform) {
@@ -474,11 +478,9 @@ public class DeployUnitResource {
      * @param tdefVersion the version of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/latest-dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/latest-dus")
     @Timed
-    public ResponseEntity<Collection<DeployUnitDTO>> getLatestDeployUnitForPlatforms(@PathVariable String namespace, @PathVariable String tdefName,
+    public ResponseEntity<Set<DeployUnitDTO>> getLatestDeployUnitForPlatforms(@PathVariable String namespace, @PathVariable String tdefName,
                                                                                      @PathVariable Long tdefVersion) {
         log.debug("REST request to get the latest DeployUnits for {}.{}/{} for each platform", namespace, tdefName, tdefVersion);
         Set<DeployUnit> dus = duRepository.findByNamespaceAndTypeDefinitionAndTypeDefinitionVersion(namespace, tdefName, tdefVersion);
@@ -492,7 +494,7 @@ public class DeployUnitResource {
                     dusByPlatform.put(sortedDus.get(i).getPlatform(), new DeployUnitDTO(sortedDus.get(i)));
                 }
             }
-            return new ResponseEntity<>(dusByPlatform.values(), HttpStatus.OK);
+            return new ResponseEntity<>(dusByPlatform.values().stream().collect(Collectors.toSet()), HttpStatus.OK);
         }
     }
 
@@ -506,9 +508,7 @@ public class DeployUnitResource {
      * @param platform the name of the platform
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnit, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/released-dus/{platform:.+}",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/released-dus/{platform:.+}")
     @Timed
     public ResponseEntity<DeployUnit> getLatestReleasedDeployUnit(@PathVariable String namespace,
                                                                   @PathVariable String tdefName, @PathVariable Long tdefVersion, @PathVariable String platform) {
@@ -537,9 +537,7 @@ public class DeployUnitResource {
      * @param tdefVersion the version of the typeDefinition
      * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/namespaces/{namespace}/tdefs/{tdefName}/{tdefVersion}/released-dus",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/released-dus")
     @Timed
     public ResponseEntity<Collection<DeployUnitDTO>> getLatestReleasedDeployUnitForPlatforms(
         @PathVariable String namespace, @PathVariable String tdefName, @PathVariable Long tdefVersion) {

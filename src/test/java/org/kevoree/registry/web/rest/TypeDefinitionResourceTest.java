@@ -13,7 +13,7 @@ import org.kevoree.registry.repository.TypeDefinitionRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.UserService;
-import org.kevoree.registry.web.rest.dto.TypeDefinitionDTO;
+import org.kevoree.registry.service.dto.TypeDefinitionDTO;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

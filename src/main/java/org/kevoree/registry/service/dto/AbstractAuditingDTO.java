@@ -1,4 +1,4 @@
-package org.kevoree.registry.web.rest.dto;
+package org.kevoree.registry.service.dto;
 
 import org.kevoree.registry.domain.AbstractAuditingEntity;
 

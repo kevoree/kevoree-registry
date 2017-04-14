@@ -1,4 +1,4 @@
-package org.kevoree.registry.web.rest.dto;
+package org.kevoree.registry.service.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;

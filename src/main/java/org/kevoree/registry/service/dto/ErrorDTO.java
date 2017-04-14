@@ -1,4 +1,4 @@
-package org.kevoree.registry.web.rest.dto;
+package org.kevoree.registry.service.dto;
 
 /**
  * Created by leiko on 04/02/15.

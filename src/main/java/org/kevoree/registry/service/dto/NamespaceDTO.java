@@ -2,6 +2,7 @@ package org.kevoree.registry.service.dto;
 
 import org.kevoree.registry.config.Constants;
 import org.kevoree.registry.domain.Namespace;
+import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
 
 import javax.validation.constraints.Pattern;
@@ -25,18 +26,21 @@ public class NamespaceDTO {
     private String owner;
 
     private Set<String> members = new HashSet<>();
+    private Set<Long> typeDefinitions = new HashSet<>();
 
     public NamespaceDTO() {}
 
     public NamespaceDTO(Namespace ns) {
         this(ns.getName(), ns.getOwner().getLogin(),
-                ns.getMembers().stream().map(User::getLogin).collect(Collectors.toSet()));
+                ns.getMembers().stream().map(User::getLogin).collect(Collectors.toSet()),
+                ns.getTypeDefinitions().stream().map(TypeDefinition::getId).collect(Collectors.toSet()));
     }
 
-    public NamespaceDTO(String name, String owner, Set<String> members) {
+    public NamespaceDTO(String name, String owner, Set<String> members, Set<Long> typeDefinitions) {
         this.name = name;
         this.owner = owner;
         this.members = members;
+        this.typeDefinitions = typeDefinitions;
     }
 
     public String getName() {
@@ -49,6 +53,10 @@ public class NamespaceDTO {
 
     public Set<String> getMembers() {
         return members;
+    }
+
+    public Set<Long> getTypeDefinitions() {
+        return typeDefinitions;
     }
 
     public void setName(String name) {
@@ -69,6 +77,7 @@ public class NamespaceDTO {
                 "name='" + name + '\'' +
                 ", owner='" + owner + '\'' +
                 ", members='" + members + '\'' +
+                ", typeDefinitions='" + typeDefinitions + '\'' +
                 "}";
     }
 }
