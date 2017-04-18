@@ -22,6 +22,8 @@
             "modifiedBy": "Modifié par",
             "model": "Modèle",
             "name_version": "Nom / Version",
+						"releases": "Stables",
+						"latest": "Dernières",
             "deployUnits": "DeployUnits",
             "filter": "Filtrer",
             "filterPlaceholder": "Filtrer les TypeDefinitions..."

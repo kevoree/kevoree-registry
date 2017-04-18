@@ -76,10 +76,11 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/tdefs/page")
     @Timed
-    public Page<TypeDefinitionDTO> getPageableTypeDefinitions(Pageable pageable) {
-        log.debug("REST request to get paged TypeDefinitions (index={}, size={})", pageable.getPageNumber(),
-                pageable.getPageSize());
-        return tdefsService.getPage(pageable);
+    public Page<TypeDefinitionDTO> getPageableTypeDefinitions(Pageable pageable,
+                                                              @RequestParam(required = false, defaultValue = "false") boolean latest) {
+        log.debug("REST request to get paged TypeDefinitions (index={}, size={}, onlyLatest={})",
+                pageable.getPageNumber(), pageable.getPageSize(), latest);
+        return tdefsService.getPage(pageable, latest);
     }
 
     /**
@@ -107,21 +108,8 @@ public class TypeDefinitionResource {
                                                                     @RequestParam(required = false) String version) {
         log.debug("REST request to get namespace tdefs: {}", namespace);
         Set<TypeDefinitionDTO> tdefs = tdefsService.getAllByNamespace(namespace);
-        // TODO try to do this in one big SQL query?
-        Map<String, TypeDefinitionDTO> latestTdefs = new HashMap<>();
         if (version != null && version.equals("latest")) {
-            tdefs.forEach(tdef -> {
-                TypeDefinitionDTO latest = latestTdefs.get(tdef.getName());
-                if (latest != null) {
-                    if (latest.getVersion() < tdef.getVersion()) {
-                        latestTdefs.put(tdef.getName(), tdef);
-                    }
-                } else {
-                    latestTdefs.put(tdef.getName(), tdef);
-                }
-            });
-
-            tdefs = latestTdefs.values().stream().collect(Collectors.toSet());
+            return new ResponseEntity<>(tdefsService.onlyLatest(tdefs.stream()).collect(Collectors.toSet()), HttpStatus.OK);
         }
         return new ResponseEntity<>(tdefs, HttpStatus.OK);
     }

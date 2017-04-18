@@ -10,12 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -35,13 +34,16 @@ public class TypeDefinitionService {
 
     private final Consumer<TypeDefinition> loadDeployUnitsConsumer = tdef -> tdef.getDeployUnits().size();
 
-    public Page<TypeDefinitionDTO> getPage(Pageable pageable) {
+    public Page<TypeDefinitionDTO> getPage(Pageable pageable, boolean latest) {
         Page<TypeDefinition> page = tdefRepository.findAll(pageable);
-        List<TypeDefinitionDTO> tdefs = page.getContent().stream()
+        Stream<TypeDefinitionDTO> tdefs = page.getContent().stream()
                 .map(loadDeployUnits)
-                .map(TypeDefinitionDTO::new)
-                .collect(Collectors.toList());
-        return new PageImpl<>(tdefs, pageable, page.getTotalElements());
+                .map(TypeDefinitionDTO::new);
+        if (latest) {
+            tdefs = onlyLatest(tdefs);
+        }
+
+        return new PageImpl<>(tdefs.collect(Collectors.toList()), pageable, page.getTotalElements());
     }
 
     public TypeDefinition findOne(Long id) {
@@ -85,5 +87,22 @@ public class TypeDefinitionService {
                 .findFirst1ByNamespaceNameAndNameOrderByVersionDesc(namespace, name);
         tdef.ifPresent(loadDeployUnitsConsumer);
         return tdef;
+    }
+
+    public Stream<TypeDefinitionDTO> onlyLatest(Stream<TypeDefinitionDTO> tdefs) {
+        // TODO try to do this in one big SQL query?
+        Map<String, TypeDefinitionDTO> latestTdefs = new HashMap<>();
+        tdefs.forEach(tdef -> {
+            TypeDefinitionDTO latest = latestTdefs.get(tdef.getName());
+            if (latest != null) {
+                if (latest.getVersion() < tdef.getVersion()) {
+                    latestTdefs.put(tdef.getName(), tdef);
+                }
+            } else {
+                latestTdefs.put(tdef.getName(), tdef);
+            }
+        });
+
+        return latestTdefs.values().stream();
     }
 }

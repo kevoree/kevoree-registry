@@ -3,8 +3,7 @@
         "namespace" : {
             "home": {
                 "title": "Namespaces",
-                "createLabel": "New namespace",
-                "createOrEditLabel": "Create or edit a Namespace"
+                "createLabel": "New namespace"
             },
             "delete": {
                 "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?",
@@ -17,13 +16,14 @@
             "addMember": {
                 "title": "Add a member to <strong>{{ name }}</strong>",
                 "action": "Add a member",
-                "user": "Name the user to add"
+                "user": "Select the user to add"
             },
             "removeMember": {
                 "title": "Remove a member from <strong>{{ name }}</strong>",
                 "action": "Remove a member",
                 "user": "Select the user to remove"
             },
+            "create": "Create a namespace",
             "name": "Name",
             "owner": "Owner",
             "members": "Members",

@@ -3,6 +3,7 @@ package org.kevoree.registry.config;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.servlet.InstrumentedFilter;
 import com.codahale.metrics.servlets.MetricsServlet;
+import io.github.jhipster.config.JHipsterProperties;
 import org.kevoree.registry.web.filter.CachingHttpHeadersFilter;
 
 import org.slf4j.Logger;
@@ -14,11 +15,9 @@ import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -30,9 +29,9 @@ import javax.servlet.*;
  * Configuration of web application with Servlet 3.0 APIs.
  */
 @Configuration
-public class WebConfiguration implements ServletContextInitializer, EmbeddedServletContainerCustomizer {
+public class WebConfigurer implements ServletContextInitializer, EmbeddedServletContainerCustomizer {
 
-    private final Logger log = LoggerFactory.getLogger(WebConfiguration.class);
+    private final Logger log = LoggerFactory.getLogger(WebConfigurer.class);
 
     @Inject
     private Environment env;

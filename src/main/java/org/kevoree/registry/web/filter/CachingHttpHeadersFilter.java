@@ -1,6 +1,6 @@
 package org.kevoree.registry.web.filter;
 
-import org.kevoree.registry.config.JHipsterProperties;
+import io.github.jhipster.config.JHipsterProperties;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;

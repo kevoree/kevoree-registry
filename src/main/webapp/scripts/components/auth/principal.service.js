@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('Principal', function ($q, Account, Tracker) {
+	.factory('Principal', function ($q, Account) {
 		var _identity,
 			_authenticated = false;
 
@@ -74,7 +74,6 @@ angular
 				_identity = account.data;
 				_authenticated = true;
 				deferred.resolve(_identity);
-				Tracker.connect();
 			}
 
 			function getAccountCatch() {

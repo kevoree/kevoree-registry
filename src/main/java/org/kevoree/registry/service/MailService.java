@@ -1,7 +1,7 @@
 package org.kevoree.registry.service;
 
+import io.github.jhipster.config.JHipsterProperties;
 import org.apache.commons.lang3.CharEncoding;
-import org.kevoree.registry.config.JHipsterProperties;
 import org.kevoree.registry.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

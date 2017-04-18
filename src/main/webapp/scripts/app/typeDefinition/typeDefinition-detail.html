@@ -13,7 +13,7 @@
 						<span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
 					</td>
 					<td>
-						<a ui-sref="nsDetail({ name: tdef.namespace.name })">{{ tdef.namespace.name }}</a>
+						<a ui-sref="nsDetail({ name: tdef.namespace })">{{ tdef.namespace }}</a>
 					</td>
 				</tr>
 				<tr>
@@ -54,17 +54,34 @@
 				</tr>
 				<tr>
 					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.releases">Releases</span>
 						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
 					</td>
 					<td>
-						<div ng-repeat="duId in tdef.deployUnits">
-							<strong>{{ platform }}</strong>
-							<ul class="list-unstyled">
-								<li ng-repeat="du in dus | orderBy:'name'">
-									<a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version }}</a>
-								</li>
-							</ul>
-						</div>
+						<table class="table table-condensed table-striped">
+							<tbody>
+								<tr ng-repeat="du in releasedDUS">
+									<td>{{ du.platform }}</td>
+									<td><a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version }}</a></td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.latest">Latest</span>
+						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+					</td>
+					<td>
+						<table class="table table-condensed table-striped">
+							<tbody>
+								<tr ng-repeat="du in latestDUS">
+									<td>{{ du.platform }}</td>
+									<td><a ui-sref="duDetail({ id: du.id })">{{ du.name + '/' + du.version }}</a></td>
+								</tr>
+							</tbody>
+						</table>
 					</td>
 				</tr>
 				<tr>
@@ -72,7 +89,7 @@
 						<span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
 					</td>
 					<td>
-						<div hljs hljs-language="json">{{ tdef.model }}</div>
+						<div hljs hljs-language="json" hljs-source="tdef.model"></div>
 					</td>
 				</tr>
 			</tbody>

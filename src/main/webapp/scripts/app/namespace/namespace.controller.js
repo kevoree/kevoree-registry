@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('NamespaceController', function ($rootScope, $scope, Principal, Namespaces) {
-		$scope.isInRole = Principal.isInRole;
+	.controller('NamespaceController', function ($rootScope, $scope, Namespaces) {
 		$scope.namespaces = [];
 		$scope.search = {
 			name: '',

@@ -11,14 +11,17 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+
 management:
+    security:
+        roles: ADMIN
     context-path: /management
     health:
         mail:
             enabled: false # When using the MailService, configure an SMTP server and set this to true
 spring:
     application:
-        name: registry
+        name: kevoree_registry
     profiles:
         # The commented value for `active` can be replaced with valid Spring profiles to load.
         # Otherwise, it will be filled in by maven when building the WAR file
@@ -45,48 +48,143 @@ security:
     basic:
         enabled: false
     oauth2:
-      client:
-        client-id: kevoree_registryapp
-        client-secret: kevoree_registryapp_secret
+        client:
+          client-id: kevoree_registryapp
+          client-secret: kevoree_registryapp_secret
+        resource:
+            filter-order: 3
 
 server:
     session:
         cookie:
             http-only: true
 
+info:
+    project:
+        version: #project.version#
+
 # ===================================================================
 # JHipster specific properties
+#
+# Full reference is available at: https://jhipster.github.io/common-application-properties/
 # ===================================================================
+
 jhipster:
     async:
-        corePoolSize: 2
-        maxPoolSize: 50
-        queueCapacity: 10000
-    cors: #By default CORS are not enabled. Uncomment to enable.
+        core-pool-size: 2
+        max-pool-size: 50
+        queue-capacity: 10000
+    cors:
         allowed-origins: "*"
-        allowed-methods: GET
+        allowed-methods: GET, PUT, POST, DELETE, OPTIONS
         allowed-headers: "*"
         exposed-headers:
-        allow-credentials: false
+        allow-credentials: true
         max-age: 1800
-    security:
-      authentication:
-        oauth:
-          clientId: kevoree_registryapp
-          secret: kevoree_registryapp_secret
     mail:
         from: registry@kevoree.org
     swagger:
+        default-include-pattern: /api/.*
         title: Kevoree Registry API
-        description: Kevoree Registry REST API documentation
+        description: Kevoree Registry API documentation
         version: 0.0.1
-        termsOfServiceUrl:
-        contactName:
-        contactUrl:
-        contactEmail: contact@kevoree.org
-        license: LGPL-3.0
-        licenseUrl:
+        terms-of-service-url:
+        contact-name:
+        contact-url:
+        contact-email:
+        license:
+        license-url:
     ribbon:
-        # comma separated list of profiles to show a ribbon on the GUI
-        displayOnActiveProfiles: dev
+        display-on-active-profiles: dev
 
+# ===================================================================
+# Application specific properties
+# Add your own application properties here, see the ApplicationProperties class
+# to have type-safe configuration, like in the JHipsterProperties above
+#
+# More documentation is available at:
+# https://jhipster.github.io/common-application-properties/
+# ===================================================================
+
+application:
+
+
+#management:
+#    context-path: /management
+#    health:
+#        mail:
+#            enabled: false # When using the MailService, configure an SMTP server and set this to true
+#spring:
+#    application:
+#        name: registry
+#    profiles:
+#        # The commented value for `active` can be replaced with valid Spring profiles to load.
+#        # Otherwise, it will be filled in by maven when building the WAR file
+#        # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+#        active: #spring.profiles.active#
+#    jackson:
+#        serialization.write_dates_as_timestamps: false
+#    jpa:
+#        open-in-view: false
+#        hibernate:
+#            ddl-auto: none
+#            naming:
+#                physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+#                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+#    messages:
+#        basename: i18n/messages
+#    mvc:
+#        favicon:
+#            enabled: false
+#    thymeleaf:
+#        mode: XHTML
+#
+#security:
+#    basic:
+#        enabled: false
+#    oauth2:
+#      client:
+#        client-id: kevoree_registryapp
+#        client-secret: kevoree_registryapp_secret
+#
+#server:
+#    session:
+#        cookie:
+#            http-only: true
+#
+## ===================================================================
+## JHipster specific properties
+## ===================================================================
+#jhipster:
+#    async:
+#        corePoolSize: 2
+#        maxPoolSize: 50
+#        queueCapacity: 10000
+#    cors: #By default CORS are not enabled. Uncomment to enable.
+#        allowed-origins: "*"
+#        allowed-methods: GET
+#        allowed-headers: "*"
+#        exposed-headers:
+#        allow-credentials: false
+#        max-age: 1800
+#    security:
+#      authentication:
+#        oauth:
+#          clientId: kevoree_registryapp
+#          secret: kevoree_registryapp_secret
+#    mail:
+#        from: registry@kevoree.org
+#    swagger:
+#        title: Kevoree Registry API
+#        description: Kevoree Registry REST API documentation
+#        version: 0.0.1
+#        termsOfServiceUrl:
+#        contactName:
+#        contactUrl:
+#        contactEmail: contact@kevoree.org
+#        license: LGPL-3.0
+#        licenseUrl:
+#    ribbon:
+#        # comma separated list of profiles to show a ribbon on the GUI
+#        displayOnActiveProfiles: dev
+#

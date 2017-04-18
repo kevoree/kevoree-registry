@@ -13,7 +13,7 @@
                       <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
                   </td>
                   <td>
-                      <a ui-sref="nsDetail({ name: du.typeDefinition.namespace.name })">{{ du.typeDefinition.namespace.name }}</a>
+                      <a ui-sref="nsDetail({ name: du.typeDefinition.namespace.name })">{{ du.namespace }}</a>
                   </td>
               </tr>
               <tr>
@@ -63,7 +63,7 @@
                       <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
                   </td>
                   <td>
-                      <a ui-sref="tdefDetail({ id: du.typeDefinition.id })">{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</a>
+                      <a ui-sref="tdefDetail2({ ns: du.namespace, name: du.tdefName, version: du.tdefVersion })">{{ du.tdefName + '/' + du.tdefVersion }}</a>
                   </td>
               </tr>
               <tr>

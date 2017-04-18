@@ -1,13 +1,10 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('TypeDefinitionController', function ($rootScope, $scope, $stateParams, TypeDefinitions, User, Principal) {
+	.controller('TypeDefinitionController', function ($rootScope, $scope, $stateParams, $resource, TypeDefinitions) {
 		$scope.page = {};
-		$scope.isInRole = Principal.isInRole;
 		$scope.search = {
-			namespace: {
-				name: ''
-			},
+			namespace: '',
 			name: '',
 			version: ''
 		};
@@ -23,10 +20,8 @@ angular.module('kevoreeRegistryApp')
 		$scope.loadAll = function () {
 			$stateParams.page = $stateParams.page || 0;
 			$stateParams.size = $stateParams.size || 100;
-			TypeDefinitions.get(Object.assign({
-					id: 'page'
-				}, $stateParams)).$promise
-				.then(function (page) {
+			TypeDefinitions.get(Object.assign({ id: 'page' }, $stateParams))
+				.$promise.then(function (page) {
 					$scope.page = page;
 					$scope.selectedSize = $scope.sizes[$scope.sizes.indexOf(page.size)];
 				});

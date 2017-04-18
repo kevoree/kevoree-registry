@@ -1,9 +1,13 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.hibernate.annotations.*;
 import org.kevoree.registry.config.Constants;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -15,6 +19,8 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "T_DEPLOY_UNIT")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Document(indexName = "deployunit")
 public class DeployUnit extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

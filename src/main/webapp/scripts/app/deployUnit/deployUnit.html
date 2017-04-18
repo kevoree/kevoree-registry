@@ -2,10 +2,10 @@
     <fieldset>
         <legend>Filter by:</legend>
         <div class="col-xs-6 col-sm-2">
-            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.namespace.name" placeholder="Namespace">
+            <input type="text" class="form-control input-sm" ng-model="search.namespace" placeholder="Namespace">
         </div>
         <div class="col-xs-6 col-sm-3">
-            <input type="text" class="form-control input-sm" ng-model="search.typeDefinition.name" placeholder="TypeDefinition">
+            <input type="text" class="form-control input-sm" ng-model="search.tdefName" placeholder="TypeDefinition">
         </div>
         <div class="col-xs-6 col-sm-4">
             <input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
@@ -101,13 +101,13 @@
                                     <td>
                                         <span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
                                     </td>
-                                    <td>{{ du.typeDefinition.namespace.name }}</td>
+                                    <td>{{ du.namespace }}</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
                                     </td>
-                                    <td>{{ du.typeDefinition.name + '/' + du.typeDefinition.version }}</td>
+                                    <td>{{ du.tdefName + '/' + du.tdefVersion }}</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -131,15 +131,15 @@
             <thead>
                 <tr>
                     <th>
-                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.namespace.name')">
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('namespace')">
                             <span>Namespace</span>
-                            <i ng-if="orderColumn === 'typeDefinition.namespace.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                            <i ng-if="orderColumn === 'namespace'" class="glyphicon pull-right" ng-class="orderClasses"></i>
                         </a>
                     </th>
                     <th>
-                        <a href="" class="nocolor block" ng-click="changeOrderBy('typeDefinition.name')">
+                        <a href="" class="nocolor block" ng-click="changeOrderBy('tdefName')">
                             TypeDefinition
-                            <i ng-if="orderColumn === 'typeDefinition.name'" class="glyphicon pull-right" ng-class="orderClasses"></i>
+                            <i ng-if="orderColumn === 'tdefName'" class="glyphicon pull-right" ng-class="orderClasses"></i>
                         </a>
                     </th>
                     <th>
@@ -170,10 +170,10 @@
                 </tr>
                 <tr ng-repeat="du in filteredDus = (page.content | filter:search | orderBy:orderColumn:reverse )">
                     <td class="col-xs-2">
-                        {{ du.typeDefinition.namespace.name }}
+                        {{ du.namespace }}
                     </td>
                     <td class="col-xs-3">
-                        {{ du.typeDefinition.name + '/' + du.typeDefinition.version }}
+                        {{ du.tdefName + '/' + du.tdefVersion }}
                     </td>
                     <td class="col-xs-4">
                         <a ui-sref="duDetail({ id: du.id })">{{ du.name }}</a>

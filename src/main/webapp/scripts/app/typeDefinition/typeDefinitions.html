@@ -2,7 +2,7 @@
 	<fieldset>
 		<legend>Filter by:</legend>
 		<div class="col-sm-2">
-			<input type="text" class="form-control input-sm" ng-model="search.namespace.name" placeholder="Namespace">
+			<input type="text" class="form-control input-sm" ng-model="search.namespace" placeholder="Namespace">
 		</div>
 		<div class="col-xs-6 col-sm-7">
 			<input type="text" class="form-control input-sm" ng-model="search.name" placeholder="Name">
@@ -77,7 +77,7 @@
 					</td>
 				</tr>
 				<tr ng-repeat="tdef in filteredTdefs = (page.content | filter:search | orderBy:orderColumn:reverse)">
-					<td class="col-xs-2">{{ tdef.namespace.name }}</td>
+					<td class="col-xs-2">{{ tdef.namespace }}</td>
 					<td class="col-xs-7">
 						<a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name }}</a>
 					</td>

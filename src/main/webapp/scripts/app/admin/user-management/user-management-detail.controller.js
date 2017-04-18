@@ -1,13 +1,8 @@
-(function () {
-	'use strict';
+'use strict';
 
-	angular
-		.module('kevoreeRegistryApp')
-		.controller('UserManagementDetailController', UserManagementDetailController);
-
-	UserManagementDetailController.$inject = ['$stateParams', 'User'];
-
-	function UserManagementDetailController($stateParams, User) {
+angular
+	.module('kevoreeRegistryApp')
+	.controller('UserManagementDetailController', function UserManagementDetailController($stateParams, User) {
 		var vm = this;
 
 		vm.load = load;
@@ -22,5 +17,4 @@
 				vm.user = result;
 			});
 		}
-	}
-})();
+	});

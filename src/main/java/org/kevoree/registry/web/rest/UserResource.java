@@ -6,6 +6,7 @@ import org.kevoree.registry.config.Constants;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.TypeDefinition;
 import org.kevoree.registry.domain.User;
+import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
@@ -67,10 +68,29 @@ public class UserResource {
     private UserRepository userRepository;
 
     @Inject
+    private NamespaceRepository namespaceRepository;
+
+    @Inject
     private MailService mailService;
 
     @Inject
     private UserService userService;
+
+    /**
+     * GET  /me : get the currently authenticated user
+     *
+     * @return the ResponseEntity with status 200 (OK) and with body the authenticated user
+     */
+    @GetMapping("/me")
+    @Timed
+    public ResponseEntity<ManagedUserVM> getAuthenticatedUser() {
+        if (SecurityUtils.isAuthenticated()) {
+            return userRepository.findOneWithAuthoritiesAndNamespacesByLogin(SecurityUtils.getCurrentUserLogin())
+                    .map(user -> new ResponseEntity<>(new ManagedUserVM(user), HttpStatus.OK))
+                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 
     /**
      * POST  /users  : Creates a new user.
@@ -149,7 +169,7 @@ public class UserResource {
     @Timed
     public ResponseEntity<List<ManagedUserVM>> getAllUsers(@ApiParam Pageable pageable)
             throws URISyntaxException {
-        Page<User> page = userRepository.findAllWithAuthorities(pageable);
+        Page<User> page = userRepository.findAll(pageable);
         List<ManagedUserVM> managedUserVMs = page.getContent().stream()
                 .map(ManagedUserVM::new)
                 .collect(Collectors.toList());
@@ -196,9 +216,7 @@ public class UserResource {
     @Secured(AuthoritiesConstants.USER)
     ResponseEntity<Set<Namespace>> getUserNamespaces() {
         log.debug("REST request to get User '{}' namespaces", SecurityUtils.getCurrentUserLogin());
-        return userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin())
-            .map(user -> new ResponseEntity<>(user.getNamespaces(), HttpStatus.OK))
-            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+        return new ResponseEntity<>(namespaceRepository.findByOwnerIsCurrentUser(), HttpStatus.OK);
     }
 
     /**

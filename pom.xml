@@ -35,6 +35,7 @@
     <java.version>1.8</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <dropwizard-metrics.version>3.2.2</dropwizard-metrics.version>
     <jcache.version>1.0.0</jcache.version>
     <javax.inject.version>1</javax.inject.version>
     <liquibase.version>3.5.3</liquibase.version>
@@ -75,16 +76,12 @@
     </dependency>
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-graphite</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-healthchecks</artifactId>
+      <artifactId>metrics-json</artifactId>
       <version>${dropwizard-metrics.version}</version>
     </dependency>
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-json</artifactId>
+      <artifactId>metrics-jcache</artifactId>
       <version>${dropwizard-metrics.version}</version>
     </dependency>
     <dependency>
@@ -100,12 +97,6 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-servlets</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>metrics-healthchecks</artifactId>
-          <groupId>io.dropwizard.metrics</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.prometheus</groupId>
@@ -231,7 +222,6 @@
     <dependency>
       <groupId>javax.cache</groupId>
       <artifactId>cache-api</artifactId>
-      <version>${jcache.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.inject</groupId>
@@ -300,6 +290,14 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-loader-tools</artifactId>
     </dependency>
     <dependency>
@@ -358,7 +356,6 @@
     <dependency>
       <groupId>org.springframework.security.oauth</groupId>
       <artifactId>spring-security-oauth2</artifactId>
-      <version>${spring-security-oauth2.version}</version>
     </dependency>
     <!-- Spring Cloud -->
     <dependency>
@@ -399,6 +396,12 @@
       <artifactId>java-semver</artifactId>
       <version>0.9.0</version>
     </dependency>
+    <dependency>
+      <groupId>io.github.jhipster</groupId>
+      <artifactId>jhipster</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+    <!-- jhipster-needle-maven-add-dependency -->
   </dependencies>
 
   <build>

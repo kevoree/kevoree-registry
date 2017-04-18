@@ -1,7 +1,7 @@
 package org.kevoree.registry.config;
 
-import org.kevoree.registry.config.locale.AngularCookieLocaleResolver;
-import org.springframework.boot.bind.RelaxedPropertyResolver;
+import io.github.jhipster.config.locale.AngularCookieLocaleResolver;
+
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,12 +14,9 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 @Configuration
 public class LocaleConfiguration extends WebMvcConfigurerAdapter implements EnvironmentAware {
 
-    @SuppressWarnings("unused")
-    private RelaxedPropertyResolver propertyResolver;
-
     @Override
     public void setEnvironment(Environment environment) {
-        this.propertyResolver = new RelaxedPropertyResolver(environment, "spring.messages.");
+        // unused
     }
 
     @Bean(name = "localeResolver")
