@@ -1,10 +1,11 @@
 package org.kevoree.registry.config;
 
-import io.github.jhipster.security.Http401UnauthorizedEntryPoint;
-import io.github.jhipster.security.AjaxLogoutSuccessHandler;
-
+import org.kevoree.registry.security.AjaxLogoutSuccessHandler;
 import org.kevoree.registry.security.AuthoritiesConstants;
+import org.kevoree.registry.security.Http401UnauthorizedEntryPoint;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -94,7 +95,7 @@ public class OAuth2ServerConfiguration {
 
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-            resources.resourceId("res_kevoree_registry").tokenStore(tokenStore);
+            resources.resourceId("res_kreg").tokenStore(tokenStore);
         }
     }
 

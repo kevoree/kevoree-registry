@@ -2,13 +2,10 @@ package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.kevoree.registry.config.Constants;
-import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -22,7 +19,6 @@ import java.util.Set;
 @Entity
 @Table(name = "T_TYPE_DEFINITION")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "typedefinition")
 public class TypeDefinition extends AbstractAuditingEntity implements Serializable {
 
     @Id

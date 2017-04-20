@@ -6,12 +6,11 @@
   "scripts": {
     "lint": "eslint src/main/webapp/scripts"
   },
-  "dependencies": {},
   "devDependencies": {
     "bower": "1.7.9",
     "eslint": "^3.13.1",
     "event-stream": "3.3.4",
-    "generator-jhipster": "3.9.1",
+    "generator-jhipster": "4.3.0",
     "grunt": "^1.0.1",
     "grunt-angular-templates": "1.1.0",
     "grunt-autoprefixer": "3.0.4",

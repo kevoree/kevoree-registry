@@ -8,7 +8,7 @@
     "clusteredHttpSession": "no",
     "websocket": "spring-websocket",
     "databaseType": "sql",
-    "devDatabaseType": "h2Memory",
+    "devDatabaseType": "h2Disk",
     "prodDatabaseType": "postgresql",
     "useCompass": false,
     "buildTool": "maven",

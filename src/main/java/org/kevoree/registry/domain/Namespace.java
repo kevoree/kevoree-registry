@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.kevoree.registry.config.Constants;
-import org.springframework.data.elasticsearch.annotations.Document;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -20,10 +19,10 @@ import java.util.Set;
 @Entity
 @Table(name = "T_NAMESPACE")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@Document(indexName = "namespace")
 public class Namespace implements Serializable {
 
     @Id
+    @org.springframework.data.annotation.Id
     @Pattern(regexp = Constants.NS_NAME_REGEX)
     @Size(min = 1, max = 50)
     @Column(length = 50, unique = true, nullable = false)
