@@ -2,6 +2,7 @@ package org.kevoree.registry.repository;
 
 import org.kevoree.registry.domain.DeployUnit;
 
+import org.kevoree.registry.domain.TypeDefinition;
 import org.springframework.data.jpa.repository.*;
 
 import java.util.Optional;
@@ -37,4 +38,9 @@ public interface DeployUnitRepository extends JpaRepository<DeployUnit, Long> {
     @Query("select d from DeployUnit d where d.typeDefinition in (select t from TypeDefinition t where t.namespace.name = ?1 and t.name = ?2 and t.version = ?3) and d.name = ?4 and d.version = ?5 and d.platform = ?6")
     Optional<DeployUnit> findOneByNamespaceAndTypeDefinitionAndTypeDefinitionVersionAndNameAndVersionAndPlatform(
         String nsName, String tdefName, Long tdefVersion, String name, String version, String platform);
+
+    @Query("select distinct d.platform from DeployUnit d where d.typeDefinition.id = ?1")
+    Set<String> findDistinctPlatformByTypeDefinitionId(Long id);
+
+    Set<DeployUnit> findByTypeDefinitionId(Long id);
 }

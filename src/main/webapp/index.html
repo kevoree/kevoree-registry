@@ -26,8 +26,11 @@
         <![endif]-->
 	<div class="development"></div>
 	<div ui-view="navbar"></div>
-	<div class="container">
-		<div id="content" ui-view="content"></div>
+	<div class="container-fluid">
+		<div id="content">
+			<jhi-alert></jhi-alert>
+			<div ui-view="content"></div>
+		</div>
 	</div>
 
 	<!-- Google Analytics: uncomment and change UA-XXXXX-X to be your site's ID.
@@ -76,6 +79,8 @@
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/sockjs-client/dist/sockjs.js"></script>
 	<script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
+	<script src="bower_components/moment/moment.js"></script>
+	<script src="bower_components/angular-moment/angular-moment.js"></script>
 	<!-- endbower -->
 	<!-- endbuild -->
 
@@ -102,6 +107,7 @@
 	<script src="scripts/components/language/language.service.js"></script>
 	<script src="scripts/components/language/language.controller.js"></script>
 	<script src="scripts/components/language/language.constants.js"></script>
+	<script src="scripts/components/language/language.filter.js"></script>
 	<script src="scripts/app/admin/audits/audits.service.js"></script>
 	<script src="scripts/app/admin/logs/logs.service.js"></script>
 	<script src="scripts/app/admin/configuration/configuration.service.js"></script>
@@ -143,7 +149,6 @@
 	<script src="scripts/app/admin/user-management/user-management-detail.controller.js"></script>
 	<script src="scripts/app/admin/user-management/user-management-delete-dialog.controller.js"></script>
 	<script src="scripts/app/admin/user-management/user-management.controller.js"></script>
-	<script src="scripts/app/entities/entity.state.js"></script>
 	<script src="scripts/app/error/error.state.js"></script>
 	<script src="scripts/app/home/home.state.js"></script>
 	<script src="scripts/app/home/home.controller.js"></script>
@@ -154,6 +159,7 @@
 	<script src="scripts/app/typeDefinition/typeDefinition.state.js"></script>
 	<script src="scripts/app/typeDefinition/typeDefinition.controller.js"></script>
 	<script src="scripts/app/typeDefinition/typeDefinition-detail.controller.js"></script>
+	<script src="scripts/app/typeDefinition/typeDefinition.service.js"></script>
 	<script src="scripts/app/typeDefinition/typeDefinitions.service.js"></script>
 	<script src="scripts/app/deployUnit/deployUnit.state.js"></script>
 	<script src="scripts/app/deployUnit/deployUnit.controller.js"></script>
@@ -161,14 +167,17 @@
 	<script src="scripts/app/deployUnit/deployUnits.service.js"></script>
 	<script src="scripts/app/namespace/namespace.state.js"></script>
 	<script src="scripts/app/namespace/namespace.controller.js"></script>
+	<script src="scripts/app/namespace/namespace-new.controller.js"></script>
+	<script src="scripts/app/namespace/namespace-delete.controller.js"></script>
 	<script src="scripts/app/namespace/namespace-detail.controller.js"></script>
+	<script src="scripts/app/namespace/namespace-add-member.controller.js"></script>
+	<script src="scripts/app/namespace/namespace-remove-member.controller.js"></script>
 	<script src="scripts/app/namespace/namespace.service.js"></script>
 	<script src="scripts/app/namespace/namespaces.service.js"></script>
 	<script src="scripts/components/user/user.service.js"></script>
 	<script src="scripts/components/user/users.service.js"></script>
 	<script src="scripts/components/alert/alert.service.js"></script>
 	<script src="scripts/components/alert/alert.directive.js"></script>
-	<script src="scripts/components/alert/alert-error.directive.js"></script>
 	<script src="scripts/components/util/map-prop.filter.js"></script>
 	<script src="scripts/components/util/join.filter.js"></script>
 	<script src="scripts/components/util/stringify.filter.js"></script>
@@ -177,13 +186,15 @@
 	<script src="scripts/components/util/pagination-util.service.js"></script>
 	<script src="scripts/components/util/sort-by.directive.js"></script>
 	<script src="scripts/components/util/sort.directive.js"></script>
-	<script src="scripts/components/util/jhi-item-count.directive.js"></script>
+	<script src="scripts/components/jhi-item-count/jhi-item-count.directive.js"></script>
 	<script src="scripts/components/util/has-authority.directive.js"></script>
 	<script src="scripts/components/util/has-any-authority.directive.js"></script>
+	<script src="scripts/components/util/storage.service.js"></script>
 	<script src="scripts/components/interceptor/notification.interceptor.js"></script>
 	<script src="scripts/components/interceptor/errorhandler.interceptor.js"></script>
 	<script src="scripts/components/interceptor/auth-expired.interceptor.js"></script>
 	<script src="scripts/components/interceptor/auth.interceptor.js"></script>
+	<script src="scripts/components/util/filterpp.filter.js"></script>
 	<!-- endbuild -->
 </body>
 

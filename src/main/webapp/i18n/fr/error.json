@@ -1,6 +1,9 @@
 {
-    "errors": {
-        "title": "Page d'erreur!",
-        "403": "Vous n'avez pas les droits pour accéder à cette page."
-    }
+	"error": {
+		"title": "Page d'erreur!",
+		"code": {
+			"401": "Vous avez été déconnecté pour inactivité",
+			"403": "Vous n'êtes pas autorisé à accéder à cette page."
+		}
+	}
 }

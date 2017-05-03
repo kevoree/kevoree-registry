@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 /**
  * A DTO representing a user, with his authorities.
  */
-public class UserDTO {
+public class UserDTO extends AbstractAuditingDTO {
+
+    private Long id;
 
     @Pattern(regexp = Constants.LOGIN_REGEX)
     @Size(min = 1, max = 50)
@@ -39,28 +41,23 @@ public class UserDTO {
 
     private Set<String> namespaces;
 
-    public UserDTO() {
-    }
+    public UserDTO() {}
 
     public UserDTO(User user) {
-        this(user.getLogin(), user.getFirstName(), user.getLastName(),
-            user.getEmail(), user.getActivated(), user.getLangKey(),
-            user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()),
-                user.getNamespaces().stream().map(Namespace::getName).collect(Collectors.toSet()));
+        super(user);
+        this.id = user.getId();
+        this.login = user.getLogin();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.activated = user.getActivated();
+        this.langKey = user.getLangKey();
+        this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        this.namespaces = user.getNamespaces().stream().map(Namespace::getName).collect(Collectors.toSet());
     }
 
-    public UserDTO(String login, String firstName, String lastName,
-                   String email, boolean activated, String langKey,
-                   Set<String> authorities, Set<String> namespaces) {
-
-        this.login = login;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.activated = activated;
-        this.langKey = langKey;
-        this.authorities = authorities;
-        this.namespaces = namespaces;
+    public Long getId() {
+        return id;
     }
 
     public String getLogin() {

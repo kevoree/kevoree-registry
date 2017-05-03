@@ -76,4 +76,37 @@ public abstract class AbstractAuditingEntity implements Serializable {
     public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
+
+    public static abstract class Builder<T extends AbstractAuditingEntity> {
+
+        protected T entity;
+
+        public Builder(T entity) {
+            this.entity = entity;
+        }
+
+        public Builder<T> createdBy(String createdBy) {
+            entity.setCreatedBy(createdBy);
+            return this;
+        }
+
+        public Builder<T> createdDate(ZonedDateTime createdDate) {
+            entity.setCreatedDate(createdDate);
+            return this;
+        }
+
+        public Builder<T> lastModifiedBy(String lastModifiedBy) {
+            entity.setCreatedBy(lastModifiedBy);
+            return this;
+        }
+
+        public Builder<T> lastModifiedDate(ZonedDateTime lastModifiedDate) {
+            entity.setLastModifiedDate(lastModifiedDate);
+            return this;
+        }
+
+        public T build() {
+            return entity;
+        }
+    }
 }

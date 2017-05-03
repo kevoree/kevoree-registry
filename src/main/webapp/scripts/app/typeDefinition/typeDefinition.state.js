@@ -12,7 +12,8 @@ angular.module('kevoreeRegistryApp')
 				views: {
 					'content@': {
 						templateUrl: 'scripts/app/typeDefinition/typeDefinitions.html',
-						controller: 'TypeDefinitionController'
+						controller: 'TypeDefinitionController',
+						controllerAs: 'vm'
 					}
 				},
 				resolve: {
@@ -31,26 +32,8 @@ angular.module('kevoreeRegistryApp')
 				views: {
 					'content@': {
 						templateUrl: 'scripts/app/typeDefinition/typeDefinition-detail.html',
-						controller: 'TypeDefinitionDetailController'
-					}
-				},
-				resolve: {
-					translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-						$translatePartialLoader.addPart('typeDefinition');
-						return $translate.refresh();
-					}]
-				}
-			})
-			.state('tdefDetail2', {
-				parent: 'tdefs',
-				url: '/:ns/:name/:version',
-				data: {
-					authorities: []
-				},
-				views: {
-					'content@': {
-						templateUrl: 'scripts/app/typeDefinition/typeDefinition-detail.html',
-						controller: 'TypeDefinitionDetailController'
+						controller: 'TypeDefinitionDetailController',
+						controllerAs: 'vm'
 					}
 				},
 				resolve: {

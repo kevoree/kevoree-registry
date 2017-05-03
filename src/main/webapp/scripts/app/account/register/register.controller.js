@@ -1,36 +1,37 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('RegisterController', function ($scope, $translate, $timeout, Auth) {
-        $scope.success = null;
-        $scope.error = null;
-        $scope.doNotMatch = null;
-        $scope.errorUserExists = null;
-        $scope.registerAccount = {};
-        $timeout(function (){angular.element('[ng-model="registerAccount.login"]').focus();});
+	.controller('RegisterController', function ($translate, $timeout, Auth) {
+		var vm = this;
+		vm.success = null;
+		vm.error = null;
+		vm.doNotMatch = null;
+		vm.errorUserExists = null;
+		vm.registerAccount = {};
+		$timeout(function () { angular.element('[ng-model="registerAccount.login"]').focus(); });
 
-        $scope.register = function () {
-            if ($scope.registerAccount.password !== $scope.confirmPassword) {
-                $scope.doNotMatch = 'ERROR';
-            } else {
-                $scope.registerAccount.langKey = $translate.use();
-                $scope.doNotMatch = null;
-                $scope.error = null;
-                $scope.errorUserExists = null;
-                $scope.errorEmailExists = null;
+		vm.register = function () {
+			if (vm.registerAccount.password !== vm.confirmPassword) {
+				vm.doNotMatch = 'ERROR';
+			} else {
+				vm.registerAccount.langKey = $translate.use();
+				vm.doNotMatch = null;
+				vm.error = null;
+				vm.errorUserExists = null;
+				vm.errorEmailExists = null;
 
-                Auth.createAccount($scope.registerAccount).then(function () {
-                    $scope.success = 'OK';
-                }).catch(function (response) {
-                    $scope.success = null;
-                    if (response.status === 400 && response.data.message === 'login already in use') {
-                        $scope.errorUserExists = 'ERROR';
-                    } else if (response.status === 400 && response.data.message === 'e-mail address already in use') {
-                        $scope.errorEmailExists = 'ERROR';
-                    } else {
-                        $scope.error = 'ERROR';
-                    }
-                });
-            }
-        };
-    });
+				Auth.createAccount(vm.registerAccount).then(function () {
+					vm.success = 'OK';
+				}).catch(function (response) {
+					vm.success = null;
+					if (response.status === 400 && response.data.message === 'login already in use') {
+						vm.errorUserExists = 'ERROR';
+					} else if (response.status === 400 && response.data.message === 'e-mail address already in use') {
+						vm.errorEmailExists = 'ERROR';
+					} else {
+						vm.error = 'ERROR';
+					}
+				});
+			}
+		};
+	});

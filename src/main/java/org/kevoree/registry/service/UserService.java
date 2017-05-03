@@ -1,5 +1,6 @@
 package org.kevoree.registry.service;
 
+import org.kevoree.registry.config.Constants;
 import org.kevoree.registry.domain.Authority;
 import org.kevoree.registry.domain.Namespace;
 import org.kevoree.registry.domain.User;
@@ -8,10 +9,13 @@ import org.kevoree.registry.repository.NamespaceRepository;
 import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
+import org.kevoree.registry.service.dto.UserDTO;
 import org.kevoree.registry.service.util.RandomUtil;
 import org.kevoree.registry.web.rest.vm.ManagedUserVM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
@@ -24,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing users.
@@ -194,13 +199,18 @@ public class UserService {
                 });
     }
 
-    public void deleteUser(String login) {
-        jdbcTokenStore.findTokensByUserName(login).forEach(token ->
+    public void deleteUser(final User user) {
+        jdbcTokenStore.findTokensByUserName(user.getLogin()).forEach(token ->
                 jdbcTokenStore.removeAccessToken(token));
-        userRepository.findOneByLogin(login).ifPresent(user -> {
-            userRepository.delete(user);
-            log.debug("Deleted User: {}", user);
-        });
+        // remove membership in all namespaces
+        Set<Namespace> namespaces = user.getNamespaces().stream().map(ns -> {
+            ns.removeMember(user);
+            user.removeNamespace(ns);
+            return ns;
+        }).collect(Collectors.toSet());
+        namespaceRepository.save(namespaces);
+        userRepository.delete(user);
+        log.debug("Deleted User: {}", user);
     }
 
     public void changePassword(String password) {
@@ -209,6 +219,11 @@ public class UserService {
             user.setPassword(encryptedPassword);
             log.debug("Changed password for User: {}", user);
         });
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)

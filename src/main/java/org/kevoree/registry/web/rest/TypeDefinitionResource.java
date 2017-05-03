@@ -17,6 +17,7 @@ import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.service.dto.ErrorDTO;
 import org.kevoree.registry.service.dto.TypeDefinitionDTO;
 import org.kevoree.registry.service.mapper.TypeDefinitionMapper;
+import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,8 +29,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.*;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * REST controller for managing models.
@@ -66,9 +71,9 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/tdefs")
     @Timed
-    public Set<TypeDefinitionDTO> getTypeDefinitions() {
+    public List<TypeDefinitionDTO> getTypeDefinitions() {
         log.debug("REST request to get all TypeDefinitions");
-        return tdefsService.getAll();
+        return tdefMapper.typeDefinitionsToTypeDefinitionDTOs(tdefsRepository.findAll());
     }
 
     /**
@@ -77,10 +82,13 @@ public class TypeDefinitionResource {
     @GetMapping("/tdefs/page")
     @Timed
     public Page<TypeDefinitionDTO> getPageableTypeDefinitions(Pageable pageable,
-                                                              @RequestParam(required = false, defaultValue = "false") boolean latest) {
-        log.debug("REST request to get paged TypeDefinitions (index={}, size={}, onlyLatest={})",
+                                                              @RequestParam(required = false, defaultValue = "false") boolean latest,
+                                                              @RequestParam(required = false) String filter) {
+        log.debug("REST request to get paged TypeDefinitions (index={}, size={}, onlyLatest={}, filter={})",
                 pageable.getPageNumber(), pageable.getPageSize(), latest);
-        return tdefsService.getPage(pageable, latest);
+        Page<TypeDefinitionDTO> page = tdefsService.getPage(pageable, latest);
+
+        return page;
     }
 
     /**
@@ -93,7 +101,7 @@ public class TypeDefinitionResource {
     @Timed
     public ResponseEntity<TypeDefinitionDTO> getTypeDefinition(@PathVariable Long id) {
         log.debug("REST request to get TypeDefinition by id={}", id);
-        return Optional.of(tdefsService.findOne(id))
+        return tdefsRepository.findOneWithDeployUnitsById(id)
                 .map(tdef -> new ResponseEntity<>(tdefMapper.typeDefinitionToTypeDefinitionDTO(tdef), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -104,14 +112,21 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/namespaces/{namespace:" + Constants.NS_NAME_REGEX + "}/tdefs")
     @Timed
-    public ResponseEntity<Set<TypeDefinitionDTO>> getNamespaceTdefs(@PathVariable String namespace,
+    public ResponseEntity<Set<TypeDefinitionDTO>> getTypeDefinitionsByNamespace(@PathVariable String namespace,
                                                                     @RequestParam(required = false) String version) {
         log.debug("REST request to get namespace tdefs: {}", namespace);
-        Set<TypeDefinitionDTO> tdefs = tdefsService.getAllByNamespace(namespace);
-        if (version != null && version.equals("latest")) {
-            return new ResponseEntity<>(tdefsService.onlyLatest(tdefs.stream()).collect(Collectors.toSet()), HttpStatus.OK);
+        Stream<TypeDefinitionDTO> tdefs = tdefsRepository
+                .findAllWithDeployUnitsByNamespaceName(namespace)
+                .stream()
+                .map(TypeDefinitionDTO::new);
+        if (version != null) {
+            if (version.equals("latest")) {
+                return new ResponseEntity<>(tdefsService.onlyLatest(tdefs).collect(Collectors.toSet()), HttpStatus.OK);
+            } else {
+                return ResponseEntity.badRequest().headers(HeaderUtil.createAlert("version query param should equal 'latest'", version)).body(null);
+            }
         }
-        return new ResponseEntity<>(tdefs, HttpStatus.OK);
+        return new ResponseEntity<>(tdefs.collect(Collectors.toSet()), HttpStatus.OK);
     }
 
     /**
@@ -119,10 +134,13 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{name:"+ Constants.TDEF_NAME_REGEX+"}")
     @Timed
-    ResponseEntity<Set<TypeDefinitionDTO>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace,
+    public ResponseEntity<Set<TypeDefinitionDTO>> getTypeDefinitionsByNamespaceAndName(@PathVariable String namespace,
                                                                              @PathVariable String name) {
         log.debug("REST request to get TypeDefinitions: {}.{}", namespace, name);
-        return new ResponseEntity<>(tdefsService.getAllByNamespaceAndName(namespace, name), HttpStatus.OK);
+        return new ResponseEntity<>(
+                tdefMapper.typeDefinitionsToTypeDefinitionDTOs(
+                        tdefsRepository.findAllWithDeployUnitsByNamespaceNameAndName(namespace, name)),
+                HttpStatus.OK);
     }
 
     /**
@@ -136,7 +154,7 @@ public class TypeDefinitionResource {
     public ResponseEntity<TypeDefinitionDTO> getLatestTypeDefinition(@PathVariable String namespace,
                                                                      @PathVariable String name) {
         log.debug("REST request to get the latest TypeDefinition for {}.{}", namespace, name);
-        return tdefsService.findLatestByNamespaceAndName(namespace, name)
+        return tdefsRepository.findFirst1WithDeployUnitsByNamespaceNameAndNameOrderByVersionDesc(namespace, name)
                 .map(tdef -> new ResponseEntity<>(new TypeDefinitionDTO(tdef), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -149,7 +167,7 @@ public class TypeDefinitionResource {
     public ResponseEntity<TypeDefinitionDTO> getTypeDefinition(@PathVariable String namespace, @PathVariable String name,
                                                         @PathVariable Long version) {
         log.debug("REST request to get TypeDefinition: {}.{}/{}", namespace, name, version);
-        return tdefsService.findByNamespaceAndNameAndVersion(namespace, name, version)
+        return tdefsRepository.findOneWithDeployUnitsByNamespaceNameAndNameAndVersion(namespace, name, version)
             .map(tdef -> new ResponseEntity<>(tdefMapper.typeDefinitionToTypeDefinitionDTO(tdef), HttpStatus.OK))
             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -160,18 +178,16 @@ public class TypeDefinitionResource {
     @PostMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs")
     @Timed
     @Secured(AuthoritiesConstants.USER)
-    public ResponseEntity<?> addTypeDefinition(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
+    public ResponseEntity addTypeDefinition(@PathVariable String namespace, @Valid @RequestBody TypeDefinitionDTO tdefDTO) {
         log.debug("REST request to add a TypeDefinition: {} in Namespace: {}", tdefDTO, namespace);
         return userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin())
             .map(user ->
                 Optional.ofNullable(namespaceRepository.findOne(namespace))
                     .map(foundNs ->
-                        namespaceRepository.findOneByNameAndMemberName(namespace, user.getLogin())
+                        namespaceRepository.findOneWithMembersAndTypeDefinitionsByNameAndMemberName(namespace, user.getLogin())
                             .map(ns ->
                                 tdefsRepository.findOneByNamespaceNameAndNameAndVersion(ns.getName(), tdefDTO.getName(), tdefDTO.getVersion())
-                                    .map(tdef -> new ResponseEntity<>(
-                                        new ErrorDTO(ns.getName()+"."+tdefDTO.getName()+"/"+tdefDTO.getVersion()+" already exists"),
-                                        HttpStatus.BAD_REQUEST))
+                                    .map(tdef -> new ResponseEntity<>(HttpStatus.BAD_REQUEST))
                                     .orElseGet(() -> {
                                         TypeDefinition tdef = new TypeDefinition();
                                         tdef.setName(tdefDTO.getName());
@@ -179,11 +195,10 @@ public class TypeDefinitionResource {
                                         tdef.setModel(tdefDTO.getModel());
                                         tdef.setNamespace(ns);
                                         tdef.setCreatedBy(SecurityUtils.getCurrentUserLogin());
-                                        ns.addTypeDefinition(tdef);
-                                        tdefsRepository.save(tdef);
-                                        return new ResponseEntity<>(HttpStatus.CREATED);
+                                        tdef.setCreatedDate(ZonedDateTime.now());
+                                        return new ResponseEntity<>(new TypeDefinitionDTO(tdefsRepository.save(tdef)), HttpStatus.CREATED);
                                     }))
-                            .orElse(new ResponseEntity<>(new ErrorDTO("you are not a member of namespace '"+namespace+"'"), HttpStatus.FORBIDDEN)))
+                            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN)))
                     .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND)))
             .orElse(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
     }

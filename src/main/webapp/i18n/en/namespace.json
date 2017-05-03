@@ -1,35 +1,42 @@
 {
-    "kevoreeRegistryApp": {
-        "namespace" : {
-            "home": {
-                "title": "Namespaces",
-                "createLabel": "New namespace"
-            },
-            "delete": {
-                "question": "Are you sure you want to delete namespace <strong>{{ name }}</strong> ?",
-                "warning1": "Every TypeDefinition & DeployUnit in this namespace will be deleted forever.",
-                "warning2": "This cannot be undone!"
-            },
-            "detail": {
-                "title": "Namespace"
-            },
-            "addMember": {
-                "title": "Add a member to <strong>{{ name }}</strong>",
-                "action": "Add a member",
-                "user": "Select the user to add"
-            },
-            "removeMember": {
-                "title": "Remove a member from <strong>{{ name }}</strong>",
-                "action": "Remove a member",
-                "user": "Select the user to remove"
-            },
-            "create": "Create a namespace",
-            "name": "Name",
-            "owner": "Owner",
-            "members": "Members",
-            "typeDefinitions": "TypeDefinitions",
-            "filterPlaceholder": "Filter namespaces...",
-            "filter": "Filter"
-        }
-    }
+	"namespace": {
+		"home": {
+			"title": "Namespaces",
+			"createLabel": "New namespace"
+		},
+		"delete": {
+			"question": "Are you sure you want to delete the namespace <strong>\"{{ name }}\"</strong> ?",
+			"warning1": "Every TypeDefinition & DeployUnit in this namespace will be deleted forever.",
+			"warning2": "This cannot be undone!"
+		},
+		"detail": {
+			"title": "Namespace"
+		},
+		"addMember": {
+			"title": "Add a member to <strong>{{ name }}</strong>",
+			"action": "Add a member",
+			"user": "Select the user to add"
+		},
+		"removeMember": {
+			"title": "Remove a member from <strong>{{ name }}</strong>",
+			"action": "Remove a member",
+			"user": "Select the member to remove"
+		},
+		"errors": {
+			"notfound": "Unable to find any namespace named <strong>{{ name }}</strong>"
+		},
+		"create": "Create a namespace",
+		"created": "Created",
+		"createdBy": "Created by",
+		"modified": "Modified",
+		"modifiedBy": "Modified by",
+		"latestVersion": "Latest version",
+		"lastModification": "Last modification",
+		"name": "Name",
+		"owner": "Owner",
+		"members": "Members",
+		"typeDefinitions": "TypeDefinitions",
+		"filterPlaceholder": "Filter namespaces...",
+		"filter": "Filter"
+	}
 }

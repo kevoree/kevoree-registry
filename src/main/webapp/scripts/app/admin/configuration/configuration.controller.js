@@ -1,14 +1,15 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('ConfigurationController', function ($scope, ConfigurationService) {
-		$scope.allConfiguration = null;
-		$scope.configuration = null;
+	.controller('ConfigurationController', function (ConfigurationService) {
+		var vm = this;
+		vm.allConfiguration = null;
+		vm.configuration = null;
 
 		ConfigurationService.get().then(function (configuration) {
-			$scope.configuration = configuration;
+			vm.configuration = configuration;
 		});
 		ConfigurationService.getEnv().then(function (configuration) {
-			$scope.allConfiguration = configuration;
+			vm.allConfiguration = configuration;
 		});
 	});

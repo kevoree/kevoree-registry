@@ -1,31 +1,32 @@
 {
-  "userManagement": {
-    "home": {
-      "title": "Utilisateurs",
-      "createLabel": "Créer un nouvel utilisateur",
-      "createOrEditLabel": "Créer ou éditer un utilisateur"
-    },
-    "created": "L'utilisateur {{ param }} a été créé.",
-    "updated": "L'utilisateur {{ param }} a été mis à jour.",
-    "deleted": "L'utilisateur {{ param }} a été supprimé.",
-    "delete": {
-      "question": "Etes-vous certain de vouloir supprimer l'utilisateur {{ login }} ?"
-    },
-    "detail": {
-      "title": "Utilisateur"
-    },
-    "login": "Login",
-    "firstName": "Prénom",
-    "lastName": "Nom",
-    "email": "Email",
-    "activated": "Activé",
-    "deactivated": "Désactivé",
-    "profiles": "Droits",
-    "langKey": "Langue",
-    "createdBy": "Créé par",
-    "createdDate": "Créé le",
-    "lastModifiedBy": "Modifié par",
-    "lastModifiedDate": "Modifié le",
+	"userManagement": {
+		"home": {
+			"title": "Utilisateurs",
+			"createLabel": "Créer un nouvel utilisateur",
+			"createOrEditLabel": "Créer ou éditer un utilisateur"
+		},
+		"created": "L'utilisateur {{ param }} a été créé.",
+		"updated": "L'utilisateur {{ param }} a été mis à jour.",
+		"deleted": "L'utilisateur {{ param }} a été supprimé.",
+		"delete": {
+			"question": "Etes-vous certain de vouloir supprimer l'utilisateur {{ login }} ?",
+			"owner": "Impossible de supprimer le propriétaire d'un namespace. Supprimer le namespace en premier."
+		},
+		"detail": {
+			"title": "Utilisateur"
+		},
+		"login": "Login",
+		"firstName": "Prénom",
+		"lastName": "Nom",
+		"email": "Email",
+		"activated": "Activé",
+		"deactivated": "Désactivé",
+		"created": "Création",
+		"createdBy": "Crée par",
+		"modified": "Modification",
+		"modifiedBy": "Modifié par",
+		"profiles": "Droits",
+		"langKey": "Langue",
 		"namespaces": "Namespaces"
-  }
+	}
 }

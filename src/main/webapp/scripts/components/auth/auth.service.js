@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('Auth', function Auth($rootScope, $state, $q, $sessionStorage, $translate, Principal, AuthServerProvider, Account, Register, Activate, Password, Tracker) {
+	.factory('Auth', function ($rootScope, $state, $q, $sessionStorage, $translate, Principal, AuthServerProvider, Account, Register, Activate, Password, Tracker, AlertService) {
 		var service = {
 			activateAccount: activateAccount,
 			authorize: authorize,
@@ -12,7 +12,6 @@ angular
 			login: login,
 			logout: logout,
 			resetPreviousState: resetPreviousState,
-			storePreviousState: storePreviousState,
 			updateAccount: updateAccount
 		};
 
@@ -39,26 +38,29 @@ angular
 				var isAuthenticated = Principal.isAuthenticated();
 
 				// an authenticated user can't access to login and register pages
-				if (isAuthenticated && $rootScope.toState.parent === 'account' && ($rootScope.toState.name === 'login' || $rootScope.toState.name === 'register')) {
+				if (isAuthenticated && (['login', 'register', 'activate'].indexOf($rootScope.nextState.name) !== -1)) {
 					$state.go('home');
 				}
 
 				// recover and clear previousState after external login redirect (e.g. oauth2)
-				if (isAuthenticated && !$rootScope.fromState.name && getPreviousState()) {
+				if (isAuthenticated && !$rootScope.previousState.name && getPreviousState()) {
 					var previousState = getPreviousState();
 					resetPreviousState();
 					$state.go(previousState.name, previousState.params);
 				}
 
-				if ($rootScope.toState.data.authorities && $rootScope.toState.data.authorities.length > 0 && !Principal.hasAnyAuthority($rootScope.toState.data.authorities)) {
+				if ($rootScope.nextState.data.authorities && $rootScope.nextState.data.authorities.length > 0 && !Principal.hasAnyAuthority($rootScope.nextState.data.authorities)) {
 					if (isAuthenticated) {
 						// user is signed in but not authorized for desired state
 						$state.go('accessdenied');
 					} else {
 						// user is not authenticated. stow the state they wanted before you
 						// send them to the login service, so you can return them when you're done
-						storePreviousState($rootScope.toState.name, $rootScope.toStateParams);
-						$state.go('login');
+						$sessionStorage.previousState = $rootScope.nextState;
+						// now, send them to the signin state so they can log in
+						$state.go('login').then(function () {
+							AlertService.warning('You must be logged-in to access <strong>' + $state.href($sessionStorage.previousState.name, $sessionStorage.previousState.params) + '</strong>');
+						});
 					}
 				}
 			}
@@ -119,8 +121,8 @@ angular
 
 
 		function logout() {
-			AuthServerProvider.logout();
 			Principal.authenticate(null);
+			return AuthServerProvider.logout();
 		}
 
 		function updateAccount(account, callback) {
@@ -142,13 +144,5 @@ angular
 
 		function resetPreviousState() {
 			delete $sessionStorage.previousState;
-		}
-
-		function storePreviousState(previousStateName, previousStateParams) {
-			var previousState = {
-				"name": previousStateName,
-				"params": previousStateParams
-			};
-			$sessionStorage.previousState = previousState;
 		}
 	});

@@ -2,36 +2,37 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.controller('AuditsController', function ($scope, $translate, $filter, AuditsService, ParseLinks) {
-		$scope.audits = null;
-		$scope.fromDate = null;
-		$scope.links = null;
-		$scope.loadPage = loadPage;
-		$scope.onChangeDate = onChangeDate;
-		$scope.page = 1;
-		$scope.previousMonth = previousMonth;
-		$scope.toDate = null;
-		$scope.today = today;
-		$scope.totalItems = null;
+	.controller('AuditsController', function ($translate, $filter, AuditsService, ParseLinks) {
+		var vm = this;
+		vm.audits = null;
+		vm.fromDate = null;
+		vm.links = null;
+		vm.loadPage = loadPage;
+		vm.onChangeDate = onChangeDate;
+		vm.page = 1;
+		vm.previousMonth = previousMonth;
+		vm.toDate = null;
+		vm.today = today;
+		vm.totalItems = null;
 
-		$scope.today();
-		$scope.previousMonth();
-		$scope.onChangeDate();
+		vm.today();
+		vm.previousMonth();
+		vm.onChangeDate();
 
 		function onChangeDate() {
 			var dateFormat = 'yyyy-MM-dd';
-			var fromDate = $filter('date')($scope.fromDate, dateFormat);
-			var toDate = $filter('date')($scope.toDate, dateFormat);
+			var fromDate = $filter('date')(vm.fromDate, dateFormat);
+			var toDate = $filter('date')(vm.toDate, dateFormat);
 
 			AuditsService.query({
-				page: $scope.page - 1,
+				page: vm.page - 1,
 				size: 20,
 				fromDate: fromDate,
 				toDate: toDate
 			}, function (result, headers) {
-				$scope.audits = result;
-				$scope.links = ParseLinks.parse(headers('link'));
-				$scope.totalItems = headers('X-Total-Count');
+				vm.audits = result;
+				vm.links = ParseLinks.parse(headers('link'));
+				vm.totalItems = headers('X-Total-Count');
 			});
 		}
 
@@ -39,7 +40,7 @@ angular
 		function today() {
 			// Today + 1 day - needed if the current day must be included
 			var today = new Date();
-			$scope.toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+			vm.toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 		}
 
 		function previousMonth() {
@@ -50,11 +51,11 @@ angular
 				fromDate = new Date(fromDate.getFullYear(), fromDate.getMonth() - 1, fromDate.getDate());
 			}
 
-			$scope.fromDate = fromDate;
+			vm.fromDate = fromDate;
 		}
 
 		function loadPage(page) {
-			$scope.page = page;
-			$scope.onChangeDate();
+			vm.page = page;
+			vm.onChangeDate();
 		}
 	});

@@ -1,82 +1,85 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-    .controller('MetricsController', function ($scope, MetricsService) {
-        $scope.metrics = {};
-        $scope.updatingMetrics = true;
+	.controller('MetricsController', function ($scope, MetricsService) {
+		var vm = this;
+		vm.metrics = {};
+		vm.updatingMetrics = true;
 
-        $scope.refresh = function () {
-            $scope.updatingMetrics = true;
-            MetricsService.getMetrics().then(function (promise) {
-                $scope.metrics = promise;
-                $scope.updatingMetrics = false;
-            }, function (promise) {
-                $scope.metrics = promise.data;
-                $scope.updatingMetrics = false;
-            });
-        };
+		vm.refresh = function () {
+			vm.updatingMetrics = true;
+			MetricsService.getMetrics()
+				.then(function (metrics) {
+					vm.metrics = metrics;
+					vm.updatingMetrics = false;
+				})
+				.catch(function (resp) {
+					vm.metrics = resp.data;
+					vm.updatingMetrics = false;
+				});
+		};
 
-        $scope.$watch('metrics', function (newValue) {
-            $scope.servicesStats = {};
-            $scope.cachesStats = {};
-            angular.forEach(newValue.timers, function (value, key) {
-                if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
-                    $scope.servicesStats[key] = value;
-                }
+		$scope.$watch('vm.metrics', function (newValue) {
+			vm.servicesStats = {};
+			vm.cachesStats = {};
+			angular.forEach(newValue.timers, function (value, key) {
+				if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
+					vm.servicesStats[key] = value;
+				}
 
-                if (key.indexOf('net.sf.ehcache.Cache') !== -1) {
-                    // remove gets or puts
-                    var index = key.lastIndexOf('.');
-                    var newKey = key.substr(0, index);
+				if (key.indexOf('net.sf.ehcache.Cache') !== -1) {
+					// remove gets or puts
+					var index = key.lastIndexOf('.');
+					var newKey = key.substr(0, index);
 
-                    // Keep the name of the domain
-                    index = newKey.lastIndexOf('.');
-                    $scope.cachesStats[newKey] = {
-                        'name': newKey.substr(index + 1),
-                        'value': value
-                    };
-                }
-            });
-        });
+					// Keep the name of the domain
+					index = newKey.lastIndexOf('.');
+					vm.cachesStats[newKey] = {
+						'name': newKey.substr(index + 1),
+						'value': value
+					};
+				}
+			});
+		});
 
-        $scope.refresh();
+		vm.refresh();
 
-        $scope.refreshThreadDumpData = function () {
-            MetricsService.threadDump().then(function (data) {
-                $scope.threadDump = data;
+		vm.refreshThreadDumpData = function () {
+			MetricsService.threadDump().then(function (data) {
+				vm.threadDump = data;
 
-                $scope.threadDumpRunnable = 0;
-                $scope.threadDumpWaiting = 0;
-                $scope.threadDumpTimedWaiting = 0;
-                $scope.threadDumpBlocked = 0;
+				vm.threadDumpRunnable = 0;
+				vm.threadDumpWaiting = 0;
+				vm.threadDumpTimedWaiting = 0;
+				vm.threadDumpBlocked = 0;
 
-                angular.forEach(data, function (value) {
-                    if (value.threadState === 'RUNNABLE') {
-                        $scope.threadDumpRunnable += 1;
-                    } else if (value.threadState === 'WAITING') {
-                        $scope.threadDumpWaiting += 1;
-                    } else if (value.threadState === 'TIMED_WAITING') {
-                        $scope.threadDumpTimedWaiting += 1;
-                    } else if (value.threadState === 'BLOCKED') {
-                        $scope.threadDumpBlocked += 1;
-                    }
-                });
+				angular.forEach(data, function (value) {
+					if (value.threadState === 'RUNNABLE') {
+						vm.threadDumpRunnable += 1;
+					} else if (value.threadState === 'WAITING') {
+						vm.threadDumpWaiting += 1;
+					} else if (value.threadState === 'TIMED_WAITING') {
+						vm.threadDumpTimedWaiting += 1;
+					} else if (value.threadState === 'BLOCKED') {
+						vm.threadDumpBlocked += 1;
+					}
+				});
 
-                $scope.threadDumpAll = $scope.threadDumpRunnable + $scope.threadDumpWaiting +
-                    $scope.threadDumpTimedWaiting + $scope.threadDumpBlocked;
+				vm.threadDumpAll = vm.threadDumpRunnable + vm.threadDumpWaiting +
+					vm.threadDumpTimedWaiting + vm.threadDumpBlocked;
 
-            });
-        };
+			});
+		};
 
-        $scope.getLabelClass = function (threadState) {
-            if (threadState === 'RUNNABLE') {
-                return 'label-success';
-            } else if (threadState === 'WAITING') {
-                return 'label-info';
-            } else if (threadState === 'TIMED_WAITING') {
-                return 'label-warning';
-            } else if (threadState === 'BLOCKED') {
-                return 'label-danger';
-            }
-        };
-    });
+		vm.getLabelClass = function (threadState) {
+			if (threadState === 'RUNNABLE') {
+				return 'label-success';
+			} else if (threadState === 'WAITING') {
+				return 'label-info';
+			} else if (threadState === 'TIMED_WAITING') {
+				return 'label-warning';
+			} else if (threadState === 'BLOCKED') {
+				return 'label-danger';
+			}
+		};
+	});

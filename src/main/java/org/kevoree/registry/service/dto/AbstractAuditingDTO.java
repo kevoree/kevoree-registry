@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
  */
 abstract class AbstractAuditingDTO {
 
+    private ZonedDateTime createdDate;
     private String createdBy;
     private String lastModifiedBy;
     private ZonedDateTime lastModifiedDate;
@@ -17,9 +18,18 @@ abstract class AbstractAuditingDTO {
     AbstractAuditingDTO() {}
 
     AbstractAuditingDTO(AbstractAuditingEntity audit) {
+        this.createdDate = audit.getCreatedDate();
         this.createdBy = audit.getCreatedBy();
         this.lastModifiedBy = audit.getLastModifiedBy();
         this.lastModifiedDate = audit.getLastModifiedDate();
+    }
+
+    public ZonedDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(ZonedDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 
     public String getCreatedBy() {

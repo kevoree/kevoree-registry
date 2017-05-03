@@ -3,6 +3,7 @@ package org.kevoree.registry.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
 import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "T_TYPE_DEFINITION")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class TypeDefinition extends AbstractAuditingEntity implements Serializable {
 
     @Id
@@ -61,6 +62,7 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
 
     public void setNamespace(Namespace ns) {
         this.namespace = ns;
+        this.namespace.addTypeDefinition(this);
     }
 
     public String getName() {

@@ -8,10 +8,9 @@
 			};
 
 			function initialize() {
-				var stateChangeStart = $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState) {
-					$rootScope.toState = toState;
-					$rootScope.toStateParams = toStateParams;
-					$rootScope.fromState = fromState;
+				var stateChangeStart = $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams, fromState, fromStateParams) {
+					$rootScope.previousState = angular.extend(fromState, { params: fromStateParams });
+					$rootScope.nextState = angular.extend(toState, { params: toStateParams });
 
 					// Redirect to a state with an external URL (http://stackoverflow.com/a/30221248/1098564)
 					if (toState.external) {

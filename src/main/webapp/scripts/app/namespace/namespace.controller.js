@@ -1,103 +1,107 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('NamespaceController', function ($rootScope, $scope, Namespaces) {
-		$scope.namespaces = [];
-		$scope.search = {
+	.controller('NamespaceController', function ($q, Namespaces, Principal) {
+		var vm = this;
+		vm.namespaces = [];
+		vm.search = {
 			name: '',
+			owner: '',
 			members: ''
 		};
-		$scope.orderColumn = 'name';
-		$scope.reverse = false;
-		$scope.orderClasses = {
-			'glyphicon-chevron-up': $scope.reverse,
-			'glyphicon-chevron-down': !$scope.reverse
+		vm.orderColumn = 'name';
+		vm.reverse = false;
+		vm.orderClasses = {
+			'glyphicon-chevron-up': vm.reverse,
+			'glyphicon-chevron-down': !vm.reverse
 		};
+		vm.canDelete = false;
 
-		$scope.loadAll = function () {
-			Namespaces.query(function (result) {
-				$scope.namespaces = result;
+		vm.loadAll = function () {
+			$q.all([
+				Principal.identity(),
+				Namespaces.query().$promise
+			]).then(function (results) {
+				var user = results[0];
+				vm.namespaces = results[1].map(function (ns) {
+					ns.members = ns.members.filter(function (member) {
+						return member !== ns.owner;
+					});
+					ns.canDelete = user
+						&& (user.authorities.indexOf('ROLE_ADMIN') !== -1 || user.login === ns.owner);
+					return ns;
+				});
+			}).catch(function () {
+					// TODO handle error
 			});
 		};
 
-		$scope.loadAll();
+		vm.loadAll();
 
-		$scope.create = function () {
-			Namespaces.save($scope.namespace,
+		vm.create = function () {
+			Namespaces.save(vm.namespace,
 				function () {
-					$scope.loadAll();
-					$('#saveNamespaceModal').modal('hide');
-					$scope.clear();
+					vm.loadAll();
+					vm.clear();
 				},
 				function (resp) {
-					$scope.saveError = resp.data.message;
+					vm.saveError = resp.data.message;
 				}
 			);
 		};
 
-		$scope.update = function (name) {
-			$scope.namespace = Namespaces.get({
-				name: name
-			});
-			$('#saveNamespaceModal').modal('show');
+		vm.update = function (name) {
+			vm.namespace = Namespaces.get({ name: name });
 		};
 
-		$scope.isOwner = function (namespace) {
-			return $rootScope.user && ($rootScope.user.login === namespace.owner);
-		};
-
-		$scope.delete = function (name, event) {
+		vm.delete = function (name, event) {
 			event.stopPropagation();
 			event.preventDefault();
-			$scope.namespace = Namespaces.get({
-				name: name
-			});
-			$('#deleteNamespaceConfirmation').modal('show');
+			vm.namespace = Namespaces.get({ name: name });
 		};
 
-		$scope.confirmDelete = function (name) {
-			Namespaces.delete({
-					name: name
-				},
-				function () {
-					$scope.loadAll();
-					$('#deleteNamespaceConfirmation').modal('hide');
-					$scope.clear();
-				},
-				function (resp) {
+		vm.confirmDelete = function (name) {
+			Namespaces.delete({ name: name })
+				.$promise
+				.then(function () {
+					vm.loadAll();
+					vm.clear();
+				})
+				.catch(function (resp) {
 					if (resp.status === 401) {
-						$scope.deleteError = resp.statusText;
+						vm.deleteError = resp.statusText;
 					} else {
-						$scope.deleteError = resp.statusText;
+						vm.deleteError = resp.statusText;
 					}
 				});
 		};
 
-		$scope.clear = function () {
-			$scope.namespace = null;
-			$scope.search = {
+		vm.clear = function () {
+			vm.namespace = null;
+			vm.search = {
 				name: '',
+				owner: '',
 				members: ''
 			};
 		};
 
-		$scope.clearDeleteError = function () {
-			$scope.deleteError = null;
+		vm.clearDeleteError = function () {
+			vm.deleteError = null;
 		};
 
-		$scope.clearSaveError = function () {
-			$scope.saveError = null;
+		vm.clearSaveError = function () {
+			vm.saveError = null;
 		};
 
-		$scope.changeOrderBy = function (prop) {
-			if (prop === $scope.orderColumn) {
-				$scope.reverse = !$scope.reverse;
-				$scope.orderClasses = {
-					'glyphicon-chevron-up': $scope.reverse,
-					'glyphicon-chevron-down': !$scope.reverse
+		vm.changeOrderBy = function (prop) {
+			if (prop === vm.orderColumn) {
+				vm.reverse = !vm.reverse;
+				vm.orderClasses = {
+					'glyphicon-chevron-up': vm.reverse,
+					'glyphicon-chevron-down': !vm.reverse
 				};
 			}
-			$scope.orderColumn = prop;
+			vm.orderColumn = prop;
 		};
 
 		angular.element('#saveNamespaceModal').on('shown.bs.modal', function () {

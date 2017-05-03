@@ -93,6 +93,7 @@
                   tableName="T_USER">
             <column name="activated" type="boolean"/>
             <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
         </loadData>
         <dropDefaultValue tableName="T_USER" columnName="created_date" columnDataType="datetime"/>
 
@@ -154,6 +155,14 @@
             <column name="owner_id" type="bigint">
                 <constraints nullable="false"/>
             </column>
+            <column name="created_by" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp" defaultValueDate="${now}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="varchar(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
         </createTable>
         <addForeignKeyConstraint baseColumnNames="owner_id"
                                  baseTableName="T_NAMESPACE"
@@ -164,7 +173,10 @@
         <loadData encoding="UTF-8"
                   file="config/liquibase/namespaces.csv"
                   separator=";"
-                  tableName="T_NAMESPACE"/>
+                  tableName="T_NAMESPACE">
+            <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
+        </loadData>
 
         <createTable tableName="T_TYPE_DEFINITION">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
@@ -204,6 +216,7 @@
                   separator=";"
                   tableName="T_TYPE_DEFINITION">
             <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
         </loadData>
 
         <createTable tableName="T_DEPLOY_UNIT">
@@ -250,6 +263,7 @@
                   separator=";"
                   tableName="T_DEPLOY_UNIT">
             <column name="created_date" type="timestamp"/>
+            <column name="last_modified_date" type="timestamp"/>
         </loadData>
 
         <createTable tableName="T_USER_NAMESPACE">

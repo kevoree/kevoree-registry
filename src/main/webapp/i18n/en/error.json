@@ -1,6 +1,9 @@
 {
-    "errors": {
-        "title": "Error page!",
-        "403": "You are not authorized to access the page."
-    }
+	"error": {
+		"title": "Error page!",
+		"code": {
+			"403": "You are not authorized to access the page.",
+			"404": "Not found <strong>{{ url }}</strong>"
+		}
+	}
 }

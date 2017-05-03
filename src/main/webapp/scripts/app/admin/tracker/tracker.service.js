@@ -67,7 +67,7 @@ angular
 					REGEX.lastIndex = 0;
 					var matches = [];
 					var match = REGEX.exec(url);
-					while (match != null) {
+					while (match !== null) {
 						matches.push(match[1]);
 						match = REGEX.exec(url);
 					}

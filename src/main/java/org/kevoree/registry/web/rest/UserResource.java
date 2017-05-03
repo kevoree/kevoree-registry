@@ -12,6 +12,7 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.security.SecurityUtils;
 import org.kevoree.registry.service.MailService;
 import org.kevoree.registry.service.UserService;
+import org.kevoree.registry.service.dto.UserDTO;
 import org.kevoree.registry.web.rest.util.HeaderUtil;
 import org.kevoree.registry.web.rest.util.PaginationUtil;
 import org.kevoree.registry.web.rest.vm.ManagedUserVM;
@@ -32,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * REST controller for managing users.
@@ -113,11 +113,11 @@ public class UserResource {
         //Lowercase the user login before comparing with database
         if (userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase()).isPresent()) {
             return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert("userManagement", "userexists", "Login already in use"))
+                    .headers(HeaderUtil.createFailureAlert("userManagement.error.loginExists"))
                     .body(null);
         } else if (userRepository.findOneByEmail(managedUserVM.getEmail()).isPresent()) {
             return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert("userManagement", "emailexists", "Email already in use"))
+                    .headers(HeaderUtil.createFailureAlert("userManagement.error.emailExists"))
                     .body(null);
         } else {
             User newUser = userService.createUser(managedUserVM);
@@ -143,11 +143,15 @@ public class UserResource {
         log.debug("REST request to update User : {}", managedUserVM);
         Optional<User> existingUser = userRepository.findOneByEmail(managedUserVM.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("userManagement", "emailexists", "E-mail already in use")).body(null);
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert("userManagement.error.emailExists"))
+                    .body(null);
         }
         existingUser = userRepository.findOneByLogin(managedUserVM.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserVM.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("userManagement", "userexists", "Login already in use")).body(null);
+            return ResponseEntity.badRequest()
+                    .headers(HeaderUtil.createFailureAlert("userManagement.error.loginExists"))
+                    .body(null);
         }
         userService.updateUser(managedUserVM.getId(), managedUserVM.getLogin(), managedUserVM.getFirstName(),
                 managedUserVM.getLastName(), managedUserVM.getEmail(), managedUserVM.isActivated(),
@@ -162,19 +166,14 @@ public class UserResource {
      * GET  /users : get all users.
      *
      * @param pageable the pagination information
-     * @return the ResponseEntity with status 200 (OK) and with body all users
-     * @throws URISyntaxException if the pagination headers couldn't be generated
+     * @return the ResponseEntity with status 200 (OK) and with body page with all users
      */
     @GetMapping("/users")
     @Timed
-    public ResponseEntity<List<ManagedUserVM>> getAllUsers(@ApiParam Pageable pageable)
-            throws URISyntaxException {
-        Page<User> page = userRepository.findAll(pageable);
-        List<ManagedUserVM> managedUserVMs = page.getContent().stream()
-                .map(ManagedUserVM::new)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<UserDTO>> getAllUsers(@ApiParam Pageable pageable) {
+        final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
-        return new ResponseEntity<>(managedUserVMs, headers, HttpStatus.OK);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
     /**
@@ -204,8 +203,19 @@ public class UserResource {
     @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
-        userService.deleteUser(login);
-        return ResponseEntity.ok().headers(HeaderUtil.createAlert( "userManagement.deleted", login)).build();
+        return userRepository.findOneWithNamespacesByLogin(login)
+                .map(user -> {
+                    if (user.ownsNamespaces()) {
+                        return ResponseEntity.badRequest()
+                                .headers(HeaderUtil.createFailureAlert("userManagement.error.deleteOwner"))
+                                .build();
+                    } else {
+                        userService.deleteUser(user);
+                        return ResponseEntity.ok()
+                                .headers(HeaderUtil.createAlert( "userManagement.deleted", login))
+                                .build();
+                    }
+                }).orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -228,11 +238,11 @@ public class UserResource {
     ResponseEntity<Set<TypeDefinition>> getUserTypeDefinitions() {
         log.debug("REST request to get User '{}' typedefinitions", SecurityUtils.getCurrentUserLogin());
         return userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin())
-            .map(user -> {
-                Set<TypeDefinition> tdefs = new HashSet<>();
-                user.getNamespaces().stream().forEach(ns -> tdefs.addAll(ns.getTypeDefinitions()));
-                return new ResponseEntity<>(tdefs, HttpStatus.OK);
-            })
-            .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
+                .map(user -> {
+                    Set<TypeDefinition> tdefs = new HashSet<>();
+                    user.getNamespaces().forEach(ns -> tdefs.addAll(ns.getTypeDefinitions()));
+                    return new ResponseEntity<>(tdefs, HttpStatus.OK);
+                })
+                .orElse(new ResponseEntity<>(HttpStatus.FORBIDDEN));
     }
 }

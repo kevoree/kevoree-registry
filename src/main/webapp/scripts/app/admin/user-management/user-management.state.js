@@ -104,7 +104,7 @@ angular
 					}, function () {
 						$state.go('user-management');
 					});
-						}]
+				}]
 			})
 			.state('user-management.edit', {
 				parent: 'user-management',
@@ -124,7 +124,7 @@ angular
 								return User.get({
 									login: $stateParams.login
 								});
-												}]
+							}]
 						}
 					}).result.then(function () {
 						$state.go('user-management', null, {
@@ -133,7 +133,7 @@ angular
 					}, function () {
 						$state.go('^');
 					});
-						}]
+				}]
 			})
 			.state('user-management.delete', {
 				parent: 'user-management',
@@ -152,7 +152,7 @@ angular
 								return User.get({
 									login: $stateParams.login
 								});
-												}]
+							}]
 						}
 					}).result.then(function () {
 						$state.go('user-management', null, {
@@ -161,6 +161,6 @@ angular
 					}, function () {
 						$state.go('^');
 					});
-						}]
+				}]
 			});
 	});

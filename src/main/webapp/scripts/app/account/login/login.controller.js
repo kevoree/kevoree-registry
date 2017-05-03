@@ -1,36 +1,40 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('LoginController', function ($rootScope, $scope, $state, $timeout, Auth) {
-		$scope.user = {};
-		$scope.errors = {};
-		$scope.rememberMe = true;
+	.controller('LoginController', function ($log, $rootScope, $state, $sessionStorage, $timeout, Auth, AlertService) {
+		var vm = this;
+		vm.user = {};
+		vm.errors = {};
+		vm.rememberMe = true;
 
 		$timeout(function () {
-			angular.element('[ng-model="username"]').focus();
+			angular.element('[ng-model="vm.username"]').focus();
 		});
 
-		$scope.login = function () {
-			$scope.authenticationError = false;
+		vm.login = function () {
+			vm.authenticationError = false;
 			Auth.login({
-				username: $scope.username,
-				password: $scope.password,
-				rememberMe: $scope.rememberMe
-			}).then(function () {
-				$scope.authenticationError = false;
-				$rootScope.$broadcast('authenticationSuccess');
-				$state.go($rootScope.fromState.name);
-				// $state.back();
-				// previousState was set in the authExpiredInterceptor before being redirected to login modal.
-				// since login is successful, go to stored previousState and clear previousState
-				if (Auth.getPreviousState()) {
-						var previousState = Auth.getPreviousState();
-						Auth.resetPreviousState();
-						$state.go(previousState.name, previousState.params);
+				username: vm.username,
+				password: vm.password,
+				rememberMe: vm.rememberMe
+			}).then(function (user) {
+				vm.authenticationError = false;
+				$rootScope.$broadcast('authenticationSuccess', user);
+
+				var prevState;
+				if ($sessionStorage.previousState) {
+					prevState = $sessionStorage.previousState;
+				} else {
+					prevState = angular.extend($rootScope.previousState);
 				}
-			}).catch(function () {
-				$scope.authenticationError = true;
-				$scope.password = "";
+				$state.go(prevState.name || 'home', prevState.params)
+					.then(function () {
+						AlertService.success('global.messages.account.login', { login: vm.username });
+					});
+			}).catch(function (resp) {
+				AlertService.error('login.messages.error.authentication');
+				vm.authenticationError = true;
+				vm.password = "";
 			});
 		};
 	});

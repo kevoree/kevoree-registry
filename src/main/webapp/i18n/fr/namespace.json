@@ -6,7 +6,7 @@
 				"createLabel": "Nouveau namespace"
 			},
 			"delete": {
-				"question": "Etes-vous certain de vouloir supprimer le namespace <strong>{{ name }}</strong>?",
+				"question": "Êtes-vous certain de vouloir supprimer le namespace <strong>\"{{ name }}\"</strong> ?",
 				"warning1": "Tous les TypeDefinitions & DeployUnits de ce namespace seront supprimés pour toujours.",
 				"warning2": "Cette action est irréversible!"
 			},
@@ -24,6 +24,12 @@
 				"user": "Sélectionner le membre à retirer"
 			},
 			"create": "Create a namespace",
+			"created": "Création",
+			"createdBy": "Crée par",
+			"modified": "Modification",
+			"modifiedBy": "Modifié par",
+			"latestVersion": "Dernière version",
+			"lastModification": "Dernière modification",
 			"name": "Nom",
 			"owner": "Propriétaire",
 			"members": "Membres",

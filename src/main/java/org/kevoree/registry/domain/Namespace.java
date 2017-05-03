@@ -19,7 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "T_NAMESPACE")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class Namespace implements Serializable {
+public class Namespace extends AbstractAuditingEntity implements Serializable {
 
     @Id
     @org.springframework.data.annotation.Id
@@ -34,7 +34,7 @@ public class Namespace implements Serializable {
         "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" })
     private User owner;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "namespaces")
+    @ManyToMany(mappedBy = "namespaces")
     @JsonIgnore
     private Set<User> members = new HashSet<>();
 
@@ -68,10 +68,12 @@ public class Namespace implements Serializable {
 
     public void addMember(User member) {
         this.members.add(member);
+        member.addNamespace(this);
     }
 
     public void removeMember(User member) {
         this.members.remove(member);
+        member.removeNamespace(this);
     }
 
     public Set<TypeDefinition> getTypeDefinitions() {

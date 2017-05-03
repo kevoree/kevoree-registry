@@ -1,0 +1,29 @@
+<form name="addMemberForm" role="form" novalidate ng-submit="vm.addMember()" show-validation>
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;</button>
+		<h4 class="modal-title" translate="namespace.addMember.title" translate-values="{name: '{{vm.namespace.name}}'}">Add a member to namespace "{{namespace.name}}"</h4>
+	</div>
+	<div class="modal-body">
+		<div class="form-group">
+			<label translate="namespace.addMember.user">Select the user to add</label>
+			<select
+				class="form-control"
+				ng-model="vm.selectedUser"
+				ng-options="user.login for user in vm.users track by user.id"
+				ng-disabled="vm.selectedUser === null">
+			</select>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+			<span class="glyphicon glyphicon-ban-circle"></span>
+			<span>&nbsp;</span>
+			<span data-translate="entity.action.cancel">Cancel</span>
+		</button>
+		<button type="submit" ng-disabled="addMemberForm.$invalid || vm.isProcessing || vm.selectedUser === null" class="btn btn-primary">
+			<span class="glyphicon glyphicon-save"></span>
+			<span>&nbsp;</span>
+			<span data-translate="entity.action.save">Add</span>
+		</button>
+	</div>
+</form>

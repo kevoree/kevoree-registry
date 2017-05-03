@@ -174,6 +174,76 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.namespaces.remove(ns);
     }
 
+    public boolean ownsNamespaces() {
+        for (Namespace ns : this.namespaces) {
+            if (ns.getOwner().equals(this)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static class Builder extends AbstractAuditingEntity.Builder<User> {
+
+        public Builder() {
+            super(new User());
+        }
+
+        public Builder id(Long id) {
+            entity.setId(id);
+            return this;
+        }
+
+        public Builder login(String login) {
+            entity.setLogin(login);
+            return this;
+        }
+
+        public Builder password(String password) {
+            entity.setPassword(password);
+            return this;
+        }
+
+        public Builder firstName(String firstName) {
+            entity.setFirstName(firstName);
+            return this;
+        }
+
+        public Builder lastName(String lastName) {
+            entity.setLastName(lastName);
+            return this;
+        }
+
+        public Builder email(String email) {
+            entity.setEmail(email);
+            return this;
+        }
+
+        public Builder activated(boolean activated) {
+            entity.setActivated(activated);
+            return this;
+        }
+
+        public Builder langKey(String langKey) {
+            entity.setLangKey(langKey);
+            return this;
+        }
+
+        public Builder authorities(Set<Authority> authorities) {
+            entity.setAuthorities(authorities);
+            return this;
+        }
+
+        public Builder namespaces(Set<Namespace> namespaces) {
+            entity.setNamespaces(namespaces);
+            return this;
+        }
+
+        public User build() {
+            return entity;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

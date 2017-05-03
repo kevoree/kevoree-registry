@@ -13,7 +13,8 @@ angular
 				views: {
 					'content@': {
 						templateUrl: 'scripts/app/home/home.html',
-						controller: 'HomeController'
+						controller: 'HomeController',
+						controllerAs: 'vm'
 					}
 				},
 				resolve: {

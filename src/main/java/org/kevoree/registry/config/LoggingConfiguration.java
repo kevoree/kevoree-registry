@@ -30,8 +30,12 @@ public class LoggingConfiguration {
     private String serverPort;
 
 
+    private final JHipsterProperties jHipsterProperties;
+
     @Inject
-    private JHipsterProperties jHipsterProperties;
+    public LoggingConfiguration(JHipsterProperties jHipsterProperties) {
+        this.jHipsterProperties = jHipsterProperties;
+    }
 
     @PostConstruct
     private void init() {

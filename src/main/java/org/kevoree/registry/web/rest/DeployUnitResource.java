@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.time.ZonedDateTime;
@@ -153,8 +154,6 @@ public class DeployUnitResource {
                                         ZonedDateTime lastModified = ZonedDateTime.now();
                                         String login = SecurityUtils.getCurrentUserLogin();
                                         du.setModel(deployUnit.getModel());
-                                        du.getTypeDefinition().setLastModifiedDate(lastModified);
-                                        du.getTypeDefinition().setLastModifiedBy(login);
                                         du.setLastModifiedBy(login);
                                         du.setLastModifiedDate(lastModified);
                                         DeployUnit result = duRepository.save(du);
@@ -269,7 +268,8 @@ public class DeployUnitResource {
     public ResponseEntity<?> getDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
                                             @PathVariable Long tdefVersion,
                                             @RequestParam(required = false) String platform,
-                                            @RequestParam(required = false) String version) {
+                                            @RequestParam(required = false) String version,
+                                            HttpServletRequest request) {
         log.debug("REST request to get all deployUnits from {}.{}/{} (platform={},version={})",
             namespace, tdefName, tdefVersion, platform, version);
         Optional<Namespace> ns = Optional.ofNullable(nsRepository.findOne(namespace));
@@ -304,6 +304,48 @@ public class DeployUnitResource {
         } else {
             return new ResponseEntity<>(new ErrorDTO("Unable to find Namespace " + namespace), HttpStatus.NOT_FOUND);
         }
+    }
+
+    /**
+     * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus : get all the deployUnits attached to a
+     * specific "namespace.TypeDefinition/version"
+     * Filtering results by query params "platform" and "version"
+     *   - platform: comma separated list of strings (ie. js,java)
+     *   - version:  latest | release | semver range
+     *
+     * @param namespace the name of the namespace you want to list deployUnits from
+     * @param tdefName the name of the typeDefinition
+     * @param tdefVersion the version of the typeDefinition
+     * @return the ResponseEntity with status 200 (OK) and with body the deployUnits, or with status 404 (Not Found)
+     */
+    @GetMapping("/namespaces/{namespace:"+ Constants.NS_NAME_REGEX+"}/tdefs/{tdefName:"+ Constants.TDEF_NAME_REGEX+"}/{tdefVersion:[\\d]+}/specific-dus")
+    @Timed
+    public ResponseEntity<Set<DeployUnitDTO>> getSpecificDeployUnits(@PathVariable String namespace, @PathVariable String tdefName,
+                                            @PathVariable Long tdefVersion, HttpServletRequest request) {
+        log.debug("REST request to get specific deployUnits from {}.{}/{} (params={})",
+                namespace, tdefName, tdefVersion, request.getParameterMap());
+        return tdefsRepository.findOneByNamespaceNameAndNameAndVersion(namespace, tdefName, tdefVersion)
+                .map(tdef -> {
+                    Set<DeployUnit> dus = duRepository.findByTypeDefinitionId(tdef.getId());
+                    Map<String, Set<DeployUnit>> dusByPlatform = new HashMap<>();
+                    dus.forEach(du -> {
+                        Set<DeployUnit> deployUnits = dusByPlatform.computeIfAbsent(du.getPlatform(), p -> new HashSet<>());
+                        deployUnits.add(du);
+                    });
+                    Map<String, String[]> paramFilters = request.getParameterMap();
+                    Map<String, String> filters = duRepository.findDistinctPlatformByTypeDefinitionId(tdef.getId())
+                            .stream()
+                            .collect(Collectors.toMap(e -> e, e -> {
+                                String[] f = paramFilters.get(e);
+                                if (f != null && f.length > 0) {
+                                    return f[0];
+                                } else {
+                                    return "release";
+                                }
+                            }));
+                    return ResponseEntity.ok(duMapper.deployUnitsToDeployUnitDTOs(duService.filter(tdef, filters)));
+                })
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     /**

@@ -13,7 +13,8 @@ angular
 				views: {
 					'content@': {
 						templateUrl: 'scripts/app/admin/tracker/tracker.html',
-						controller: 'TrackerController'
+						controller: 'TrackerController',
+						controllerAs: 'vm'
 					}
 				},
 				resolve: {

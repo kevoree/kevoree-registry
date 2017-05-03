@@ -16,6 +16,7 @@ import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.web.rest.vm.ManagedUserVM;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.util.collections.Sets;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -26,7 +27,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -164,12 +164,12 @@ public class AccountResourceTest {
                 "joe@example.com",      // e-mail
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.USER)),
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                   // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.USER),
+                new HashSet<>()
         );
 
         restMvc.perform(
@@ -199,12 +199,12 @@ public class AccountResourceTest {
                 "funky@example.com",      // e-mail
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.USER)),
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.USER),
+                new HashSet<>()
         );
 
         restUserMockMvc.perform(
@@ -229,12 +229,12 @@ public class AccountResourceTest {
                 "invalid",              // e-mail <-- invalid
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.USER)),
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.USER),
+                new HashSet<>()
         );
 
         restUserMockMvc.perform(
@@ -260,12 +260,12 @@ public class AccountResourceTest {
                 "alice@example.com",    // e-mail
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.USER)),
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.USER),
+                new HashSet<>()
         );
 
         // Duplicate login, diff e-mail
@@ -278,12 +278,12 @@ public class AccountResourceTest {
                 "alicerrr@example.com", // e-mail <-- different email
                 u.isActivated(),                   // activated
                 u.getLangKey(),                   // langKey
-                u.getAuthorities(),
-                u.getNamespaces(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                u.getAuthorities(),
+                u.getNamespaces()
         );
 
         // Good
@@ -317,12 +317,12 @@ public class AccountResourceTest {
                 "john@doe.com",         // e-mail
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.USER)),
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.USER),
+                new HashSet<>()
         );
 
         // Duplicate e-mail, diff login
@@ -335,12 +335,12 @@ public class AccountResourceTest {
                 u.getEmail(),           // email
                 u.isActivated(),        // activated
                 u.getLangKey(),         // langKey
-                u.getAuthorities(),     // authorities
-                u.getNamespaces(),      // namespaces
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                   // lastModifiedDate
+                u.getAuthorities(),     // authorities
+                u.getNamespaces()       // namespaces
         );
 
         // Good
@@ -374,12 +374,12 @@ public class AccountResourceTest {
                 "john@doe.com",         // e-mail
                 true,                   // activated
                 "en",                   // langKey
-                new HashSet<>(Collections.singletonList(AuthoritiesConstants.ADMIN)), // <-- only admin should be able to do that
-                new HashSet<>(),
                 null,                   // createdBy
                 null,                   // createdDate
                 null,                   // lastModifiedBy
-                null                    // lastModifiedDate
+                null,                    // lastModifiedDate
+                Sets.newSet(AuthoritiesConstants.ADMIN),// <-- only admin should be able to do that
+                new HashSet<>()
         );
 
         restMvc.perform(

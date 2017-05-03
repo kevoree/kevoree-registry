@@ -1,0 +1,29 @@
+<form name="removeMemberForm" role="form" novalidate ng-submit="vm.removeMember()" show-validation>
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;</button>
+		<h4 class="modal-title" translate="namespace.removeMember.title" translate-values="{name: '{{vm.namespace.name}}'}">Remove a member from namespace "{{namespace.name}}"</h4>
+	</div>
+	<div class="modal-body">
+		<div class="form-group">
+			<label translate="namespace.removeMember.user">Select the member to remove</label>
+			<select
+				class="form-control"
+				ng-model="vm.selectedMember"
+				ng-options="member for member in vm.members track by $index"
+				ng-disabled="vm.members.length === 0">
+			</select>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
+			<span class="glyphicon glyphicon-ban-circle"></span>
+			<span>&nbsp;</span>
+			<span data-translate="entity.action.cancel">Cancel</span>
+		</button>
+		<button type="submit" ng-disabled="removeMemberForm.$invalid || vm.isProcessing || !vm.selectedMember" class="btn btn-danger">
+			<span class="glyphicon glyphicon-save"></span>
+			<span>&nbsp;</span>
+			<span data-translate="entity.action.remove">Remove</span>
+		</button>
+	</div>
+</form>

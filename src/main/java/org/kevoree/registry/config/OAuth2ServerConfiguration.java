@@ -20,10 +20,14 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
 import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -35,8 +39,12 @@ import javax.sql.DataSource;
 @Configuration
 public class OAuth2ServerConfiguration {
 
+    private final DataSource dataSource;
+
     @Inject
-    private DataSource dataSource;
+    public OAuth2ServerConfiguration(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Bean
     public JdbcTokenStore tokenStore() {
@@ -47,17 +55,21 @@ public class OAuth2ServerConfiguration {
     @EnableResourceServer
     protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-        @Inject
-        private TokenStore tokenStore;
+        private final TokenStore tokenStore;
+
+        private final Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
+
+        private final AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+
+        private final CorsFilter corsFilter;
 
         @Inject
-        private Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint;
-
-        @Inject
-        private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-
-        @Inject
-        private CorsFilter corsFilter;
+        public ResourceServerConfiguration(TokenStore tokenStore, Http401UnauthorizedEntryPoint http401UnauthorizedEntryPoint, AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler, CorsFilter corsFilter) {
+            this.tokenStore = tokenStore;
+            this.http401UnauthorizedEntryPoint = http401UnauthorizedEntryPoint;
+            this.ajaxLogoutSuccessHandler = ajaxLogoutSuccessHandler;
+            this.corsFilter = corsFilter;
+        }
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
@@ -103,15 +115,18 @@ public class OAuth2ServerConfiguration {
     @EnableAuthorizationServer
     protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
 
-        @Inject
-        @Qualifier("authenticationManagerBean")
-        private AuthenticationManager authenticationManager;
+        private final AuthenticationManager authenticationManager;
+
+        private final TokenStore tokenStore;
+
+        private final DataSource dataSource;
 
         @Inject
-        private TokenStore tokenStore;
-
-        @Inject
-        private DataSource dataSource;
+        public AuthorizationServerConfiguration(@Qualifier("authenticationManagerBean") AuthenticationManager authenticationManager, TokenStore tokenStore, DataSource dataSource) {
+            this.authenticationManager = authenticationManager;
+            this.tokenStore = tokenStore;
+            this.dataSource = dataSource;
+        }
 
         @Bean
         protected AuthorizationCodeServices authorizationCodeServices() {
@@ -144,138 +159,3 @@ public class OAuth2ServerConfiguration {
         }
     }
 }
-
-//import org.kevoree.registry.security.AjaxLogoutSuccessHandler;
-//import org.kevoree.registry.security.AuthoritiesConstants;
-//import org.kevoree.registry.security.Http401UnauthorizedEntryPoint;
-//import org.springframework.beans.factory.annotation.Qualifier;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.http.HttpMethod;
-//import org.springframework.security.authentication.AuthenticationManager;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
-//import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
-//import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-//import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-//import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
-//import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-//import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-//import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
-//import org.springframework.security.oauth2.provider.approval.ApprovalStore;
-//import org.springframework.security.oauth2.provider.approval.JdbcApprovalStore;
-//import org.springframework.security.oauth2.provider.code.AuthorizationCodeServices;
-//import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
-//import org.springframework.security.oauth2.provider.token.TokenStore;
-//import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
-//
-//import javax.inject.Inject;
-//import javax.sql.DataSource;
-//
-//@Configuration
-//public class OAuth2ServerConfiguration {
-//
-//    @Inject
-//    private DataSource dataSource;
-//
-//    @Bean
-//    public JdbcTokenStore tokenStore() {
-//        return new JdbcTokenStore(dataSource);
-//    }
-//
-//    @Configuration
-//    @EnableResourceServer
-//    protected static class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-//
-//        @Inject
-//        private TokenStore tokenStore;
-//
-//        @Inject
-//        private Http401UnauthorizedEntryPoint authenticationEntryPoint;
-//
-//        @Inject
-//        private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
-//
-//        @Override
-//        public void configure(HttpSecurity http) throws Exception {
-//            http
-//                    .exceptionHandling()
-//                    .authenticationEntryPoint(authenticationEntryPoint)
-//                .and()
-//                    .logout()
-//                    .logoutUrl("/api/logout")
-//                    .logoutSuccessHandler(ajaxLogoutSuccessHandler)
-//                .and()
-//                    .csrf()
-//                    .disable()
-//                    .headers()
-//                    .frameOptions().disable()
-//                .and()
-//                    .authorizeRequests()
-//                    .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-//                    .antMatchers(HttpMethod.GET, "/api/namespaces/**").permitAll()
-//                    .antMatchers(HttpMethod.GET, "/api/tdefs/**").permitAll()
-//                    .antMatchers(HttpMethod.GET, "/api/dus/**").permitAll()
-//                    .antMatchers("/api/authenticate").permitAll()
-//                    .antMatchers("/api/register").permitAll()
-//                    .antMatchers("/api/profile-info").permitAll()
-//                    .antMatchers("/api/**").authenticated()
-//                    .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
-//                    .antMatchers("/websocket/**").permitAll()
-//                    .antMatchers("/management/**").hasAuthority(AuthoritiesConstants.ADMIN)
-//                    .antMatchers("/v2/api-docs/**").permitAll()
-//                    .antMatchers("/swagger-resources/configuration/ui").permitAll()
-//                    .antMatchers("/swagger-ui/index.html").hasAuthority(AuthoritiesConstants.ADMIN);
-//        }
-//
-//        @Override
-//        public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-//            resources.resourceId("res_kreg").tokenStore(tokenStore);
-//        }
-//    }
-//
-//    @Configuration
-//    @EnableAuthorizationServer
-//    protected static class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdapter {
-//
-//        @Inject
-//        private DataSource dataSource;
-//
-//        @Inject
-//        private TokenStore tokenStore;
-//
-//        @Bean
-//        protected AuthorizationCodeServices authorizationCodeServices() {
-//            return new JdbcAuthorizationCodeServices(dataSource);
-//        }
-//
-//        @Bean
-//        public ApprovalStore approvalStore() {
-//            return new JdbcApprovalStore(dataSource);
-//        }
-//
-//        @Inject
-//        @Qualifier("authenticationManagerBean")
-//        private AuthenticationManager authenticationManager;
-//
-//        @Override
-//        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//            endpoints
-//                    .authorizationCodeServices(authorizationCodeServices())
-//                    .approvalStore(approvalStore())
-//                    .tokenStore(tokenStore)
-//                    .authenticationManager(authenticationManager)
-//                    .approvalStoreDisabled();
-//        }
-//
-//        @Override
-//        public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-//            oauthServer.allowFormAuthenticationForClients();
-//        }
-//
-//        @Override
-//        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-//            clients.jdbc(dataSource);
-//        }
-//    }
-//}

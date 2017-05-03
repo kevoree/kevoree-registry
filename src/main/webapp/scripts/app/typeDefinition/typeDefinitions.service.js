@@ -1,10 +1,11 @@
-'use strict';
+angular
+	.module('kevoreeRegistryApp')
+	.factory('TypeDefinitions', function ($resource) {
+		var service = $resource('api/tdefs/:id', {}, {});
 
-angular.module('kevoreeRegistryApp')
-    .factory('TypeDefinitions', function ($resource, $http) {
-			var res = $resource('api/tdefs/:id', {}, {});
-			res.getLatest = function () {
-				return $http.get('api/tdefs/latest');
-			};
-			return res;
-    });
+		return angular.extend(service, {
+			latest: function (params) {
+				return $resource('api/tdefs/page').get(params).$promise;
+			}
+		});
+	});

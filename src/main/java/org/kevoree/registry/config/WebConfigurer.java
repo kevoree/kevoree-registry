@@ -33,14 +33,18 @@ public class WebConfigurer implements ServletContextInitializer, EmbeddedServlet
 
     private final Logger log = LoggerFactory.getLogger(WebConfigurer.class);
 
-    @Inject
-    private Environment env;
+    private final Environment env;
+
+    private final JHipsterProperties jHipsterProperties;
+
+    private final MetricRegistry metricRegistry;
 
     @Inject
-    private JHipsterProperties jHipsterProperties;
-
-    @Autowired(required = false)
-    private MetricRegistry metricRegistry;
+    public WebConfigurer(Environment env, JHipsterProperties jHipsterProperties, MetricRegistry metricRegistry) {
+        this.env = env;
+        this.jHipsterProperties = jHipsterProperties;
+        this.metricRegistry = metricRegistry;
+    }
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {

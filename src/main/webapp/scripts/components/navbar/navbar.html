@@ -1,44 +1,44 @@
-<nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation" ng-controller="NavbarController">
+<nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
 	<div class="container-fluid">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
 			<a id="navbar-logo" class="navbar-brand" href="">
 				<img src="assets/images/logo.png" alt="Kevoree logo" />
 			</a>
 		</div>
-		<div class="collapse navbar-collapse" id="navbar-collapse" ng-switch="isAuthenticated()">
+		<div class="collapse navbar-collapse" id="navbar-collapse" ng-switch="vm.isAuthenticated()">
 			<ul class="nav navbar-nav">
 				<li ui-sref-active="active">
 					<a ui-sref="home">
 						<span class="glyphicon glyphicon-home"></span>
-						<span>&#xA0;</span>
-						<span translate="global.menu.home">Registry</span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.home" class="hidden-sm">Registry</span>
 					</a>
 				</li>
 				<li ui-sref-active="active">
 					<a ui-sref="namespaces">
 						<span class="glyphicon glyphicon-th-list"></span>
-						<span>&#xA0;</span>
-						<span translate="global.menu.entities.namespaces">Namespaces</span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.namespaces" class="hidden-sm">Namespaces</span>
 					</a>
 				</li>
 				<li ui-sref-active="active">
 					<a ui-sref="tdefs">
 						<span class="glyphicon glyphicon glyphicon-th-large"></span>
-						<span>&#xA0;</span>
-						<span translate="global.menu.entities.typeDefinitions">TypeDefinitions</span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.typeDefinitions" class="hidden-sm">TypeDefinitions</span>
 					</a>
 				</li>
 				<li ui-sref-active="active">
 					<a ui-sref="dus">
 						<span class="glyphicon glyphicon glyphicon-folder-close"></span>
-						<span>&#xA0;</span>
-						<span translate="global.menu.entities.deployUnits">DeployUnits</span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.deployUnits" class="hidden-sm">DeployUnits</span>
 					</a>
 				</li>
 			</ul>
@@ -61,7 +61,7 @@
 					<a class="dropdown-toggle" data-toggle="dropdown" href="">
 						<span class="glyphicon glyphicon-user"></span>
 						<span>&#xA0;</span>
-						<span>{{user.login}}</span>
+						<span>{{ vm.user.login }}</span>
 						<b class="caret"></b>
 					</a>
 					<ul class="dropdown-menu">
@@ -81,7 +81,7 @@
 						</li>
 						<li role="presentation" class="divider"></li>
 						<li ui-sref-active="active">
-							<a href="" ng-click="logout()">
+							<a ui-sref="logout">
 								<span class="glyphicon glyphicon-log-out"></span>
 								<span>&#xA0;</span>
 								<span translate="global.menu.account.logout">Log out</span>
@@ -155,14 +155,16 @@
 						</li>
 					</ul>
 				</li>
-				<li ui-sref-active="active" class="dropdown pointer" ng-controller="LanguageController">
-					<a class="dropdown-toggle" data-toggle="dropdown" href="">
-						<span class="glyphicon glyphicon-flag"></span>
+				<li ui-sref-active="active" class="dropdown pointer" ng-controller="LanguageController as languageVm">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="" ng-if="languageVm.languages.length > 1">
+						<span>
+							<span class="glyphicon glyphicon-flag"></span>
 						<b class="caret"></b>
+						</span>
 					</a>
-					<ul class="dropdown-menu">
-						<li active-menu="{{language}}" ng-repeat="language in languages">
-							<a href="" ng-click="changeLanguage(language)">{{'language.' + language| translate}}</a>
+					<ul class="dropdown-menu" ng-if="languageVm.languages.length > 1">
+						<li active-menu="{{language}}" ng-repeat="language in languageVm.languages">
+							<a href="" ng-click="languageVm.changeLanguage(language);vm.collapseNavbar();">{{language | findLanguageFromKey}}</a>
 						</li>
 					</ul>
 				</li>

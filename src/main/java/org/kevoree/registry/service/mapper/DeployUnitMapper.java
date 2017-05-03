@@ -16,11 +16,13 @@ import java.util.Set;
 public abstract class DeployUnitMapper {
 
     @Mapping(source = "typeDefinition.namespace.name", target = "namespace")
+    @Mapping(source = "typeDefinition.id", target = "tdefId")
     @Mapping(source = "typeDefinition.name", target = "tdefName")
     @Mapping(source = "typeDefinition.version", target = "tdefVersion")
     public abstract DeployUnitDTO deployUnitToDeployUnitDTO(DeployUnit deployUnit);
 
     @Mapping(source = "namespace", target = "typeDefinition.namespace.name")
+    @Mapping(source = "tdefId", target = "typeDefinition.id")
     @Mapping(source = "tdefName", target = "typeDefinition.name")
     @Mapping(source = "tdefVersion", target = "typeDefinition.version")
     public abstract DeployUnit deployUnitDTOtoDeployUnit(DeployUnitDTO deployUnitDTO);

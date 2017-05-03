@@ -1,32 +1,34 @@
 {
-    "kevoreeRegistryApp": {
-        "typeDefinition" : {
-            "home": {
-                "title": "TypeDefinition",
-                "createLabel": "Nouveau TypeDefinition",
-                "createTitle": "Créer un nouveau TypeDefinition"
-            },
-            "delete": {
-                "question": "Etes-vous certain de vouloir supprimer le TypeDefinition <strong>{{ name }}/{{ version }}</strong> ?"
-            },
-            "detail": {
-                "title": "Type Definition"
-            },
-            "namespace": "Namespace",
-            "selectNamespace": "Sélection du namespace",
-            "name": "Nom",
-            "version": "Version",
-            "created": "Création",
-            "createdBy": "Crée par",
-            "modified": "Modification",
-            "modifiedBy": "Modifié par",
-            "model": "Modèle",
-            "name_version": "Nom / Version",
-						"releases": "Stables",
-						"latest": "Dernières",
-            "deployUnits": "DeployUnits",
-            "filter": "Filtrer",
-            "filterPlaceholder": "Filtrer les TypeDefinitions..."
-        }
-    }
+	"kevoreeRegistryApp": {
+		"typeDefinition": {
+			"home": {
+				"title": "TypeDefinition",
+				"createLabel": "Nouveau TypeDefinition",
+				"createTitle": "Créer un nouveau TypeDefinition"
+			},
+			"delete": {
+				"question": "Etes-vous certain de vouloir supprimer le TypeDefinition <strong>{{ name }}/{{ version }}</strong> ?"
+			},
+			"detail": {
+				"title": "Type Definition"
+			},
+			"namespace": "Namespace",
+			"selectNamespace": "Sélection du namespace",
+			"created": "Création",
+			"createdBy": "Crée par",
+			"modified": "Modification",
+			"modifiedBy": "Modifié par",
+			"name": "Nom",
+			"version": "Version",
+			"model": "Modèle",
+			"name_version": "Nom / Version",
+			"releases": "Stables",
+			"latest": "Dernières",
+			"deployUnits": "DeployUnits",
+			"filter": "Filtrer",
+			"filterPlaceholder": "Filtrer les TypeDefinitions...",
+			"platform": "Platforme",
+			"deployUnit": "DeployUnit"
+		}
+	}
 }

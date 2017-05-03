@@ -3,6 +3,5 @@
 angular
 	.module('kevoreeRegistryApp')
 	.config(function (AlertServiceProvider) {
-		// set below to true to make alerts look like toast
-		AlertServiceProvider.showAsToast(false);
+		AlertServiceProvider.setDefaultTimeout(5000);
 	});

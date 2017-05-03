@@ -2,6 +2,7 @@ package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cache;
 import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "T_DEPLOY_UNIT")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class DeployUnit extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

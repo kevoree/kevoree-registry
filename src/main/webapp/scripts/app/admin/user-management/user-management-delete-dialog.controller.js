@@ -19,11 +19,13 @@
 		}
 
 		function confirmDelete(login) {
-			User.delete({
-					login: login
-				},
-				function () {
+			User.delete({ login: login })
+				.$promise
+				.then(function () {
 					$uibModalInstance.close(true);
+				})
+				.catch(function (resp) {
+					console.log('Unable to delete user', resp);
 				});
 		}
 	}

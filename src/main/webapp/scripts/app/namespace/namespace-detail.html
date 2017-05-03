@@ -1,141 +1,107 @@
 <div class="well">
-	<div ng-if="canModify" class="btn-group pull-right" role="group">
-		<button ng-click="addMember()" class="btn btn-primary">
-			<span class="glyphicon glyphicon-plus-sign"></span>
-			<span>&nbsp;</span>
-			<span translate="kevoreeRegistryApp.namespace.addMember.action"> Add a member</span>
-		</button>
-		<button ng-click="removeMember()" class="btn btn-warning">
-			<span class="glyphicon glyphicon-minus-sign"></span>
-			<span>&nbsp;</span>
-			<span translate="kevoreeRegistryApp.namespace.removeMember.action"> Remove a member</span>
-		</button>
-	</div>
-
-	<div class="modal fade" id="addMemberModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form name="form" ng-submit="confirmAddMember(namespace.name, selectedUser)">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
-						<h4 class="modal-title" translate="kevoreeRegistryApp.namespace.addMember.title" translate-values="{name: '{{namespace.name}}'}">Add a member to {{namespace.name}}</h4>
-					</div>
-					<div class="modal-body">
-						<div class="alert alert-danger" role="alert" ng-show="addError">
-							<button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearAddError()">&times;</span></button>
-							<strong>Error: </strong>{{addError}}
-						</div>
-						<div class="modal-body">
-							<div class="form-group">
-								<label translate="kevoreeRegistryApp.namespace.addMember.user">Select the user to add</label>
-								<select
-									class="form-control"
-									ng-model="selectedUser"
-									ng-options="user.login for user in users track by user.id">
-								</select>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-							<span class="glyphicon glyphicon-ban-circle"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.cancel">Cancel</span>
-						</button>
-						<button type="submit" ng-disabled="form.$invalid" class="btn btn-success">
-							<span class="glyphicon glyphicon-plus-sign"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.add">Add</span>
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="removeMemberModal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form name="form" ng-submit="confirmRemoveMember(namespace.name, selectedMember)">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
-						<h4 class="modal-title" translate="kevoreeRegistryApp.namespace.removeMember.title" translate-values="{name: '{{namespace.name}}'}">Remove a member from {{namespace.name}}</h4>
-					</div>
-					<div class="modal-body">
-						<div class="alert alert-danger" role="alert" ng-show="removeError">
-							<button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="clearRemoveError()">&times;</span></button>
-							<strong>Error: </strong>{{removeError}}
-						</div>
-						<div class="modal-body">
-							<div class="form-group">
-								<label translate="kevoreeRegistryApp.namespace.removeMember.user">Select the user to remove</label>
-								<select class="form-control" ng-model="selectedMember" ng-options="member as member for member in namespace.members"></select>
-							</div>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-							<span class="glyphicon glyphicon-ban-circle"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.cancel">Cancel</span>
-						</button>
-						<button type="submit" ng-disabled="form.$invalid" class="btn btn-warning">
-							<span class="glyphicon glyphicon-minus-sign"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.remove">Remove</span>
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-
 	<div class="table-responsive">
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th translate="entity.detail.field">Field</th>
-					<th translate="entity.detail.value">Value</th>
+					<th>
+						<h4>{{ vm.namespace.name }}</h4>
+					</th>
+					<th>
+						<div class="pull-right" ng-if="vm.canModify">
+							<button ui-sref="namespaces.detail.add-member" class="btn btn-primary btn-sm">
+								<span class="glyphicon glyphicon-plus"></span>
+								<span translate="namespace.addMember.action"> Add a member</span>
+							</button>
+							<button ui-sref="namespaces.detail.remove-member" ng-disabled="vm.removableMembers.length === 0" class="btn btn-warning btn-sm">
+								<span class="glyphicon glyphicon-minus"></span>
+								<span translate="namespace.removeMember.action"> Remove a member</span>
+							</button>
+						</div>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.namespace.name">Name</span>
+						<span translate="namespace.owner">Owner</span>
 					</td>
-					<td>{{ namespace.name }}</td>
+					<td>{{ vm.namespace.owner }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.namespace.owner">Owner</span>
+						<span translate="namespace.members">Members</span>
 					</td>
-					<td>{{ namespace.owner }}</td>
+					<td>{{ vm.namespace.members | list }}</td>
+				</tr>
+				<tr>
+						<td>
+								<span translate="namespace.created">Created</span>
+						</td>
+						<td>{{vm.namespace.createdDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+				</tr>
+				<tr>
+						<td>
+								<span translate="namespace.createdBy">Created by</span>
+						</td>
+						<td>{{ vm.namespace.createdBy }}</td>
+				</tr>
+				<tr>
+						<td>
+								<span translate="namespace.modified">Modified</span>
+						</td>
+						<td>{{vm.namespace.lastModifiedDate | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+				</tr>
+				<tr>
+						<td>
+								<span translate="namespace.modifiedBy">Modified by</span>
+						</td>
+						<td>{{ vm.namespace.lastModifiedBy }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.namespace.members">Members</span>
-					</td>
-					<td>{{ namespace.members | list }}</td>
-				</tr>
-				<tr>
-					<td>
-						<span translate="kevoreeRegistryApp.namespace.typeDefinitions">TypeDefinitions</span>
+						<span translate="namespace.typeDefinitions">TypeDefinitions</span>
 					</td>
 					<td>
-						<ul class="list-unstyled">
-							<li ng-repeat="tdef in typeDefinitions | orderBy:'name'">
-								<a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name + '/' + tdef.version }}</a>
-							</li>
-						</ul>
+						<table class="table table-striped table-hover table-condensed">
+							<thead>
+								<tr>
+									<th translate="namespace.name">Name</th>
+									<th translate="namespace.latestVersion">Latest version</th>
+									<th translate="namespace.createdBy">Created by</th>
+									<th translate="namespace.modifiedBy">Modified by</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-if="vm.typeDefinitions.length === 0">
+									<td colspan="4" class="text-center">
+										<em>No TypeDefinitions</em>
+									</td>
+								</tr>
+								<tr ui-sref="tdefDetail({ id: tdef.id })" class="hand" ng-repeat="tdef in vm.typeDefinitions | orderBy:'lastModifiedBy':true">
+									<td class="col-xs-3">{{ tdef.name }}</td>
+									<td class="col-xs-2">{{ tdef.version }}</td>
+									<td class="col-xs-3">
+										<span ng-if="tdef.createdBy">
+											<strong>{{tdef.createdBy}}</strong>, <span am-time-ago="tdef.createdDate"></span>
+										</span>
+									</td>
+									<td class="col-xs-3">
+										<div ng-if="tdef.lastModifiedBy">
+											<strong>{{tdef.lastModifiedBy}}</strong>, <span am-time-ago="tdef.lastModifiedDate"></span>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
 					</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 
-	<button type="submit" ui-sref="namespaces" class="btn btn-info">
+	<a ui-sref="namespaces" class="btn btn-info">
 		<span class="glyphicon glyphicon-arrow-left"></span>
 		<span>&nbsp;</span>
-		<span translate="kevoreeRegistryApp.namespace.home.title"> Back</span>
-	</button>
+		<span translate="namespace.home.title"> Back</span>
+	</a>
 </div>

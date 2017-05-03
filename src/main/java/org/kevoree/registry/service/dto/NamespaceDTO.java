@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  *
  * A DTO representing a Namespace with its owner and members name only
  */
-public class NamespaceDTO {
+public class NamespaceDTO extends AbstractAuditingDTO {
 
     @Pattern(regexp = Constants.NS_NAME_REGEX)
     @Size(min = 1, max = 50)
@@ -31,16 +31,11 @@ public class NamespaceDTO {
     public NamespaceDTO() {}
 
     public NamespaceDTO(Namespace ns) {
-        this(ns.getName(), ns.getOwner().getLogin(),
-                ns.getMembers().stream().map(User::getLogin).collect(Collectors.toSet()),
-                ns.getTypeDefinitions().stream().map(TypeDefinition::getId).collect(Collectors.toSet()));
-    }
-
-    public NamespaceDTO(String name, String owner, Set<String> members, Set<Long> typeDefinitions) {
-        this.name = name;
-        this.owner = owner;
-        this.members = members;
-        this.typeDefinitions = typeDefinitions;
+        super(ns);
+        this.name = ns.getName();
+        this.owner = ns.getOwner().getLogin();
+        this.members = ns.getMembers().stream().map(User::getLogin).collect(Collectors.toSet());
+        this.typeDefinitions = ns.getTypeDefinitions().stream().map(TypeDefinition::getId).collect(Collectors.toSet());
     }
 
     public String getName() {

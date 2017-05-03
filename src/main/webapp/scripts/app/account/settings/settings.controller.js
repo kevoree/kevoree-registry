@@ -1,25 +1,46 @@
-'use strict';
+angular
+	.module('kevoreeRegistryApp')
+	.controller('SettingsController', function (Principal, Auth, Language, $translate) {
+		var vm = this;
 
-angular.module('kevoreeRegistryApp')
-    .controller('SettingsController', function ($scope, Principal, Auth) {
-        $scope.account = {};
-        $scope.success = null;
-        $scope.error = null;
+		vm.error = null;
+		vm.save = save;
+		vm.settingsAccount = null;
+		vm.success = null;
 
-        Principal.identity().then(function(account) {
-            $scope.account = account;
-        });
+		/**
+		 * Store the "settings account" in a separate variable, and not in the shared "account" variable.
+		 */
+		var copyAccount = function (account) {
+			return {
+				activated: account.activated,
+				email: account.email,
+				firstName: account.firstName,
+				langKey: account.langKey,
+				lastName: account.lastName,
+				login: account.login
+			};
+		};
 
-        $scope.save = function () {
-            Auth.updateAccount($scope.account).then(function() {
-                $scope.error = null;
-                $scope.success = 'OK';
-                Principal.identity().then(function(account) {
-                    $scope.account = account;
-                });
-            }).catch(function() {
-                $scope.success = null;
-                $scope.error = 'ERROR';
-            });
-        };
-    });
+		Principal.identity().then(function (account) {
+			vm.settingsAccount = copyAccount(account);
+		});
+
+		function save() {
+			Auth.updateAccount(vm.settingsAccount).then(function () {
+				vm.error = null;
+				vm.success = 'OK';
+				Principal.identity(true).then(function (account) {
+					vm.settingsAccount = copyAccount(account);
+				});
+				Language.getCurrent().then(function (current) {
+					if (vm.settingsAccount.langKey !== current) {
+						$translate.use(vm.settingsAccount.langKey);
+					}
+				});
+			}).catch(function () {
+				vm.success = null;
+				vm.error = 'ERROR';
+			});
+		}
+	});

@@ -29,8 +29,12 @@ public class AsyncConfiguration implements AsyncConfigurer {
 
     private final Logger log = LoggerFactory.getLogger(AsyncConfiguration.class);
 
+    private final JHipsterProperties jHipsterProperties;
+
     @Inject
-    private JHipsterProperties jHipsterProperties;
+    public AsyncConfiguration(JHipsterProperties jHipsterProperties) {
+        this.jHipsterProperties = jHipsterProperties;
+    }
 
     @Override
     @Bean(name = "taskExecutor")

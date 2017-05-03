@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('kevoreeRegistryApp')
-	.service('User', function ($resource) {
+	.factory('User', function ($resource) {
 		var service = $resource('api/users/:login', {}, {
 			'query': { method: 'GET', isArray: true },
 			'get': {

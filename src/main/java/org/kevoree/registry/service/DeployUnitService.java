@@ -15,9 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -39,6 +37,9 @@ public class DeployUnitService {
 
     @Inject
     private DeployUnitRepository duRepository;
+
+    private Predicate<DeployUnit> filterOnlyReleases = du ->
+            Version.valueOf(du.getVersion()).getPreReleaseVersion().isEmpty();
 
     public DeployUnit create(TypeDefinition tdef, DeployUnitDTO dto) {
         String login = SecurityUtils.getCurrentUserLogin();
@@ -74,14 +75,85 @@ public class DeployUnitService {
     public Set<DeployUnit> onlyReleases(Set<DeployUnit> dus) {
         return onlyLatests(dus
                 .stream()
-                .filter(du -> Version.valueOf(du.getVersion()).getPreReleaseVersion().isEmpty())
+                .filter(filterOnlyReleases)
                 .collect(Collectors.toSet()));
     }
 
-    public Set<DeployUnit> satisfies(Set<DeployUnit> dus, String range) {
+    public Optional<DeployUnit> getLatest(Set<DeployUnit> dus) {
+        DeployUnit latest = null;
+        for (DeployUnit du : dus) {
+            if (latest == null) {
+                latest = du;
+            } else {
+                if (Version.valueOf(latest.getVersion()).lessThan(Version.valueOf(du.getVersion()))) {
+                    latest = du;
+                }
+            }
+        }
+        return Optional.ofNullable(latest);
+    }
+
+    public Optional<DeployUnit> getLatestRelease(Set<DeployUnit> dus) {
+        return getLatest(dus.stream().filter(filterOnlyReleases).collect(Collectors.toSet()));
+    }
+
+    public Optional<DeployUnit> getByVersion(Set<DeployUnit> dus, String semver) {
+        DeployUnit satisfying = null;
+        for (DeployUnit du : dus) {
+            // TODO com.github.zafarkhaja.semver does not handle ranges for pre-release
+            // TODO expr like "^1.2.3-alpha" will throw a parse exception
+            // TODO so for now, just handle exact match
+            if (Version.valueOf(du.getVersion()).equals(Version.valueOf(semver))) {
+                satisfying = du;
+                break;
+            }
+        }
+
+        return Optional.ofNullable(satisfying);
+    }
+
+    public Set<DeployUnit> satisfies(Set<DeployUnit> dus, String semver) {
         return dus.stream()
-                .filter(du -> Version.valueOf(du.getVersion()).satisfies(range))
+                .filter(du -> Version.valueOf(du.getVersion()).satisfies(semver))
                 .collect(Collectors.toSet());
+    }
+
+    public Map<String, Set<DeployUnit>> mapByPlatform(TypeDefinition tdef) {
+        Set<DeployUnit> dus = duRepository.findByTypeDefinitionId(tdef.getId());
+        Map<String, Set<DeployUnit>> dusByPlatform = new HashMap<>();
+        dus.forEach(du -> {
+            Set<DeployUnit> deployUnits = dusByPlatform.computeIfAbsent(du.getPlatform(), p -> new HashSet<>());
+            deployUnits.add(du);
+        });
+        return dusByPlatform;
+    }
+
+    public Map<String, DeployUnit> mapByPlatform(TypeDefinition tdef, Map<String, String> filters) {
+        Map<String, DeployUnit> dus = new HashMap<>();
+        Map<String, Set<DeployUnit>> dusByPlatform = this.mapByPlatform(tdef);
+        for (Map.Entry<String, Set<DeployUnit>> entry : dusByPlatform.entrySet()) {
+            String filter = filters.get(entry.getKey());
+            Optional<DeployUnit> du;
+            switch (filter.toLowerCase()) {
+                case "latest":
+                    du = getLatest(entry.getValue());
+                    break;
+
+                case "release":
+                    du = getLatestRelease(entry.getValue());
+                    break;
+
+                default:
+                    du = getByVersion(entry.getValue(), filter);
+                    break;
+            }
+            du.ifPresent(deployUnit -> dus.put(entry.getKey(), deployUnit));
+        }
+        return dus;
+    }
+
+    public Set<DeployUnit> filter(TypeDefinition tdef, Map<String, String> filters) {
+        return this.mapByPlatform(tdef, filters).values().stream().collect(Collectors.toSet());
     }
 
     /**

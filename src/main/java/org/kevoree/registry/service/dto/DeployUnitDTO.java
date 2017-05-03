@@ -10,6 +10,7 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
 
     private Long id;
     private String namespace;
+    private Long tdefId;
     private String tdefName;
     private Long tdefVersion;
     private String name;
@@ -23,6 +24,7 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
         super(du);
         this.id = du.getId();
         this.namespace = du.getTypeDefinition().getNamespace().getName();
+        this.tdefId = du.getTypeDefinition().getId();
         this.tdefName = du.getTypeDefinition().getName();
         this.tdefVersion = du.getTypeDefinition().getVersion();
         this.name = du.getName();
@@ -37,6 +39,10 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
 
     public String getNamespace() {
         return namespace;
+    }
+
+    public Long getTdefId() {
+        return tdefId;
     }
 
     public String getTdefName() {
@@ -71,6 +77,10 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
         this.namespace = namespace;
     }
 
+    public void setTdefId(Long tdefId) {
+        this.tdefId = tdefId;
+    }
+
     public void setTdefName(String tdefName) {
         this.tdefName = tdefName;
     }
@@ -100,6 +110,7 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
         return "DeployUnitDTO{" +
                 "id=" + id + '\'' +
                 ", namespace='" + namespace + '\'' +
+                ", tdefId='" + tdefId + '\'' +
                 ", tdefName='" + tdefName + '\'' +
                 ", tdefVersion='" + tdefVersion + '\'' +
                 ", name='" + name + '\'' +

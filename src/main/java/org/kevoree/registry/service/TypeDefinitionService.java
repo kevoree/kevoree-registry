@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,61 +32,13 @@ public class TypeDefinitionService {
         return tdef;
     };
 
-    private final Consumer<TypeDefinition> loadDeployUnitsConsumer = tdef -> tdef.getDeployUnits().size();
-
     public Page<TypeDefinitionDTO> getPage(Pageable pageable, boolean latest) {
         Page<TypeDefinition> page = tdefRepository.findAll(pageable);
-        Stream<TypeDefinitionDTO> tdefs = page.getContent().stream()
-                .map(loadDeployUnits)
-                .map(TypeDefinitionDTO::new);
+        Stream<TypeDefinitionDTO> tdefs = page.getContent().stream().map(TypeDefinitionDTO::new);
         if (latest) {
             tdefs = onlyLatest(tdefs);
         }
-
         return new PageImpl<>(tdefs.collect(Collectors.toList()), pageable, page.getTotalElements());
-    }
-
-    public TypeDefinition findOne(Long id) {
-        return Optional.of(tdefRepository.findOne(id))
-                .map(loadDeployUnits)
-                .orElse(null);
-    }
-
-    public Set<TypeDefinitionDTO> getAll() {
-        return tdefRepository.findAll()
-                .stream()
-                .map(loadDeployUnits)
-                .map(TypeDefinitionDTO::new)
-                .collect(Collectors.toSet());
-    }
-
-    public Set<TypeDefinitionDTO> getAllByNamespace(String namespace) {
-        return tdefRepository.findByNamespaceName(namespace)
-                .stream()
-                .map(loadDeployUnits)
-                .map(TypeDefinitionDTO::new)
-                .collect(Collectors.toSet());
-    }
-
-    public Set<TypeDefinitionDTO> getAllByNamespaceAndName(String namespace, String name) {
-        return tdefRepository.findByNamespaceNameAndName(namespace, name)
-                .stream()
-                .map(loadDeployUnits)
-                .map(TypeDefinitionDTO::new)
-                .collect(Collectors.toSet());
-    }
-
-    public Optional<TypeDefinition> findByNamespaceAndNameAndVersion(String namespace, String name, Long version) {
-        Optional<TypeDefinition> tdef = tdefRepository.findOneByNamespaceNameAndNameAndVersion(namespace, name, version);
-        tdef.ifPresent(loadDeployUnitsConsumer);
-        return tdef;
-    }
-
-    public Optional<TypeDefinition> findLatestByNamespaceAndName(String namespace, String name) {
-        Optional<TypeDefinition> tdef = tdefRepository
-                .findFirst1ByNamespaceNameAndNameOrderByVersionDesc(namespace, name);
-        tdef.ifPresent(loadDeployUnitsConsumer);
-        return tdef;
     }
 
     public Stream<TypeDefinitionDTO> onlyLatest(Stream<TypeDefinitionDTO> tdefs) {

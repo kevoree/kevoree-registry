@@ -1,8 +1,10 @@
 package org.kevoree.registry.repository;
 
 import org.kevoree.registry.domain.TypeDefinition;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,7 +18,21 @@ public interface TypeDefinitionRepository extends JpaRepository<TypeDefinition, 
 
     Set<TypeDefinition> findByNamespaceNameAndName(String namespaceName, String name);
 
-    Set<TypeDefinition> findByNamespaceName(String namespaceName);
+    @EntityGraph(attributePaths = "deployUnits")
+    List<TypeDefinition> findAll();
 
-    Optional<TypeDefinition> findFirst1ByNamespaceNameAndNameOrderByVersionDesc(String ns, String name);
+    @EntityGraph(attributePaths = "deployUnits")
+    Optional<TypeDefinition> findOneWithDeployUnitsById(Long id);
+
+    @EntityGraph(attributePaths = "deployUnits")
+    Optional<TypeDefinition> findOneWithDeployUnitsByNamespaceNameAndNameAndVersion(String namespace, String name, Long version);
+
+    @EntityGraph(attributePaths = "deployUnits")
+    Set<TypeDefinition> findAllWithDeployUnitsByNamespaceName(String namespace);
+
+    @EntityGraph(attributePaths = "deployUnits")
+    Set<TypeDefinition> findAllWithDeployUnitsByNamespaceNameAndName(String namespace, String name);
+
+    @EntityGraph(attributePaths = "deployUnits")
+    Optional<TypeDefinition> findFirst1WithDeployUnitsByNamespaceNameAndNameOrderByVersionDesc(String namespace, String name);
 }

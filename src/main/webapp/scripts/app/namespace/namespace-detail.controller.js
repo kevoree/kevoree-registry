@@ -1,126 +1,42 @@
-'use strict';
+angular
+	.module('kevoreeRegistryApp')
+	.controller('NamespaceDetailController', function ($q, $state, $stateParams, TypeDefinition, Principal, Namespaces, AlertService) {
+		var vm = this;
+		vm.user = null;
+		vm.namespace = null;
+		vm.selectedUser = null;
+		vm.removableMembers = [];
+		vm.canModify = false;
+		vm.load = load;
 
-angular.module('kevoreeRegistryApp')
-	.controller('NamespaceDetailController', function ($q, $scope, $stateParams, $timeout, $resource, Principal, Namespaces, Namespace, Users) {
-		$scope.user = null;
-		$scope.namespace = null;
-		$scope.selectedUser = null;
-		$scope.canModify = false;
+		if ($stateParams.name) {
+			vm.load($stateParams.name);
+		} else {
+			$state.go('namespaces');
+		}
 
-		$scope.load = function (name) {
+		function load(name) {
 			$q.all([
 				Principal.identity(),
 				Namespaces.get({ name: name }).$promise,
-				$resource('/api/namespaces/:name/tdefs', {}, {})
-					.query({ name: name, version: 'latest' }).$promise
+				TypeDefinition.getLatest(name)
 			]).then(function (results) {
-				$scope.user = results[0];
-				$scope.namespace = results[1];
-				$scope.typeDefinitions = results[2];
+				vm.user = results[0];
+				vm.namespace = results[1];
+				vm.typeDefinitions = results[2];
 
-				$scope.canModify = $scope.user && ($scope.user.authorities.indexOf('ROLE_ADMIN') !== -1
-					|| $scope.user.login === $scope.namespace.owner);
+				vm.canModify = vm.user && (vm.user.authorities.indexOf('ROLE_ADMIN') !== -1
+					|| vm.user.login === vm.namespace.owner);
 
+				vm.removableMembers = vm.namespace.members.filter(function (member) {
+					return member !== vm.namespace.owner;
+				});
+			}).catch(function (resp) {
+				if (resp.status === 404) {
+					$state.go('namespaces').then(function () {
+						AlertService.error('namespace.errors.notfound', { name: $stateParams.name });
+					});
+				}
 			});
-		};
-		$scope.load($stateParams.name);
-
-		$scope.addMember = function () {
-			Users.query().$promise.then(function (users) {
-				$scope.users = users.filter(function (user) {
-					return user.authorities.indexOf('ROLE_ADMIN') === -1
-						&& user.authorities.indexOf('ROLE_ANONYMOUS') === -1
-						&& $scope.namespace.members.indexOf(user.login) === -1;
-				});
-				$scope.selectedUser = $scope.users[0];
-			});
-			$('#addMemberModal').modal('show');
-		};
-
-		$scope.confirmAddMember = function (name, user) {
-			Namespace.addMember(name, user)
-				.then(function () {
-					$scope.load($stateParams.name);
-					$('#addMemberModal').modal('hide');
-					$scope.clear();
-				})
-				.catch(function (resp) {
-					$scope.addError = resp.data.message;
-					switch (resp.code) {
-						case 401:
-							// unauthorized
-							$scope.removeError = 'you must be logged-in to add "' + user.login + '" to "' + name + '"';
-							break;
-
-						case 403:
-							// forbidden
-							$scope.removeError = 'you are not authorized to add users to "' + name + '"';
-							break;
-
-						case 404:
-							// namespace not found
-							$scope.removeError = 'unable to find namespace "' + name + '"';
-							break;
-
-						default:
-							console.log('unhandled error on POST /api/namespaces/' + name + '/members', user, resp);
-							break;
-					}
-				});
-		};
-
-		$scope.removeMember = function () {
-			$('#removeMemberModal').modal('show');
-		};
-
-		$scope.confirmRemoveMember = function (name, member) {
-			Namespace.deleteMember(name, member)
-				.then(function () {
-					$scope.load($stateParams.name);
-					$('#removeMemberModal').modal('hide');
-				})
-				.catch(function (resp) {
-					switch (resp.code) {
-						case 401:
-							// unauthorized
-							$scope.removeError = 'you must be logged-in to delete "' + member.login + '" from "' + name + '"';
-							break;
-
-						case 403:
-							// forbidden
-							$scope.removeError = 'you are not authorized to delete "' + member.login + '" from "' + name + '"';
-							break;
-
-						case 404:
-							// namespace not found
-							$scope.removeError = 'unable to find namespace "' + name + '"';
-							break;
-
-						default:
-							console.log('unhandled error on DELETE /api/namespaces/' + name + '/members/' + member.login, resp);
-							break;
-					}
-				});
-		};
-
-		$scope.clear = function () {
-			$scope.users = [];
-			$scope.selectedUser = null;
-		};
-
-		$scope.clearAddError = function () {
-			$scope.addError = null;
-		};
-
-		$scope.clearDeleteError = function () {
-			$scope.removeError = null;
-		};
-
-		angular.element('#addMemberModal').on('shown.bs.modal', function () {
-			angular.element('[ng-model="member"]').focus();
-		});
-
-		angular.element('#removeMemberModal').on('shown.bs.modal', function () {
-			angular.element('[ng-model="member"]').focus();
-		});
+		}
 	});

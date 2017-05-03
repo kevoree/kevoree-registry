@@ -2,60 +2,60 @@
 
 angular.module('kevoreeRegistryApp')
     .filter('characters', function () {
-        return function (input, chars, breakOnWord) {
-            if (isNaN(chars)) {
-                return input;
-            }
-            if (chars <= 0) {
-                return '';
-            }
-            if (input && input.length > chars) {
-                input = input.substring(0, chars);
+	return function (input, chars, breakOnWord) {
+		if (isNaN(chars)) {
+			return input;
+		}
+		if (chars <= 0) {
+			return '';
+		}
+		if (input && input.length > chars) {
+			input = input.substring(0, chars);
 
-                if (!breakOnWord) {
-                    var lastspace = input.lastIndexOf(' ');
+			if (!breakOnWord) {
+				var lastspace = input.lastIndexOf(' ');
                     // Get last space
-                    if (lastspace !== -1) {
-                        input = input.substr(0, lastspace);
-                    }
-                } else {
-                    while (input.charAt(input.length-1) === ' ') {
-                        input = input.substr(0, input.length - 1);
-                    }
-                }
-                return input + '...';
-            }
-            return input;
-        };
-    })
+				if (lastspace !== -1) {
+					input = input.substr(0, lastspace);
+				}
+			} else {
+				while (input.charAt(input.length-1) === ' ') {
+					input = input.substr(0, input.length - 1);
+				}
+			}
+			return input + '...';
+		}
+		return input;
+	};
+})
     .filter('words', function () {
-        return function (input, words) {
-            if (isNaN(words)) {
-                return input;
-            }
-            if (words <= 0) {
-                return '';
-            }
-            if (input) {
-                var inputWords = input.split(/\s+/);
-                if (inputWords.length > words) {
-                    input = inputWords.slice(0, words).join(' ') + '...';
-                }
-            }
-            return input;
-        };
-    })
+	return function (input, words) {
+		if (isNaN(words)) {
+			return input;
+		}
+		if (words <= 0) {
+			return '';
+		}
+		if (input) {
+			var inputWords = input.split(/\s+/);
+			if (inputWords.length > words) {
+				input = inputWords.slice(0, words).join(' ') + '...';
+			}
+		}
+		return input;
+	};
+})
     .filter('list', function () {
-        return function (list, prop) {
-            if (typeof list !== 'undefined') {
-                if (prop) {
-                    return list.map(function (item) {
-                        return item[prop];
-                    }).join(', ');
-                } else {
-                    return list.join(', ');
-                }
-            }
-            return list;
-        };
-    });
+	return function (list, prop) {
+		if (angular.isDefined(list)) {
+			if (prop) {
+				return list.map(function (item) {
+					return item[prop];
+				}).join(', ');
+			} else {
+				return list.join(', ');
+			}
+		}
+		return list;
+	};
+});

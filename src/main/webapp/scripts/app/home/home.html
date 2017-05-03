@@ -1,16 +1,88 @@
 <div class="well">
-  <div class="row">
-    <div class="col-md-4">
-      <h3 class="uppercase">Overview</h3>
-      <p class="text-justify">The registry is a database of Kevoree models mainly used by KevScript interpreters to resolve <a ui-sref="tdefs()">TypeDefinitions</a> and <a ui-sref="dus()">DeployUnits</a>.</p>
-    </div>
-    <div class="col-md-4">
-      <h3 class="uppercase">API</h3>
-      <p class="text-justify">It provides a REST API to <code>GET</code> the content of the database, but needs a secured OAuth2 <strong>authentication</strong> for any <code>PUT</code>, <code>POST</code> operations.</p>
-    </div>
-    <div class="col-md-4">
-      <h3 class="uppercase">Let's go</h3>
-      <p class="text-justify">You can <a ui-sref="register()">register</a> right now and publish your own content to the Kevoree registry within minutes.</p>
-    </div>
-  </div>
+	<div class="row">
+		<div class="col-md-4">
+			<h3 class="uppercase">Overview</h3>
+			<p class="text-justify">The registry is a database of Kevoree models mainly used by KevScript interpreters to resolve <a ui-sref="tdefs()">TypeDefinitions</a> and <a ui-sref="dus()">DeployUnits</a>.</p>
+		</div>
+		<div class="col-md-4">
+			<h3 class="uppercase">API</h3>
+			<p class="text-justify">It provides a REST API to <code>GET</code> the content of the database, but needs a secured OAuth2 <strong>authentication</strong> for any <code>PUT</code>, <code>POST</code> operations.</p>
+		</div>
+		<div class="col-md-4">
+			<h3 class="uppercase">Let's go</h3>
+			<p class="text-justify">You can <a ui-sref="register()">register</a> right now and publish your own content to the Kevoree registry within minutes.</p>
+		</div>
+	</div>
+</div>
+<div class="well">
+	<div class="row">
+		<div class="col-md-5">
+			<h3 class="uppercase">Latest TypeDefinitions</h3>
+			<table class="table table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th translate="home.latest.name">Name</th>
+						<th translate="home.latest.version">Latest version</th>
+						<th translate="home.latest.createdBy">Created by</th>
+						<th translate="home.latest.modifiedBy">Modified by</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-if="vm.tdefs.length === 0">
+						<td colspan="4" class="text-center">
+							<em>No TypeDefinitions</em>
+						</td>
+					</tr>
+					<tr ui-sref="tdefDetail({ id: tdef.id })" class="hand" ng-repeat="tdef in vm.tdefs">
+						<td class="col-xs-3">{{ tdef.name }}</td>
+						<td class="col-xs-1">{{ tdef.version }}</td>
+						<td class="col-xs-4">
+							<span ng-if="tdef.createdBy">
+								<strong>{{ tdef.createdBy }}</strong>, <span am-time-ago="tdef.createdDate"></span>
+							</span>
+						</td>
+						<td class="col-xs-4">
+							<div ng-if="tdef.lastModifiedBy">
+								<strong>{{ tdef.lastModifiedBy }}</strong>, <span am-time-ago="tdef.lastModifiedDate"></span>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-md-7">
+			<h3 class="uppercase">Latest DeployUnits</h3>
+			<table class="table table-striped table-hover table-condensed">
+				<thead>
+					<tr>
+						<th translate="home.latest.platform">Platform</th>
+						<th translate="home.latest.nameAndVersion">Name/Version</th>
+						<th translate="home.latest.createdBy">Created by</th>
+						<th translate="home.latest.modifiedBy">Modified by</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-if="vm.dus.length === 0">
+						<td colspan="4" class="text-center">
+							<em>No DeployUnits</em>
+						</td>
+					</tr>
+					<tr ui-sref="duDetail({ id: du.id })" class="hand" ng-repeat="du in vm.dus">
+						<td class="col-xs-1">{{ du.platform }}</td>
+						<td class="col-xs-5">{{ du.name + '/' + du.version }}</td>
+						<td class="col-xs-3">
+							<span ng-if="du.createdBy">
+								<strong>{{ du.createdBy }}</strong>, <span am-time-ago="du.createdDate"></span>
+							</span>
+						</td>
+						<td class="col-xs-3">
+							<div ng-if="du.lastModifiedBy">
+								<strong>{{ du.lastModifiedBy }}</strong>, <span am-time-ago="du.lastModifiedDate"></span>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>

@@ -12,7 +12,8 @@ angular.module('kevoreeRegistryApp')
 				views: {
 					'content@': {
 						templateUrl: 'scripts/app/home/home.html',
-						controller: 'LogoutController'
+						controller: 'LogoutController',
+						controllerAs: 'vm'
 					}
 				}
 			});

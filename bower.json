@@ -26,7 +26,8 @@
     "ngstorage": "0.3.10",
     "sockjs-client": "1.1.1",
     "stomp-websocket": "2.3.4",
-    "swagger-ui": "2.1.5"
+    "swagger-ui": "2.1.5",
+    "angular-moment": "^1.0.1"
   },
   "overrides": {
     "angular": {

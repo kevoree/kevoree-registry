@@ -8,7 +8,8 @@ angular
 			views: {
 				'navbar@': {
 					templateUrl: 'scripts/components/navbar/navbar.html',
-					controller: 'NavbarController'
+					controller: 'NavbarController',
+					controllerAs: 'vm'
 				}
 			},
 			resolve: {
@@ -23,6 +24,7 @@ angular
 					'$translatePartialLoader',
 					function($translate, $translatePartialLoader) {
 						$translatePartialLoader.addPart('global');
+						$translatePartialLoader.addPart('error');
 						$translatePartialLoader.addPart('language');
 						return $translate.refresh();
 					}

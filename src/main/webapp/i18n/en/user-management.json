@@ -1,31 +1,36 @@
 {
-  "userManagement": {
-    "home": {
-      "title": "Users",
-      "createLabel": "Create a new user",
-      "createOrEditLabel": "Create or edit a user"
-    },
-    "created": "A new user is created with identifier {{ param }}",
-    "updated": "An user is updated with identifier {{ param }}",
-    "deleted": "An user is deleted with identifier {{ param }}",
-    "delete": {
-      "question": "Are you sure you want to delete user {{ login }}?"
-    },
-    "detail": {
-      "title": "User"
-    },
-    "login": "Login",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "email": "Email",
-    "activated": "Activated",
-    "deactivated": "Deactivated",
-    "profiles": "Profiles",
-    "langKey": "Language",
-    "createdBy": "Created by",
-    "createdDate": "Created date",
-    "lastModifiedBy": "Modified by",
-    "lastModifiedDate": "Modified date",
+	"userManagement": {
+		"home": {
+			"title": "Users",
+			"createLabel": "Create a new user",
+			"createOrEditLabel": "Create or edit a user"
+		},
+		"created": "User <strong>{{ param }}</strong> created",
+		"updated": "User <strong>{{ param }}</strong> has been updated",
+		"deleted": "User <strong>{{ param }}</strong> has been deleted",
+		"delete": {
+			"question": "Are you sure you want to delete user {{ login }}?"
+		},
+		"detail": {
+			"title": "User"
+		},
+		"error": {
+			"deleteOwner": "Unable to delete the owner of a namespace. Delete the namespace first",
+			"loginExists": "Login already in use",
+			"emailExists": "E-mail already in use"
+		},
+		"login": "Login",
+		"firstName": "First name",
+		"lastName": "Last name",
+		"email": "Email",
+		"activated": "Activated",
+		"deactivated": "Deactivated",
+		"created": "Created",
+		"createdBy": "Created by",
+		"modified": "Modified",
+		"modifiedBy": "Modified by",
+		"profiles": "Profiles",
+		"langKey": "Language",
 		"namespaces": "Namespaces"
-  }
+	}
 }

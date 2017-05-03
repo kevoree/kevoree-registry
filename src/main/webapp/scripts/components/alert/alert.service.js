@@ -1,33 +1,21 @@
-(function () {
-	'use strict';
+angular
+	.module('kevoreeRegistryApp')
+	.provider('AlertService', function () {
+		var defaultTimeout = 15000;
 
-	angular
-		.module('kevoreeRegistryApp')
-		.provider('AlertService', AlertService);
-
-	function AlertService() {
-		this.toast = false;
-		/*jshint validthis: true */
-		this.$get = getService;
-
-		this.showAsToast = function (isToast) {
-			this.toast = isToast;
+		this.setDefaultTimeout = function (timeout) {
+			defaultTimeout = timeout;
 		};
 
-		getService.$inject = ['$timeout', '$sce', '$translate'];
+		this.$get = AlertService;
+		this.$get.$inject = ['$timeout', '$sce', '$translate'];
 
-		function getService($timeout, $sce, $translate) {
-			var toast = this.toast,
-				alertId = 0, // unique id for each alert. Starts from 0.
-				alerts = [],
-				timeout = 350000; // default timeout
+		function AlertService($timeout, $sce, $translate) {
+			var alerts = [];
+			var timeout = defaultTimeout; // timeout defined by provider
 
 			return {
-				factory: factory,
-				isToast: isToast,
 				add: addAlert,
-				closeAlert: closeAlert,
-				closeAlertByIndex: closeAlertByIndex,
 				clear: clear,
 				get: get,
 				success: success,
@@ -35,10 +23,6 @@
 				info: info,
 				warning: warning
 			};
-
-			function isToast() {
-				return toast;
-			}
 
 			function clear() {
 				alerts = [];
@@ -48,92 +32,42 @@
 				return alerts;
 			}
 
-			function success(msg, params, position) {
-				return this.add({
-					type: 'success',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
+			function success(msg, params) {
+				return addAlert('success', msg, params);
 			}
 
-			function error(msg, params, position) {
-				return this.add({
-					type: 'danger',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
+			function error(msg, params) {
+				return addAlert('danger', msg, params);
 			}
 
-			function warning(msg, params, position) {
-				return this.add({
-					type: 'warning',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
+			function warning(msg, params) {
+				return addAlert('warning', msg, params);
 			}
 
-			function info(msg, params, position) {
-				return this.add({
-					type: 'info',
-					msg: msg,
-					params: params,
-					timeout: timeout,
-					toast: toast,
-					position: position
-				});
+			function info(msg, params) {
+				return addAlert('info', msg, params);
 			}
 
-			function factory(alertOptions) {
+			function addAlert(type, msg, params) {
 				var alert = {
-					type: alertOptions.type,
-					msg: $sce.trustAsHtml(alertOptions.msg),
-					id: alertOptions.alertId,
-					timeout: alertOptions.timeout,
-					toast: alertOptions.toast,
-					position: alertOptions.position ? alertOptions.position : 'top right',
-					scoped: alertOptions.scoped,
-					close: function (alerts) {
-						return closeAlert(this.id, alerts);
-					}
+					type: type,
+					msg: $sce.trustAsHtml($translate.instant(msg, params))
 				};
-				if (!alert.scoped) {
-					alerts.push(alert);
+				var timeoutPromise = $timeout(function () {
+					alert.close();
+				}, timeout);
+
+				alert.close = function () {
+					$timeout.cancel(timeoutPromise);
+					alerts.splice(0);
+				};
+
+				if (alerts.length > 0) {
+					alerts[0].close();
+					alerts.splice(0);
 				}
+				alerts.push(alert);
 				return alert;
-			}
-
-			function addAlert(alertOptions, extAlerts) {
-				alertOptions.alertId = alertId++;
-				alertOptions.msg = $translate.instant(alertOptions.msg, alertOptions.params);
-				var that = this;
-				var alert = this.factory(alertOptions);
-				if (alertOptions.timeout && alertOptions.timeout > 0) {
-					$timeout(function () {
-						that.closeAlert(alertOptions.alertId, extAlerts);
-					}, alertOptions.timeout);
-				}
-				return alert;
-			}
-
-			function closeAlert(id, extAlerts) {
-				var thisAlerts = extAlerts ? extAlerts : alerts;
-				return closeAlertByIndex(thisAlerts.map(function (e) {
-					return e.id;
-				}).indexOf(id), thisAlerts);
-			}
-
-			function closeAlertByIndex(index, thisAlerts) {
-				return thisAlerts.splice(index, 1);
 			}
 		}
-	}
-})();
+	});
