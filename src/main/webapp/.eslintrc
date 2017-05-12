@@ -1,0 +1,6 @@
+---
+  extends:
+    - angular
+  rules:
+    angular/json-functions: 0
+    angular/di-unused: 2

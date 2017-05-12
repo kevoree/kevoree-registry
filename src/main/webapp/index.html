@@ -1,26 +1,26 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html class="no-js">
-<!--<![endif]-->
-
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Kevoree Registry</title>
-	<meta name="description" content="">
-	<meta name="viewport" content="width=device-width">
-	<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-	<!-- build:css assets/styles/main.css -->
-	<link rel="stylesheet" href="bower_components/highlightjs/styles/default.css">
-	<link rel="stylesheet" href="assets/styles/bootstrap.css">
-	<link rel="stylesheet" href="assets/styles/main.css">
-	<!-- endbuild -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Kevoree Registry</title>
+    <meta name="description" content="">
+    <meta name="google" value="notranslate">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css content/css/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/highlightjs/styles/default.css">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <!-- endinject -->
+    <!-- endbuild -->
+    <!-- build:css content/css/main.css -->
+    <link rel="stylesheet" href="content/css/main.css">
+    <!-- endbuild -->
+    <link rel="shortcut icon" href="favicon.ico" />
 </head>
 
-<body ng-app="kevoreeRegistryApp">
+<body ng-app="kevoreeRegistryApp" ng-strict-di>
 	<!--[if lt IE 10]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
@@ -44,9 +44,8 @@
         </script>-->
 
 
-	<!-- build:js scripts/vendor.js -->
+	<!-- build:js app/vendor.js -->
 	<!-- bower:js -->
-	<script src="bower_components/modernizr/modernizr.js"></script>
 	<script src="bower_components/jquery/dist/jquery.js"></script>
 	<script src="bower_components/angular/angular.js"></script>
 	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
@@ -59,142 +58,133 @@
 	<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
 	<script src="bower_components/angular-translate/angular-translate.js"></script>
 	<script src="bower_components/messageformat/messageformat.js"></script>
-	<script src="bower_components/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js"></script>
 	<script src="bower_components/angular-translate-loader-partial/angular-translate-loader-partial.js"></script>
 	<script src="bower_components/angular-translate-storage-cookie/angular-translate-storage-cookie.js"></script>
 	<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/affix.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/alert.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/button.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/carousel.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/collapse.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/dropdown.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/tab.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/transition.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/scrollspy.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/modal.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/tooltip.js"></script>
-	<script src="bower_components/bootstrap-sass/vendor/assets/javascripts/bootstrap/popover.js"></script>
 	<script src="bower_components/json3/lib/json3.js"></script>
 	<script src="bower_components/ngstorage/ngStorage.js"></script>
 	<script src="bower_components/sockjs-client/dist/sockjs.js"></script>
 	<script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
 	<script src="bower_components/moment/moment.js"></script>
+	<script src="bower_components/angular-translate-interpolation-messageformat/angular-translate-interpolation-messageformat.js"></script>
 	<script src="bower_components/angular-moment/angular-moment.js"></script>
-	<!-- endbower -->
+	<!-- endinject -->
 	<!-- endbuild -->
 
-	<!-- build:js scripts/app.js -->
-	<script src="scripts/app/app.js"></script>
-	<script src="scripts/app/app.state.js"></script>
-	<script src="scripts/components/handler/state.handler.js"></script>
-	<script src="scripts/components/handler/translation.handler.js"></script>
-	<script src="scripts/components/config/http.config.js"></script>
-	<script src="scripts/components/config/alert.config.js"></script>
-	<script src="scripts/components/config/localstorage.config.js"></script>
-	<script src="scripts/components/config/translation-storage.provider.js"></script>
-	<script src="scripts/components/config/translation.config.js"></script>
-	<script src="scripts/components/config/uib-pager.config.js"></script>
-	<script src="scripts/components/config/uib-pagination.config.js"></script>
-	<script src="scripts/components/auth/auth.service.js"></script>
-	<script src="scripts/components/auth/principal.service.js"></script>
-	<script src="scripts/components/auth/services/account.service.js"></script>
-	<script src="scripts/components/auth/services/activate.service.js"></script>
-	<script src="scripts/components/auth/services/password.service.js"></script>
-	<script src="scripts/components/auth/services/register.service.js"></script>
-	<script src="scripts/components/form/form.directive.js"></script>
-	<script src="scripts/components/form/pagination.constants.js"></script>
-	<script src="scripts/components/language/language.service.js"></script>
-	<script src="scripts/components/language/language.controller.js"></script>
-	<script src="scripts/components/language/language.constants.js"></script>
-	<script src="scripts/components/language/language.filter.js"></script>
-	<script src="scripts/app/admin/audits/audits.service.js"></script>
-	<script src="scripts/app/admin/logs/logs.service.js"></script>
-	<script src="scripts/app/admin/configuration/configuration.service.js"></script>
-	<script src="scripts/app/admin/metrics/metrics.service.js"></script>
-	<script src="scripts/components/navbar/navbar.directive.js"></script>
-	<script src="scripts/components/navbar/navbar.controller.js"></script>
-	<script src="scripts/components/util/truncate.filter.js"></script>
-	<script src="scripts/components/util/base64.service.js"></script>
-	<script src="scripts/app/account/account.state.js"></script>
-	<script src="scripts/app/account/activate/activate.state.js"></script>
-	<script src="scripts/app/account/activate/activate.controller.js"></script>
-	<script src="scripts/app/account/login/login.state.js"></script>
-	<script src="scripts/app/account/login/login.controller.js"></script>
-	<script src="scripts/app/account/logout/logout.state.js"></script>
-	<script src="scripts/app/account/logout/logout.controller.js"></script>
-	<script src="scripts/app/account/password/password.state.js"></script>
-	<script src="scripts/app/account/password/password.controller.js"></script>
-	<script src="scripts/app/account/password/password.directive.js"></script>
-	<script src="scripts/app/account/register/register.state.js"></script>
-	<script src="scripts/app/account/register/register.controller.js"></script>
-	<script src="scripts/app/account/settings/settings.state.js"></script>
-	<script src="scripts/app/account/settings/settings.controller.js"></script>
-	<script src="scripts/app/admin/admin.state.js"></script>
-	<script src="scripts/app/admin/audits/audits.state.js"></script>
-	<script src="scripts/app/admin/audits/audits.controller.js"></script>
-	<script src="scripts/app/admin/configuration/configuration.state.js"></script>
-	<script src="scripts/app/admin/configuration/configuration.controller.js"></script>
-	<script src="scripts/app/admin/docs/docs.state.js"></script>
-	<script src="scripts/app/admin/health/health.state.js"></script>
-	<script src="scripts/app/admin/health/health.service.js"></script>
-	<script src="scripts/app/admin/health/health.controller.js"></script>
-	<script src="scripts/app/admin/health/health.modal.controller.js"></script>
-	<script src="scripts/app/admin/logs/logs.state.js"></script>
-	<script src="scripts/app/admin/logs/logs.controller.js"></script>
-	<script src="scripts/app/admin/metrics/metrics.state.js"></script>
-	<script src="scripts/app/admin/metrics/metrics.controller.js"></script>
-	<script src="scripts/app/admin/user-management/user-management.state.js"></script>
-	<script src="scripts/app/admin/user-management/user-management-dialog.controller.js"></script>
-	<script src="scripts/app/admin/user-management/user-management-detail.controller.js"></script>
-	<script src="scripts/app/admin/user-management/user-management-delete-dialog.controller.js"></script>
-	<script src="scripts/app/admin/user-management/user-management.controller.js"></script>
-	<script src="scripts/app/error/error.state.js"></script>
-	<script src="scripts/app/home/home.state.js"></script>
-	<script src="scripts/app/home/home.controller.js"></script>
-	<script src="scripts/components/auth/provider/auth.oauth2.service.js"></script>
-	<script src="scripts/app/admin/tracker/tracker.state.js"></script>
-	<script src="scripts/app/admin/tracker/tracker.controller.js"></script>
-	<script src="scripts/app/admin/tracker/tracker.service.js"></script>
-	<script src="scripts/app/typeDefinition/typeDefinition.state.js"></script>
-	<script src="scripts/app/typeDefinition/typeDefinition.controller.js"></script>
-	<script src="scripts/app/typeDefinition/typeDefinition-detail.controller.js"></script>
-	<script src="scripts/app/typeDefinition/typeDefinition.service.js"></script>
-	<script src="scripts/app/typeDefinition/typeDefinitions.service.js"></script>
-	<script src="scripts/app/deployUnit/deployUnit.state.js"></script>
-	<script src="scripts/app/deployUnit/deployUnit.controller.js"></script>
-	<script src="scripts/app/deployUnit/deployUnit-detail.controller.js"></script>
-	<script src="scripts/app/deployUnit/deployUnits.service.js"></script>
-	<script src="scripts/app/namespace/namespace.state.js"></script>
-	<script src="scripts/app/namespace/namespace.controller.js"></script>
-	<script src="scripts/app/namespace/namespace-new.controller.js"></script>
-	<script src="scripts/app/namespace/namespace-delete.controller.js"></script>
-	<script src="scripts/app/namespace/namespace-detail.controller.js"></script>
-	<script src="scripts/app/namespace/namespace-add-member.controller.js"></script>
-	<script src="scripts/app/namespace/namespace-remove-member.controller.js"></script>
-	<script src="scripts/app/namespace/namespace.service.js"></script>
-	<script src="scripts/app/namespace/namespaces.service.js"></script>
-	<script src="scripts/components/user/user.service.js"></script>
-	<script src="scripts/components/user/users.service.js"></script>
-	<script src="scripts/components/alert/alert.service.js"></script>
-	<script src="scripts/components/alert/alert.directive.js"></script>
-	<script src="scripts/components/util/map-prop.filter.js"></script>
-	<script src="scripts/components/util/join.filter.js"></script>
-	<script src="scripts/components/util/stringify.filter.js"></script>
-	<script src="scripts/components/util/bold.directive.js"></script>
-	<script src="scripts/components/util/parse-links.service.js"></script>
-	<script src="scripts/components/util/pagination-util.service.js"></script>
-	<script src="scripts/components/util/sort-by.directive.js"></script>
-	<script src="scripts/components/util/sort.directive.js"></script>
-	<script src="scripts/components/jhi-item-count/jhi-item-count.directive.js"></script>
-	<script src="scripts/components/util/has-authority.directive.js"></script>
-	<script src="scripts/components/util/has-any-authority.directive.js"></script>
-	<script src="scripts/components/util/storage.service.js"></script>
-	<script src="scripts/components/interceptor/notification.interceptor.js"></script>
-	<script src="scripts/components/interceptor/errorhandler.interceptor.js"></script>
-	<script src="scripts/components/interceptor/auth-expired.interceptor.js"></script>
-	<script src="scripts/components/interceptor/auth.interceptor.js"></script>
-	<script src="scripts/components/util/filterpp.filter.js"></script>
+	<!-- build:js app/app.js  -->
+	<!-- inject:js -->
+	<script src="app/app.js"></script>
+	<script src="app/typeDefinition/typeDefinitions.service.js"></script>
+	<script src="app/typeDefinition/typeDefinition-detail.controller.js"></script>
+	<script src="app/typeDefinition/typeDefinition.state.js"></script>
+	<script src="app/typeDefinition/typeDefinition.service.js"></script>
+	<script src="app/typeDefinition/typeDefinition.controller.js"></script>
+	<script src="app/namespace/namespaces.service.js"></script>
+	<script src="app/namespace/namespace-remove-member.controller.js"></script>
+	<script src="app/namespace/namespace-new.controller.js"></script>
+	<script src="app/namespace/namespace-detail.controller.js"></script>
+	<script src="app/namespace/namespace-delete.controller.js"></script>
+	<script src="app/namespace/namespace-add-member.controller.js"></script>
+	<script src="app/namespace/namespace.state.js"></script>
+	<script src="app/namespace/namespace.service.js"></script>
+	<script src="app/namespace/namespace.controller.js"></script>
+	<script src="app/home/home.state.js"></script>
+	<script src="app/home/home.controller.js"></script>
+	<script src="app/error/error.state.js"></script>
+	<script src="app/deployUnit/deployUnits.service.js"></script>
+	<script src="app/deployUnit/deployUnit-detail.controller.js"></script>
+	<script src="app/deployUnit/deployUnit.state.js"></script>
+	<script src="app/deployUnit/deployUnit.controller.js"></script>
+	<script src="app/components/util/truncate.filter.js"></script>
+	<script src="app/components/util/stringify.filter.js"></script>
+	<script src="app/components/util/storage.service.js"></script>
+	<script src="app/components/util/sort-by.directive.js"></script>
+	<script src="app/components/util/sort.directive.js"></script>
+	<script src="app/components/util/parse-links.service.js"></script>
+	<script src="app/components/util/pagination-util.service.js"></script>
+	<script src="app/components/util/map-prop.filter.js"></script>
+	<script src="app/components/util/join.filter.js"></script>
+	<script src="app/components/util/has-authority.directive.js"></script>
+	<script src="app/components/util/has-any-authority.directive.js"></script>
+	<script src="app/components/util/filterpp.filter.js"></script>
+	<script src="app/components/util/bold.directive.js"></script>
+	<script src="app/components/util/base64.service.js"></script>
+	<script src="app/components/user/users.service.js"></script>
+	<script src="app/components/user/user.service.js"></script>
+	<script src="app/components/navbar/navbar.directive.js"></script>
+	<script src="app/components/navbar/navbar.controller.js"></script>
+	<script src="app/components/language/language.service.js"></script>
+	<script src="app/components/language/language.filter.js"></script>
+	<script src="app/components/language/language.controller.js"></script>
+	<script src="app/components/language/language.constants.js"></script>
+	<script src="app/components/jhi-item-count/jhi-item-count.directive.js"></script>
+	<script src="app/components/interceptor/notification.interceptor.js"></script>
+	<script src="app/components/interceptor/errorhandler.interceptor.js"></script>
+	<script src="app/components/interceptor/auth-expired.interceptor.js"></script>
+	<script src="app/components/interceptor/auth.interceptor.js"></script>
+	<script src="app/components/handler/translation.handler.js"></script>
+	<script src="app/components/handler/state.handler.js"></script>
+	<script src="app/components/form/pagination.constants.js"></script>
+	<script src="app/components/form/form.directive.js"></script>
+	<script src="app/components/config/uib-pagination.config.js"></script>
+	<script src="app/components/config/uib-pager.config.js"></script>
+	<script src="app/components/config/translation-storage.provider.js"></script>
+	<script src="app/components/config/translation.config.js"></script>
+	<script src="app/components/config/localstorage.config.js"></script>
+	<script src="app/components/config/http.config.js"></script>
+	<script src="app/components/config/alert.config.js"></script>
+	<script src="app/components/auth/services/register.service.js"></script>
+	<script src="app/components/auth/services/password.service.js"></script>
+	<script src="app/components/auth/services/activate.service.js"></script>
+	<script src="app/components/auth/services/account.service.js"></script>
+	<script src="app/components/auth/provider/auth.oauth2.service.js"></script>
+	<script src="app/components/auth/principal.service.js"></script>
+	<script src="app/components/auth/auth.service.js"></script>
+	<script src="app/components/alert/alert.service.js"></script>
+	<script src="app/components/alert/alert.directive.js"></script>
+	<script src="app/app.state.js"></script>
+	<script src="app/app.constants.js"></script>
+	<script src="app/admin/user-management/user-management-dialog.controller.js"></script>
+	<script src="app/admin/user-management/user-management-detail.controller.js"></script>
+	<script src="app/admin/user-management/user-management-delete-dialog.controller.js"></script>
+	<script src="app/admin/user-management/user-management.state.js"></script>
+	<script src="app/admin/user-management/user-management.controller.js"></script>
+	<script src="app/admin/tracker/tracker.state.js"></script>
+	<script src="app/admin/tracker/tracker.service.js"></script>
+	<script src="app/admin/tracker/tracker.controller.js"></script>
+	<script src="app/admin/metrics/metrics.state.js"></script>
+	<script src="app/admin/metrics/metrics.service.js"></script>
+	<script src="app/admin/metrics/metrics.controller.js"></script>
+	<script src="app/admin/logs/logs.state.js"></script>
+	<script src="app/admin/logs/logs.service.js"></script>
+	<script src="app/admin/logs/logs.controller.js"></script>
+	<script src="app/admin/health/health.state.js"></script>
+	<script src="app/admin/health/health.service.js"></script>
+	<script src="app/admin/health/health.modal.controller.js"></script>
+	<script src="app/admin/health/health.controller.js"></script>
+	<script src="app/admin/docs/docs.state.js"></script>
+	<script src="app/admin/configuration/configuration.state.js"></script>
+	<script src="app/admin/configuration/configuration.service.js"></script>
+	<script src="app/admin/configuration/configuration.controller.js"></script>
+	<script src="app/admin/audits/audits.state.js"></script>
+	<script src="app/admin/audits/audits.service.js"></script>
+	<script src="app/admin/audits/audits.controller.js"></script>
+	<script src="app/admin/admin.state.js"></script>
+	<script src="app/account/settings/settings.state.js"></script>
+	<script src="app/account/settings/settings.controller.js"></script>
+	<script src="app/account/register/register.state.js"></script>
+	<script src="app/account/register/register.controller.js"></script>
+	<script src="app/account/password/password.state.js"></script>
+	<script src="app/account/password/password.directive.js"></script>
+	<script src="app/account/password/password.controller.js"></script>
+	<script src="app/account/logout/logout.state.js"></script>
+	<script src="app/account/logout/logout.controller.js"></script>
+	<script src="app/account/login/login.state.js"></script>
+	<script src="app/account/login/login.controller.js"></script>
+	<script src="app/account/activate/activate.state.js"></script>
+	<script src="app/account/activate/activate.controller.js"></script>
+	<script src="app/account/account.state.js"></script>
+	<!-- endinject -->
 	<!-- endbuild -->
 </body>
 

@@ -1,0 +1,174 @@
+<nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a id="navbar-logo" class="navbar-brand" href="">
+				<img src="content/images/logo.png" alt="Kevoree logo" />
+			</a>
+		</div>
+		<div class="collapse navbar-collapse" id="navbar-collapse" ng-switch="vm.isAuthenticated()">
+			<ul class="nav navbar-nav">
+				<li ui-sref-active="active">
+					<a ui-sref="home">
+						<span class="glyphicon glyphicon-home"></span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.home" class="hidden-sm">Registry</span>
+					</a>
+				</li>
+				<li ui-sref-active="active">
+					<a ui-sref="namespaces">
+						<span class="glyphicon glyphicon-th-list"></span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.namespaces" class="hidden-sm">Namespaces</span>
+					</a>
+				</li>
+				<li ui-sref-active="active">
+					<a ui-sref="tdefs">
+						<span class="glyphicon glyphicon glyphicon-th-large"></span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.typeDefinitions" class="hidden-sm">TypeDefinitions</span>
+					</a>
+				</li>
+				<li ui-sref-active="active">
+					<a ui-sref="dus">
+						<span class="glyphicon glyphicon glyphicon-folder-close"></span>
+						<span class="hidden-sm">&#xA0;</span>
+						<span translate="global.menu.entities.deployUnits" class="hidden-sm">DeployUnits</span>
+					</a>
+				</li>
+			</ul>
+			<ul class="nav navbar-nav nav-pills navbar-right">
+				<li ui-sref-active="active" ng-switch-when="false">
+					<a ui-sref="login">
+						<span class="glyphicon glyphicon-log-in"></span>
+						<span>&#xA0;</span>
+						<span translate="global.menu.account.login">Authenticate</span>
+					</a>
+				</li>
+				<li ui-sref-active="active" ng-switch-when="false">
+					<a ui-sref="register">
+						<span class="glyphicon glyphicon-plus-sign"></span>
+						<span>&#xA0;</span>
+						<span translate="global.menu.account.register">Register</span>
+					</a>
+				</li>
+				<li ng-class="{active: $state.includes('account')}" class="dropdown pointer" uib-dropdown ng-switch-when="true">
+					<a class="dropdown-toggle" uib-dropdown-toggle href="">
+						<span class="glyphicon glyphicon-user"></span>
+						<span>&#xA0;</span>
+						<span>{{ vm.user.login }}</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu" uib-dropdown-menu>
+						<li ui-sref-active="active">
+							<a ui-sref="settings">
+								<span class="glyphicon glyphicon-wrench"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.account.settings">Settings</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="password">
+								<span class="glyphicon glyphicon-lock"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.account.password">Password</span>
+							</a>
+						</li>
+						<li role="presentation" class="divider"></li>
+						<li ui-sref-active="active">
+							<a ui-sref="logout">
+								<span class="glyphicon glyphicon-log-out"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.account.logout">Log out</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li ng-class="{active: $state.includes('admin')}" ng-switch-when="true" has-authority="ROLE_ADMIN" class="dropdown pointer" uib-dropdown>
+					<a class="dropdown-toggle" uib-dropdown-toggle href="">
+						<span class="glyphicon glyphicon-tower"></span>
+						<span>&#xA0;</span>
+						<span class="hidden-tablet" translate="global.menu.admin.main">Admin</span>
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu" uib-dropdown-menu>
+						<li ui-sref-active="active">
+							<a ui-sref="user-management">
+								<span class="glyphicon glyphicon-user"></span>
+								<span>&nbsp;</span>
+								<span translate="global.menu.admin.userManagement">User management</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="tracker">
+								<span class="glyphicon glyphicon-eye-open"></span>
+								<span>&nbsp;</span>
+								<span translate="global.menu.admin.tracker">User tracking</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="metrics">
+								<span class="glyphicon glyphicon-dashboard"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.metrics">Metrics</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="health">
+								<span class="glyphicon glyphicon-heart"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.health">Health</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="configuration">
+								<span class="glyphicon glyphicon-list-alt"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.configuration">Configuration</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="audits">
+								<span class="glyphicon glyphicon-bell"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.audits">Audits</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="logs">
+								<span class="glyphicon glyphicon-tasks"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.logs">Logs</span>
+							</a>
+						</li>
+						<li ui-sref-active="active">
+							<a ui-sref="docs">
+								<span class="glyphicon glyphicon-book"></span>
+								<span>&#xA0;</span>
+								<span translate="global.menu.admin.apidocs">API Docs</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li ui-sref-active="active" class="dropdown pointer" uib-dropdown ng-controller="LanguageController as languageVm">
+					<a class="dropdown-toggle" uib-dropdown-toggle href="" ng-if="languageVm.languages.length > 1">
+						<span>
+							<span class="glyphicon glyphicon-flag"></span>
+						<b class="caret"></b>
+						</span>
+					</a>
+					<ul class="dropdown-menu" uib-dropdown-menu ng-if="languageVm.languages.length > 1">
+						<li active-menu="{{language}}" ng-repeat="language in languageVm.languages">
+							<a href="" ng-click="languageVm.changeLanguage(language);vm.collapseNavbar();">{{language | findLanguageFromKey}}</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>

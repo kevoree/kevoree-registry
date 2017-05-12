@@ -77,22 +77,6 @@ public class UserResource {
     private UserService userService;
 
     /**
-     * GET  /me : get the currently authenticated user
-     *
-     * @return the ResponseEntity with status 200 (OK) and with body the authenticated user
-     */
-    @GetMapping("/me")
-    @Timed
-    public ResponseEntity<ManagedUserVM> getAuthenticatedUser() {
-        if (SecurityUtils.isAuthenticated()) {
-            return userRepository.findOneWithAuthoritiesAndNamespacesByLogin(SecurityUtils.getCurrentUserLogin())
-                    .map(user -> new ResponseEntity<>(new ManagedUserVM(user), HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-        }
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-    }
-
-    /**
      * POST  /users  : Creates a new user.
      * <p>
      * Creates a new user if the login and email are not already used, and sends an

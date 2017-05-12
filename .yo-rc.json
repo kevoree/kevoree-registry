@@ -3,16 +3,35 @@
     "baseName": "kevoree_registry",
     "packageName": "org.kevoree.registry",
     "packageFolder": "org/kevoree/registry",
-    "authenticationType": "token",
+    "authenticationType": "auth2",
     "hibernateCache": "ehcache",
-    "clusteredHttpSession": "no",
+    "clusteredHttpSession": false,
     "websocket": "spring-websocket",
     "databaseType": "sql",
-    "devDatabaseType": "h2Disk",
+    "devDatabaseType": "h2Memory",
     "prodDatabaseType": "postgresql",
+		"searchEngine": false,
     "useCompass": false,
     "buildTool": "maven",
     "frontendBuilder": "grunt",
-    "javaVersion": "8"
+    "javaVersion": "8",
+		"enableTranslation": true,
+		"applicationType": "monolith",
+		"languages": [
+			"en", "fr"
+		],
+		"testFrameworks": [
+			"gatling",
+			"protractor"
+		],
+		"serverPort": 8080,
+		"jhipsterVersion": "4.4.1",
+		"enableSocialSignIn": false,
+		"useSass": false,
+		"jhiPrefix": "jhi",
+		"messageBroker": false,
+		"serviceDiscoveryType": false,
+		"clientPackageManager": "yarn",
+		"clientFramework": "angular1"
   }
 }

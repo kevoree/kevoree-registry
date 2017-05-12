@@ -1,7 +1,6 @@
 ---
 extends:
 - eslint:recommended
-- angular
 env:
   node: true
   browser: true
@@ -31,5 +30,3 @@ rules:
   - SwitchCase: 1
   linebreak-style: 0
   eol-last: 2
-  angular/json-functions: 0
-  angular/di-unused: 2

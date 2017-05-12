@@ -765,18 +765,18 @@
                 </configuration>
               </execution>
               <execution>
-                <id>grunt build</id>
+                <id>gulp build</id>
                 <goals>
-                  <goal>grunt</goal>
+                  <goal>gulp</goal>
                 </goals>
                 <configuration>
                   <arguments>build --no-notification</arguments>
                 </configuration>
               </execution>
               <execution>
-                <id>grunt test</id>
+                <id>gulp test</id>
                 <goals>
-                  <goal>grunt</goal>
+                  <goal>gulp</goal>
                 </goals>
                 <phase>test</phase>
                 <configuration>
