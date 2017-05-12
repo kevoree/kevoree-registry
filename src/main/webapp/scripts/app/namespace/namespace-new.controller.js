@@ -1,5 +1,5 @@
 angular.module('kevoreeRegistryApp')
-	.controller('NamespaceNewController', function ($stateParams, $uibModalInstance, namespace, Namespace, Language) {
+	.controller('NamespaceNewController', function ($uibModalInstance, namespace, Namespace, AlertService) {
 		var vm = this;
 
 		vm.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
@@ -8,16 +8,13 @@ angular.module('kevoreeRegistryApp')
 		vm.save = save;
 		vm.namespace = namespace;
 
-		Language.getAll().then(function (languages) {
-			vm.languages = languages;
-		});
-
 		function clear() {
 			$uibModalInstance.dismiss('cancel');
 		}
 
 		function onSaveSuccess(result) {
 			vm.isSaving = false;
+			AlertService.success('namespace.creation.success', { name: vm.namespace.name });
 			$uibModalInstance.close(result);
 		}
 

@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('HealthService', function ($rootScope, $http) {
+	.factory('HealthService', function ($http) {
 		var separator = '.';
 		var service = {
 			checkHealth: checkHealth,

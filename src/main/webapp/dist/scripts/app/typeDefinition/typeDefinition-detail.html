@@ -1,0 +1,147 @@
+<div class="well">
+	<div class="table-responsive">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th colspan="2">
+						<h4>{{ vm.tdef.name }}</h4>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+					</td>
+					<td>
+						<a ui-sref="namespaces.detail({ name: vm.tdef.namespace })">{{ vm.tdef.namespace }}</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
+					</td>
+					<td>{{ vm.tdef.version }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.created">Created</span>
+					</td>
+					<td>{{ vm.tdef.createdDate | date:'dd/MM/yy HH:mm:ss' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</span>
+					</td>
+					<td>{{ vm.tdef.createdBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.modified">Modified</span>
+					</td>
+					<td>{{ vm.tdef.lastModifiedDate | date:'dd/MM/yy HH:mm:ss' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</span>
+					</td>
+					<td>{{ vm.tdef.lastModifiedBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.releases">Releases</span>
+						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+					</td>
+					<td>
+						<table class="table table-condensed table-striped"  ng-class="{'table-hover': vm.releaseDUS.length }">
+							<thead>
+								<tr>
+									<th class="col-xs-1"  translate="kevoreeRegistryApp.typeDefinition.platform">Platform</th>
+									<th class="col-xs-5"  translate="kevoreeRegistryApp.typeDefinition.deployUnit">DeployUnit</th>
+									<th class="col-xs-3"  translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</th>
+									<th class="col-xs-3"  translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-if="vm.releaseDUS === null">
+									<td colspan="4" class="text-center">loading...</td>
+								</tr>
+								<tr ng-if="vm.releaseDUS.length === 0">
+									<td colspan="4" class="text-center">- empty -</td>
+								</tr>
+								<tr class="hand" ui-sref="duDetail({ id: du.id })" ng-if="vm.releaseDUS.length > 0" ng-repeat="du in vm.releaseDUS">
+									<td class="col-xs-1">{{ du.platform }}</td>
+									<td class="col-xs-5">{{ du.name + '/' + du.version }}</td>
+									<td class="col-xs-3">
+										<span ng-if="du.createdBy">
+											<strong>{{ du.createdBy }}</strong>, <span am-time-ago="du.createdDate"></span>
+										</span>
+									</td>
+									<td class="col-xs-3">
+										<span ng-if="du.lastModifiedBy">
+											<strong>{{ du.lastModifiedBy }}</strong>, <span am-time-ago="du.lastModifiedDate"></span>
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.latest">Latest</span>
+						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+					</td>
+					<td>
+						<table class="table table-condensed table-striped" ng-class="{'table-hover': vm.latestDUS.length }">
+							<thead>
+								<tr>
+									<th class="col-xs-1" translate="kevoreeRegistryApp.typeDefinition.platform">Platform</th>
+									<th class="col-xs-5" translate="kevoreeRegistryApp.typeDefinition.deployUnit">DeployUnit</th>
+									<th class="col-xs-3" translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</th>
+									<th class="col-xs-3" translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ng-if="vm.latestDUS === null">
+									<td colspan="4">loading...</td>
+								</tr>
+								<tr ng-if="vm.latestDUS.length === 0">
+									<td colspan="4">- empty -</td>
+								</tr>
+								<tr class="hand" ui-sref="duDetail({ id: du.id })" ng-if="vm.latestDUS.length > 0" ng-repeat="du in vm.latestDUS">
+									<td class="col-xs-1">{{ du.platform }}</td>
+									<td class="col-xs-5">{{ du.name + '/' + du.version }}</td>
+									<td class="col-xs-3">
+										<span ng-if="du.createdBy">
+											<strong>{{ du.createdBy }}</strong>, <span am-time-ago="du.createdDate"></span>
+										</span>
+									</td>
+									<td class="col-xs-3">
+										<span ng-if="du.lastModifiedBy">
+											<strong>{{ du.lastModifiedBy }}</strong>, <span am-time-ago="du.lastModifiedDate"></span>
+										</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
+					</td>
+					<td>
+						<div hljs hljs-language="json" hljs-source="vm.tdef.model"></div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<button type="submit" ui-sref="tdefs" class="btn btn-info">
+		<span class="glyphicon glyphicon-arrow-left"></span>
+		<span>&nbsp;</span>
+		<span translate="kevoreeRegistryApp.typeDefinition.home.title">Back</span>
+	</button>
+</div>

@@ -1,0 +1,85 @@
+<div class="well">
+	<div class="table-responsive">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th colspan="2">
+						<h4>{{ vm.du.name }}</h4>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
+					</td>
+					<td>
+						<a ui-sref="namespaces.detail({ name: vm.du.namespace })">{{ vm.du.namespace }}</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+					</td>
+					<td>{{ vm.du.name }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+					</td>
+					<td>{{ vm.du.version }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+					</td>
+					<td>{{ vm.du.platform }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.created">Created</span>
+					</td>
+					<td>{{vm.du.createdDate | date:'dd/MM/yy HH:mm:ss' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.createdBy">Created by</span>
+					</td>
+					<td>{{ vm.du.createdBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.modified">Modified</span>
+					</td>
+					<td>{{vm.du.lastModifiedDate | date:'dd/MM/yy HH:mm:ss' }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.modifiedBy">Modified by</span>
+					</td>
+					<td>{{ vm.du.lastModifiedBy }}</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
+					</td>
+					<td>
+						<a ui-sref="tdefDetail({ id: vm.du.tdefId })">{{ vm.du.tdefName + '/' + vm.du.tdefVersion }}</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<span translate="kevoreeRegistryApp.deployUnit.model">Model</span>
+					</td>
+					<td>
+						<hljs hljs-language="json" hljs-source="vm.du.model"></hljs>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<button type="submit" ui-sref="dus" class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.deployUnit.home.title"> Back</span>
+    </button>
+</div>

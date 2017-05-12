@@ -5,9 +5,9 @@
 		.module('kevoreeRegistryApp')
 		.controller('UserManagementDialogController', UserManagementDialogController);
 
-	UserManagementDialogController.$inject = ['$stateParams', '$uibModalInstance', 'entity', 'User', 'Language'];
+	UserManagementDialogController.$inject = ['$uibModalInstance', 'entity', 'User', 'Language'];
 
-	function UserManagementDialogController($stateParams, $uibModalInstance, entity, User, Language) {
+	function UserManagementDialogController($uibModalInstance, entity, User, Language) {
 		var vm = this;
 
 		vm.authorities = ['ROLE_USER', 'ROLE_ADMIN'];

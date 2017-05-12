@@ -27,7 +27,6 @@ angular
 							}).sort();
 
 							if (headers.length > 0) {
-								console.log(headers);
 								// var errorParams = response.headers(headers[1]);
 								AlertService.error(response.headers(headers[0]));
 							}

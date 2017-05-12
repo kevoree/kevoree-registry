@@ -7,7 +7,11 @@
 		"delete": {
 			"question": "Are you sure you want to delete the namespace <strong>\"{{ name }}\"</strong> ?",
 			"warning1": "Every TypeDefinition & DeployUnit in this namespace will be deleted forever.",
-			"warning2": "This cannot be undone!"
+			"warning2": "This cannot be undone!",
+			"success": "Namespace <strong>{{ name }}</strong> deleted successfully"
+		},
+		"creation": {
+			"success": "Namespace <strong>{{ name }}</strong> created successfully"
 		},
 		"detail": {
 			"title": "Namespace"

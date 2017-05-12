@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('authInterceptor', function ($rootScope, $q, $location, $localStorage, $sessionStorage) {
+	.factory('authInterceptor', function ($localStorage, $sessionStorage) {
 		var service = {
 			request: request
 		};

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,6 +32,17 @@ public class TypeDefinitionService {
         tdef.getDeployUnits().size();
         return tdef;
     };
+
+    public Set<TypeDefinitionDTO> getAllWithDeployUnits() {
+        return tdefRepository.findAll()
+                .stream()
+                .map(tdef -> {
+                    tdef.getDeployUnits().size();
+                    return tdef;
+                })
+                .map(TypeDefinitionDTO::new)
+                .collect(Collectors.toSet());
+    }
 
     public Page<TypeDefinitionDTO> getPage(Pageable pageable, boolean latest) {
         Page<TypeDefinition> page = tdefRepository.findAll(pageable);

@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('Tracker', function ($rootScope, $window, $cookies, $http, $q, $localStorage) {
+	.factory('Tracker', function ($rootScope, $window, $q, $localStorage) {
 		var REGEX = /:([^/]+)/g;
 		var stompClient = null;
 		var subscriber = null;

@@ -4,7 +4,7 @@
  * @param  {[type]} filters [description]
  * @return {[type]}         [description]
  */
-function filterppFilter($filter) {
+function filterppFilter() {
 	return function (elems, filters) {
 		return elems.filter(function (elem) {
 			var show = true;

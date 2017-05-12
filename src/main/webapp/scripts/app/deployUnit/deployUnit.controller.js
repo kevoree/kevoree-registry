@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('DeployUnitController', function ($rootScope, $state, $stateParams, paginationConstants, TypeDefinitions, DeployUnits) {
+	.controller('DeployUnitController', function ($rootScope, $state, $stateParams, paginationConstants, DeployUnits) {
 		var vm = this;
 		vm.search = {
 			name: '',

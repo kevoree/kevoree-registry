@@ -23,9 +23,6 @@
 				.$promise
 				.then(function () {
 					$uibModalInstance.close(true);
-				})
-				.catch(function (resp) {
-					console.log('Unable to delete user', resp);
 				});
 		}
 	}

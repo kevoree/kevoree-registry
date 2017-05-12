@@ -6,14 +6,18 @@
 			"message": "Vous êtes connecté en tant que \"{{username}}\"."
 		},
 		"question": "Si vous avez des questions à propos de JHipster:",
-		"link": {
-			"homepage": "Page d'accueil de JHipster",
-			"stackoverflow": "JHipster sur Stack Overflow",
-			"bugtracker": "JHipster bug tracker",
-			"contact": "Contactez-nous sur Twitter @java_hipster"
+		"overview": {
+			"title": "Vue d'ensemble",
+			"message": "Le registre est une base de données de modèles Kevoree principalement utilisé par les interpréteurs de KevScript pour résoudre les <a ui-sref=\"tdefs()\">TypeDefinitions</a> et les <a ui-sref=\"dus()\">DeployUnits</a>"
 		},
-		"like": "Si vous aimez JHipster, donnez nous une étoile sur",
-		"github": "Github",
+		"api": {
+			"title": "API",
+			"message": "Il fourni une API REST pour <code>GET</code> le contenu de la base de données, mais sécurise via <strong>OAuth2</strong> toutes les écritures <code>PUT</code> ou <code>POST</code>"
+		},
+		"letsgo": {
+			"title": "Par où commencer",
+			"message": "Vous pouvez vous <a ui-sref=\"register()\">créer un compte</a> dès à présent et publier votre propre contenu sur le registre Kevoree en quelques minutes."
+		},
 		"latest": {
 			"name": "Nom",
 			"version": "Version",

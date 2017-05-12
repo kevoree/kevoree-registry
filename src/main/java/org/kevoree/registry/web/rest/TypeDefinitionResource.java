@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,9 +70,9 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/tdefs")
     @Timed
-    public List<TypeDefinitionDTO> getTypeDefinitions() {
+    public Set<TypeDefinitionDTO> getTypeDefinitions() {
         log.debug("REST request to get all TypeDefinitions");
-        return tdefMapper.typeDefinitionsToTypeDefinitionDTOs(tdefsRepository.findAll());
+        return tdefsService.getAllWithDeployUnits();
     }
 
     /**
@@ -82,13 +81,10 @@ public class TypeDefinitionResource {
     @GetMapping("/tdefs/page")
     @Timed
     public Page<TypeDefinitionDTO> getPageableTypeDefinitions(Pageable pageable,
-                                                              @RequestParam(required = false, defaultValue = "false") boolean latest,
-                                                              @RequestParam(required = false) String filter) {
+                                                              @RequestParam(required = false, defaultValue = "false") boolean latest) {
         log.debug("REST request to get paged TypeDefinitions (index={}, size={}, onlyLatest={}, filter={})",
                 pageable.getPageNumber(), pageable.getPageSize(), latest);
-        Page<TypeDefinitionDTO> page = tdefsService.getPage(pageable, latest);
-
-        return page;
+        return tdefsService.getPage(pageable, latest);
     }
 
     /**
@@ -112,21 +108,25 @@ public class TypeDefinitionResource {
      */
     @GetMapping("/namespaces/{namespace:" + Constants.NS_NAME_REGEX + "}/tdefs")
     @Timed
-    public ResponseEntity<Set<TypeDefinitionDTO>> getTypeDefinitionsByNamespace(@PathVariable String namespace,
+    public ResponseEntity getTypeDefinitionsByNamespace(@PathVariable String namespace,
                                                                     @RequestParam(required = false) String version) {
         log.debug("REST request to get namespace tdefs: {}", namespace);
-        Stream<TypeDefinitionDTO> tdefs = tdefsRepository
-                .findAllWithDeployUnitsByNamespaceName(namespace)
-                .stream()
-                .map(TypeDefinitionDTO::new);
-        if (version != null) {
-            if (version.equals("latest")) {
-                return new ResponseEntity<>(tdefsService.onlyLatest(tdefs).collect(Collectors.toSet()), HttpStatus.OK);
-            } else {
-                return ResponseEntity.badRequest().headers(HeaderUtil.createAlert("version query param should equal 'latest'", version)).body(null);
-            }
-        }
-        return new ResponseEntity<>(tdefs.collect(Collectors.toSet()), HttpStatus.OK);
+        return Optional.ofNullable(namespaceRepository.findOne(namespace))
+                .map((ignore) -> {
+                    Stream<TypeDefinitionDTO> tdefs = tdefsRepository
+                            .findAllWithDeployUnitsByNamespaceName(namespace)
+                            .stream()
+                            .map(TypeDefinitionDTO::new);
+                    if (version != null) {
+                        if (version.equals("latest")) {
+                            return new ResponseEntity<>(tdefsService.onlyLatest(tdefs).collect(Collectors.toSet()), HttpStatus.OK);
+                        } else {
+                            return ResponseEntity.badRequest().headers(HeaderUtil.createAlert("version query param should equal 'latest'", version)).body(null);
+                        }
+                    }
+                    return new ResponseEntity<>(tdefs.collect(Collectors.toSet()), HttpStatus.OK);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**

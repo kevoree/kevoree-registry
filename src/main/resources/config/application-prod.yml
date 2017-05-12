@@ -19,8 +19,8 @@ spring:
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
         url: jdbc:postgresql://localhost:5432/kevoree_registry?useUnicode=true&characterEncoding=utf8&useSSL=false
-        username: root
-        password:
+        username: kevoree_registry
+        password: kevoree_registry
         hikari:
             data-source-properties:
                 cachePrepStmts: true

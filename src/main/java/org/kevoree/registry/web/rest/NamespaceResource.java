@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -105,11 +106,13 @@ public class NamespaceResource {
      */
     @GetMapping("/namespaces/{name:" + Constants.NS_NAME_REGEX + "}/members")
     @Timed
-    public ResponseEntity<List<String>> getNamespaceMembers(@PathVariable String name) {
+    public ResponseEntity<Set<String>> getNamespaceMembers(@PathVariable String name) {
         log.debug("REST request to get namespace members: {}", name);
-        return Optional.ofNullable(namespaceRepository.findOne(name))
-                .map(namespace -> new ResponseEntity<>(namespace.getMembers().stream()
-                        .map(User::getLogin).collect(Collectors.toList()), HttpStatus.OK))
+        return Optional.ofNullable(namespaceRepository.findOneWithMembersAndTypeDefinitionsByName(name))
+                .map(namespace -> new ResponseEntity<>(namespace.getMembers()
+                        .stream()
+                        .map(User::getLogin)
+                        .collect(Collectors.toSet()), HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -146,7 +149,7 @@ public class NamespaceResource {
                         if (userWithSameNameThatNs.getLogin().equals(user.getLogin())) {
                             // current authenticated user is this user: it's fine
                             Namespace newNs = namespaceService.create(namedDTO.getName(), user);
-                            return new ResponseEntity<>(newNs, HttpStatus.CREATED);
+                            return new ResponseEntity<>(new NamespaceDTO(newNs), HttpStatus.CREATED);
                         } else {
                             // current authenticated user is not that user: forbidden
                             return new ResponseEntity<>(
@@ -156,7 +159,7 @@ public class NamespaceResource {
                     })
                     .orElseGet(() -> {
                         Namespace newNs = namespaceService.create(namedDTO.getName(), user);
-                        return new ResponseEntity<>(newNs, HttpStatus.CREATED);
+                        return new ResponseEntity<>(new NamespaceDTO(newNs), HttpStatus.CREATED);
                     });
         }
     }
@@ -265,7 +268,7 @@ public class NamespaceResource {
                             namespaceRepository.delete(ns);
                             return new ResponseEntity<>(HttpStatus.OK);
                         })
-                        .orElse(new ResponseEntity<>(new ErrorDTO("you are not the owner of "+name), HttpStatus.UNAUTHORIZED));
+                        .orElse(new ResponseEntity<>(new ErrorDTO("you are not the owner of the namespace"), HttpStatus.UNAUTHORIZED));
             }
         }
     }

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('LoginController', function ($log, $rootScope, $state, $sessionStorage, $timeout, Auth, AlertService) {
+	.controller('LoginController', function ($rootScope, $state, $sessionStorage, $timeout, Auth, AlertService) {
 		var vm = this;
 		vm.user = {};
 		vm.errors = {};

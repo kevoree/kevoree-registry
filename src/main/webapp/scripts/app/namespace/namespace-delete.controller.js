@@ -13,6 +13,7 @@ angular
 			Namespaces.delete({ name: vm.namespace })
 				.$promise
 				.then(function () {
+					AlertService.error('namespace.delete.success', { name: $stateParams.name });
 					$uibModalInstance.close(true);
 				})
 				.catch(function (resp) {

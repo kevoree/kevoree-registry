@@ -2,7 +2,7 @@
 
 	angular
 		.module('kevoreeRegistryApp')
-		.factory('stateHandler', function ($rootScope, $state, $translate, Language, translationHandler, $window, Auth, Principal) {
+		.factory('stateHandler', function ($rootScope, $translate, Language, translationHandler, $window, Auth, Principal) {
 			return {
 				initialize: initialize
 			};

@@ -8,7 +8,11 @@
 			"delete": {
 				"question": "Êtes-vous certain de vouloir supprimer le namespace <strong>\"{{ name }}\"</strong> ?",
 				"warning1": "Tous les TypeDefinitions & DeployUnits de ce namespace seront supprimés pour toujours.",
-				"warning2": "Cette action est irréversible!"
+				"warning2": "Cette action est irréversible!",
+				"success": "Namespace <strong>{{ name }}</strong> supprimé"
+			},
+			"creation": {
+				"success": "Namespace <strong>{{ name }}</strong> crée"
 			},
 			"detail": {
 				"title": "Namespace"

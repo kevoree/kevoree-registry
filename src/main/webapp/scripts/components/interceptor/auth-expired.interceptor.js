@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.factory('authExpiredInterceptor', function ($rootScope, $q, $injector, $localStorage, $sessionStorage) {
+	.factory('authExpiredInterceptor', function ($q, $injector, $localStorage, $sessionStorage) {
 		var service = {
 			responseError: responseError
 		};

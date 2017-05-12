@@ -1,0 +1,25 @@
+<div class="well">
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<h1 translate="activate.title">Activation</h1>
+
+			<div class="alert alert-success" ng-if="vm.success" translate="activate.messages.success">
+				<strong>Your username has been validated.</strong> Please authenticate.
+			</div>
+
+			<div class="alert alert-danger" ng-if="vm.error" translate="activate.messages.error">
+				<strong>Your username could not be validated.</strong> Please use the registration form to register your username.
+			</div>
+
+			<div ng-if="vm.doActivate">
+				<form ng-submit="vm.activate()">
+					<div class="form-group">
+						<label for="activationKey">Key</label>
+						<input type="text" class="form-control" id="activationKey" placeholder="Activation key" ng-model="vm.key">
+					</div>
+					<button type="submit" class="btn btn-default">Activate</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

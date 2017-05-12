@@ -92,7 +92,7 @@ public class DeployUnitResource {
                     if (duService.canCreate(tdef.getId())) {
                         try {
                             DeployUnit savedDu = duService.create(tdef, deployUnit);
-                            return new ResponseEntity<>(savedDu, HttpStatus.CREATED);
+                            return new ResponseEntity<>(new DeployUnitDTO(savedDu), HttpStatus.CREATED);
                         } catch (DataIntegrityViolationException e) {
                             return new ResponseEntity<>(
                                 new ErrorDTO("There is already a DeployUnit with version " + deployUnit.getVersion() +
@@ -309,9 +309,8 @@ public class DeployUnitResource {
     /**
      * GET  /namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus : get all the deployUnits attached to a
      * specific "namespace.TypeDefinition/version"
-     * Filtering results by query params "platform" and "version"
-     *   - platform: comma separated list of strings (ie. js,java)
-     *   - version:  latest | release | semver range
+     * Filtering results by query params:
+     *   - ?js=3.1.0&dotnet=latest => try to find specific du for platform "js" and version "3.1.0" and the latest for dotnet (other platforms will give their release)
      *
      * @param namespace the name of the namespace you want to list deployUnits from
      * @param tdefName the name of the typeDefinition

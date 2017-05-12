@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.factory('ConfigurationService', function ($rootScope, $filter, $http) {
+	.factory('ConfigurationService', function ($filter, $http) {
 		var service = {
 			get: get,
 			getEnv: getEnv

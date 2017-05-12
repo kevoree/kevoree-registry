@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.controller('AuditsController', function ($translate, $filter, AuditsService, ParseLinks) {
+	.controller('AuditsController', function ($filter, AuditsService, ParseLinks) {
 		var vm = this;
 		vm.audits = null;
 		vm.fromDate = null;

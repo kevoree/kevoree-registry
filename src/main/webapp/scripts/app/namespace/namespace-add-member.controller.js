@@ -1,5 +1,5 @@
 angular.module('kevoreeRegistryApp')
-	.controller('NamespaceAddMemberController', function ($state, $uibModalInstance, namespace, Namespace, Users, AlertService, Language) {
+	.controller('NamespaceAddMemberController', function ($uibModalInstance, namespace, Namespace, Users, AlertService, Language) {
 		var vm = this;
 
 		vm.authorities = ['ROLE_USER', 'ROLE_ADMIN'];

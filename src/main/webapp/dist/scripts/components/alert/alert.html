@@ -1,0 +1,7 @@
+<div class="alert-container" ng-cloak="">
+	<div class="toast" ng-repeat="alert in $ctrl.alerts">
+		<uib-alert ng-cloak="" type="{{alert.type}}" ng-click="alert.close()">
+			<pre ng-bind-html="alert.msg"></pre>
+		</uib-alert>
+	</div>
+</div>

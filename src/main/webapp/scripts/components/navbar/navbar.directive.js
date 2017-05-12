@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.directive('activeMenu', function ($translate, $locale, tmhDynamicLocale) {
+	.directive('activeMenu', function ($translate, tmhDynamicLocale) {
 		return {
 			restrict: 'A',
 			link: function (scope, element, attrs) {

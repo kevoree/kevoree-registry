@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('TypeDefinitionController', function ($q, $rootScope, $state, $stateParams, $resource, paginationConstants, TypeDefinitions, Principal) {
+	.controller('TypeDefinitionController', function ($q, $rootScope, $state, $stateParams, paginationConstants, TypeDefinitions, Principal) {
 		var vm = this;
 		vm.page = null;
 		vm.filter = { namespace: '', name: '', version: '' };

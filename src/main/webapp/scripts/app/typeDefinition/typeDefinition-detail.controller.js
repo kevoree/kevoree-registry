@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.controller('TypeDefinitionDetailController', function ($q, $state, $stateParams, $resource, TypeDefinition) {
+	.controller('TypeDefinitionDetailController', function ($q, $state, $stateParams, TypeDefinition) {
 		var vm = this;
 		vm.tdef = null;
 		vm.latestDUS = null;

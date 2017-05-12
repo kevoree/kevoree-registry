@@ -6,14 +6,18 @@
 			"message": "You are logged in as user \"{{username}}\"."
 		},
 		"question": "If you have any question on JHipster:",
-		"link": {
-			"homepage": "JHipster homepage",
-			"stackoverflow": "JHipster on Stack Overflow",
-			"bugtracker": "JHipster bug tracker",
-			"contact": "contact @java_hipster on Twitter"
+		"overview": {
+			"title": "Overview",
+			"message": "The registry is a database of Kevoree models mainly used by KevScript interpreters to resolve <a ui-sref=\"tdefs()\">TypeDefinitions</a> and <a ui-sref=\"dus()\">DeployUnits</a>"
 		},
-		"like": "If you like JHipster, don't forget to give us a star on",
-		"github": "Github",
+		"api": {
+			"title": "API",
+			"message": "It provides a REST API to <code>GET</code> the content of the database, but needs a secured OAuth2 <strong>authentication</strong> for any <code>PUT</code>, <code>POST</code> operations."
+		},
+		"letsgo": {
+			"title": "Let's go",
+			"message": "You can <a ui-sref=\"register()\">register</a> right now and publish your own content to the Kevoree registry within minutes."
+		},
 		"latest": {
 			"name": "Name",
 			"version": "Version",

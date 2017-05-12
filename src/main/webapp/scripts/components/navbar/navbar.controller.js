@@ -2,7 +2,7 @@
 
 angular
 	.module('kevoreeRegistryApp')
-	.controller('NavbarController', function ($rootScope, $scope, $location, $state, Principal) {
+	.controller('NavbarController', function ($rootScope, $scope, $state, Principal) {
 		var vm = this;
 		vm.user = null;
 		vm.isAuthenticated = Principal.isAuthenticated;

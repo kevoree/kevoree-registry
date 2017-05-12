@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.factory('MetricsService', function ($rootScope, $http) {
+	.factory('MetricsService', function ($http) {
 		return {
 			getMetrics: function () {
 				return $http.get('management/metrics').then(function (response) {
