@@ -1,9 +1,9 @@
 id;name;version;namespace_name;model;created_by
-1;Ticker;1;kevoree;{};system
-2;ConsolePrinter;1;kevoree;{};system
-3;JavaNode;1;kevoree;{};system
-4;JavascriptNode;1;kevoree;{};system
-5;WSGroup;1;kevoree;{};system
-6;Foo;1;user;{};system
-7;Ticker;2;kevoree;{};system
-8;Ticker;3;kevoree;{};system
+1;Ticker;1;kevoree;"{}";system
+2;ConsolePrinter;1;kevoree;"{}";system
+3;JavaNode;1;kevoree;"{}";system
+4;JavascriptNode;1;kevoree;"{}";system
+5;WSGroup;1;kevoree;"{}";system
+6;Foo;1;user;"{}";system
+7;Ticker;2;kevoree;"{}";system
+8;Ticker;3;kevoree;"{}";system

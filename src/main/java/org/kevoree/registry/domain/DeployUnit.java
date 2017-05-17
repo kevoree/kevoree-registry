@@ -3,6 +3,7 @@ package org.kevoree.registry.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.Type;
 import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
@@ -44,17 +45,14 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="typedefinition_id")
-    @JsonIgnoreProperties({ "nbdownloads", "deployUnits" })
+    @JsonIgnoreProperties({ "deployUnits" })
     private TypeDefinition typeDefinition;
 
     @NotNull
     @Column(name = "model")
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String model;
-
-    @NotNull
-    @Column(name = "nbdownloads")
-    private Long nbDownloads = 0L;
 
     public Long getId() {
         return id;
@@ -96,14 +94,6 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
         this.model = model;
     }
 
-    public Long getNbDownloads() {
-        return nbDownloads;
-    }
-
-    public void setNbDownloads(Long nbDownloads) {
-        this.nbDownloads = nbDownloads;
-    }
-
     public TypeDefinition getTypeDefinition() {
         return this.typeDefinition;
     }
@@ -140,7 +130,6 @@ public class DeployUnit extends AbstractAuditingEntity implements Serializable {
             ", version='" + version + "'" +
             ", platform='" + platform + "'" +
 //            ", typeDefinitionId=" + typeDefinition.getId() +
-            ", nbDownloads=" + nbDownloads +
             ", model='" + model + "'" +
             ", createdBy='" + getCreatedBy() + '\'' +
             ", createdDate='" + getCreatedDate()+ '\'' +

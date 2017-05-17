@@ -13,14 +13,14 @@
 
 		return {
 			getByID: function (id) {
-				return $resource('/api/tdefs/:id')
+				return $resource('api/tdefs/:id')
 					.get({ id: id })
 					.$promise
 					.then(jsonifyModel);
 			},
 
 			get: function (namespace, name, version) {
-				return $resource('/api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion')
+				return $resource('api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion')
 					.get({
 						namespace: namespace,
 						tdefName: name,
@@ -48,7 +48,7 @@
 			},
 
 			getLatestDeployUnits: function (namespace, name, version) {
-				return $resource('/api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus')
+				return $resource('api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus')
 					.query({
 						namespace: namespace,
 						tdefName: name,
@@ -58,7 +58,7 @@
 			},
 
 			getReleaseDeployUnits: function (namespace, name, version) {
-				return $resource('/api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus')
+				return $resource('api/namespaces/:namespace/tdefs/:tdefName/:tdefVersion/dus')
 					.query({
 						namespace: namespace,
 						tdefName: name,

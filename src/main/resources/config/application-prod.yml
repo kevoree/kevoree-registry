@@ -2,6 +2,9 @@
 # Spring Boot configuration for the "prod" profile.
 #
 # This configuration overrides the application.yml file.
+#
+# More information on profiles: https://jhipster.github.io/profiles/
+# More information on configuration properties: https://jhipster.github.io/common-application-properties/
 # ===================================================================
 
 # ===================================================================
@@ -120,81 +123,3 @@ jhipster:
 # ===================================================================
 
 application:
-
-#spring:
-#    devtools:
-#        restart:
-#            enabled: false
-#        livereload:
-#            enabled: false
-#    datasource:
-#        type: com.zaxxer.hikari.HikariDataSource
-#        url: jdbc:postgresql://localhost:5432/kevoree_registry
-#        name: kevoree_registry
-#        username: root
-#        password: dummy
-#    jpa:
-#        database-platform: org.kevoree.registry.domain.util.FixedPostgreSQL82Dialect
-#        database: POSTGRESQL
-#        show-sql: false
-#        properties:
-#            hibernate.cache.use_second_level_cache: true
-#            hibernate.cache.use_query_cache: false
-#            hibernate.generate_statistics: false
-#            hibernate.javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
-#            hibernate.javax.cache.uri: ${spring.cache.jcache.config}
-#            hibernate.cache.region.factory_class: org.kevoree.registry.config.jcache.SpringCacheRegionFactory
-#    cache:
-#        jcache:
-#            config: ehcache.xml
-#    mail:
-#        host: localhost
-#        port: 25
-#        username:
-#        password:
-#    thymeleaf:
-#        cache: true
-#
-#liquibase:
-#    contexts: prod
-#
-#server:
-#    port: 8080
-#    compression:
-#        enabled: true
-#        mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
-#        min-response-size: 1024
-#
-## ===================================================================
-## JHipster specific properties
-## ===================================================================
-#
-#jhipster:
-#    http:
-#        cache: # Used by the CachingHttpHeadersFilter
-#            timeToLiveInDays: 1461
-#    cache: # Hibernate 2nd level cache, used by CacheConfiguration
-#        ehcache:
-#            maxBytesLocalHeap: 256M
-#    mail: # specific JHipster mail property, for standard properties see MailProperties
-#        from: contact@kevoree.org
-#        baseUrl: https://registry.kevoree.org
-#    metrics: # DropWizard Metrics configuration, used by MetricsConfiguration
-#        jmx.enabled: true
-#        graphite:
-#            enabled: false
-#            host: localhost
-#            port: 2003
-#            prefix: registry
-#        prometheus:
-#            enabled: false
-#            endpoint: /prometheusMetrics
-#        logs: # Reports Dropwizard metrics in the logs
-#            enabled: false
-#            reportFrequency: 60 # in seconds
-#    logging:
-#        logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
-#            enabled: false
-#            host: localhost
-#            port: 5000
-#            queueSize: 512

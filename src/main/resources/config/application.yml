@@ -44,6 +44,7 @@ spring:
     thymeleaf:
         mode: XHTML
 
+
 security:
     basic:
         enabled: false
@@ -107,7 +108,6 @@ jhipster:
 # ===================================================================
 
 application:
-
 
 #management:
 #    context-path: /management

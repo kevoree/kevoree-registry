@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.Type;
 import org.kevoree.registry.config.Constants;
 
 import javax.persistence.*;
@@ -46,6 +47,7 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
     @NotNull
     @Column(name = "model")
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String model;
 
     public Long getId() {

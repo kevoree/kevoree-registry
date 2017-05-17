@@ -1,10 +1,10 @@
 angular
 	.module('kevoreeRegistryApp')
-	.controller('NamespaceDetailController', NamespaceDeleteController);
+	.controller('NamespaceDetailController', NamespaceDetailController);
 
-NamespaceDeleteController.$inject = ['$q', '$state', '$stateParams', 'TypeDefinition', 'Principal', 'Namespaces', 'AlertService'];
+NamespaceDetailController.$inject = ['$q', '$state', '$stateParams', 'TypeDefinition', 'Principal', 'Namespaces', 'AlertService'];
 
-function NamespaceDeleteController($q, $state, $stateParams, TypeDefinition, Principal, Namespaces, AlertService) {
+function NamespaceDetailController($q, $state, $stateParams, TypeDefinition, Principal, Namespaces, AlertService) {
 	var vm = this;
 	vm.user = null;
 	vm.namespace = null;

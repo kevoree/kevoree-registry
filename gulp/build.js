@@ -7,7 +7,7 @@ var fs = require('fs'),
 	sourcemaps = require('gulp-sourcemaps'),
 	rev = require('gulp-rev'),
 	htmlmin = require('gulp-htmlmin'),
-	ngAnnotate = require('gulp-ng-annotate'),
+	// ngAnnotate = require('gulp-ng-annotate'),
 	prefix = require('gulp-autoprefixer'),
 	cssnano = require('gulp-cssnano'),
 	uglify = require('gulp-uglify'),
@@ -22,7 +22,7 @@ var config = require('./config');
 var initTask = lazypipe()
 	.pipe(sourcemaps.init);
 var jsTask = lazypipe()
-	.pipe(ngAnnotate)
+	// .pipe(ngAnnotate)
 	.pipe(uglify);
 var cssTask = lazypipe()
 	.pipe(prefix)

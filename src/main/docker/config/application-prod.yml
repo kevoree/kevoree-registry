@@ -1,61 +1,31 @@
 server:
-  port: 8080
+  port:                          8080
 
 spring:
-  profiles:
-    active: prod
-
   datasource:
-    dataSourceClassName: org.postgresql.ds.PGSimpleDataSource
-    url:
-    databaseName: kevoree_registry
-    serverName: postgres
-    username: kevoree_registry
-    password: kevoree_registry
+      type:                      com.zaxxer.hikari.HikariDataSource
+      url:                       jdbc:postgresql://localhost:5432/kevoree_registry?useUnicode=true&characterEncoding=utf8&useSSL=false
+      username:                  kevoree_registry
+      password:                  kevoree_registry
 
-  jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL82Dialect
-    database: POSTGRESQL
-    openInView: false
-    show_sql: false
-    generate-ddl: false
-    hibernate:
-      ddl-auto: none
-      naming-strategy: org.hibernate.cfg.EJB3NamingStrategy
-    properties:
-      hibernate.cache.use_second_level_cache: true
-      hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: false
-      hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-
-  mail:
-    baseUrl: https://registry.kevoree.org
-    host: mail
-    port: 25
-    user: registry@kevoree.org
-    password: foobar
-    protocol: smtp
-    tls: false
-    auth: true
-    from: registry@kevoree.org
-
-  thymeleaf:
-    mode: XHTML
-    cache: true
-
-metrics:
-  jmx.enabled: true
-  spark:
-    enabled: false
-    host: localhost
-    port: 9999
-  graphite:
-    enabled: false
-    host: localhost
-    port: 2003
-    prefix: kevoree_registry
+jhipster:
+    mail:
+        baseUrl:                 https://registry.kevoree.org
+        host:                    mail
+        port:                    25
+        user:                    registry@kevoree.org
+        password:                foobar
+        protocol:                smtp
+        tls:                     false
+        auth:                    true
+        from:                    registry@kevoree.org
+    swagger:
+        default-include-pattern: /api/.*
+        title:                   Kevoree Registry API
+        description:             Kevoree Registry API documentation
+        version:                 2.0.0
 
 cache:
-  timeToLiveSeconds: 3600
+  timeToLiveSeconds:             3600
   ehcache:
-    maxBytesLocalHeap: 256M
+    maxBytesLocalHeap:           256M

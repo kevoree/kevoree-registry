@@ -238,9 +238,6 @@
             <column name="model" type="text">
                 <constraints nullable="false" />
             </column>
-            <column name="nbdownloads" type="bigserial">
-                <constraints nullable="false"/>
-            </column>
             <column name="created_by" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>

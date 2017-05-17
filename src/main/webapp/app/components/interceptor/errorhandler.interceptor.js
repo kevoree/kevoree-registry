@@ -14,7 +14,7 @@ function errorHandlerInterceptor($q, $window, AlertService) {
 	function responseError(response) {
 		var headers;
 		if (response.status >= 400 && response.status < 500) {
-			if (!(response.status === 401 && (response.data === '' || (response.data.path && response.data.path.indexOf('/api/account') === 0)))) {
+			if (!(response.status === 401 && (response.data === '' || (response.data.path && response.data.path.indexOf('api/account') === 0)))) {
 				switch (response.status) {
 					// connection refused, server not reachable
 					case 0:

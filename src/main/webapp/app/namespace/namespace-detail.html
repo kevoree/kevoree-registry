@@ -77,7 +77,7 @@
 										<em>No TypeDefinitions</em>
 									</td>
 								</tr>
-								<tr ui-sref="tdefDetail({ id: tdef.id })" class="hand" ng-repeat="tdef in vm.typeDefinitions | orderBy:'lastModifiedBy':true">
+								<tr ui-sref="tdefDetail({ id: tdef.id })" class="hand" ng-repeat="tdef in vm.typeDefinitions | orderBy:'lastModifiedDate'">
 									<td class="col-xs-3">{{ tdef.name }}</td>
 									<td class="col-xs-2">{{ tdef.version }}</td>
 									<td class="col-xs-3">
