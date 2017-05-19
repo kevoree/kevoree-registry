@@ -1,60 +1,69 @@
 <div class="well">
 
-	<h3>DeployUnits</h3>
+  <h3>DeployUnits</h3>
 
-	<div class="row-fluid">
-		<div class="table-responsive">
-			<table class="table table-bordered table-condensed table-striped">
-				<thead>
-					<tr>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('name')">
-								<span>Name</span>
-								<i ng-if="vm.orderColumn === 'name'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by name" ng-model="vm.search.name">
-						</th>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('version')">
-								<span>Version</span>
-								<i ng-if="vm.orderColumn === 'version'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by version" ng-model="vm.search.version">
-						</th>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('platform')">
-								<span>Platform</span>
-								<i ng-if="vm.orderColumn === 'platform'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by platform" ng-model="vm.search.platform">
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-if="filteredDus.length === 0" ng-init="filteredDus = []">
-						<td colspan="5" class="text-center">
-							<em>No DeployUnit found</em>
-						</td>
-					</tr>
-					<tr ng-repeat="du in filteredDus = (vm.page.content | filter:vm.search | orderBy:vm.orderColumn:vm.reverse )">
-						<td class="col-xs-4">
-							<a ui-sref="duDetail({ id: du.id })">{{ du.name }}</a>
-						</td>
-						<td class="col-xs-2">
-							{{ du.version }}
-						</td>
-						<td class="col-xs-1">
-							{{ du.platform }}
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+  <div class="row-fluid">
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('name')">
+                <span>Name</span>
+                <i ng-if="vm.orderColumn === 'name'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by name" ng-model="vm.search.name">
+            </th>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('version')">
+                <span>Version</span>
+                <i ng-if="vm.orderColumn === 'version'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by version" ng-model="vm.search.version">
+            </th>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('platform')">
+                <span>Platform</span>
+                <i ng-if="vm.orderColumn === 'platform'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by platform" ng-model="vm.search.platform">
+            </th>
+            <th>
+              <span>Actions</span>
+              <div style="height: 30px"></div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-if="filteredDus.length === 0" ng-init="filteredDus = []">
+            <td colspan="5" class="text-center">
+              <em>No DeployUnit found</em>
+            </td>
+          </tr>
+          <tr ng-repeat="du in filteredDus = (vm.page.content | filter:vm.search | orderBy:vm.orderColumn:vm.reverse )">
+            <td class="col-xs-6">
+              <a ui-sref="duDetail({ id: du.id })">{{ du.name }}</a>
+            </td>
+            <td class="col-xs-2">
+              {{ du.version }}
+            </td>
+            <td class="col-xs-1">
+              {{ du.platform }}
+            </td>
+            <td class="col-xs-1">
+              <a ui-sref="dus.delete({ id: du.id })" ui-sref-opts="{ inherit: false }">
+                <span class="label label-danger" ng-if="vm.canDelete(du)" translate="entity.action.delete">Delete</span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-		<div class="text-center">
-			<uib-pagination class="pagination-sm pull-left" items-per-page="vm.page.size" total-items="vm.page.totalElements" ng-model="vm.page.number" ng-change="vm.transition()"></uib-pagination>
-			<jhi-item-count class="pull-right" limit="vm.page.size" on-change="vm.onLimitChanged(limit)"></jhi-item-count>
-			<div class="text-muted">{{ vm.page.numberOfElements }} out of {{ vm.page.totalElements }}</div>
-		</div>
-	</div>
+    <div class="text-center">
+      <uib-pagination class="pagination-sm pull-left" items-per-page="vm.page.size" total-items="vm.page.totalElements" ng-model="vm.page.number" ng-change="vm.transition()"></uib-pagination>
+      <jhi-item-count class="pull-right" limit="vm.page.size" on-change="vm.onLimitChanged(limit)"></jhi-item-count>
+      <div class="text-muted">{{ vm.page.numberOfElements }} out of {{ vm.page.totalElements }}</div>
+    </div>
+  </div>
 </div>

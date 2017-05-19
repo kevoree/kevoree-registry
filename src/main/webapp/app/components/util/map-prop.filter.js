@@ -6,9 +6,9 @@
  * @return {Array}
  */
 function reducer(inputs, prop) {
-	return inputs.map(function (input) {
-		return input[prop];
-	});
+  return inputs.map(function (input) {
+    return input[prop];
+  });
 }
 
 /**
@@ -17,7 +17,7 @@ function reducer(inputs, prop) {
  * @return {Array} an array of the given property value
  */
 function mapPropFilter() {
-	return reducer;
+  return reducer;
 }
 
 angular.module('kevoreeRegistryApp')

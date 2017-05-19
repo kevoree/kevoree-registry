@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:text="#{email.activation.title}">JHipster creation</title>
+        <title th:text="#{email.activation.title}">Kevoree Registry activation</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
     <body>
-        <p th:text="#{email.activation.greeting(${user.login})}">
-            Dear
+        <p th:text="#{email.greeting(${user.login})}">
+            Hello
         </p>
         <p th:text="#{email.creation.text1}">
             Your Kevoree Registry account has been created, please click on the URL below to access it:

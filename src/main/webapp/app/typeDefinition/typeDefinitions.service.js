@@ -1,17 +1,17 @@
 (function () {
-	angular
-		.module('kevoreeRegistryApp')
-		.factory('TypeDefinitions', TypeDefinitions);
+  angular
+    .module('kevoreeRegistryApp')
+    .factory('TypeDefinitions', TypeDefinitions);
 
-	TypeDefinitions.$inject = ['$resource'];
+  TypeDefinitions.$inject = ['$resource'];
 
-	function TypeDefinitions($resource) {
-		var service = $resource('api/tdefs/:id', {}, {});
+  function TypeDefinitions($resource) {
+    var service = $resource('api/tdefs/:id', {}, {});
 
-		return angular.extend(service, {
-			latest: function (params) {
-				return $resource('api/tdefs/page').get(params).$promise;
-			}
-		});
-	}
+    return angular.extend(service, {
+      latest: function (params) {
+        return $resource('api/tdefs/page').get(params).$promise;
+      }
+    });
+  }
 })();

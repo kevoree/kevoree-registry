@@ -4,13 +4,13 @@ angular.module('kevoreeRegistryApp')
 HomeController.$inject = ['$q', 'TypeDefinitions', 'DeployUnits'];
 
 function HomeController($q, TypeDefinitions, DeployUnits) {
-	var vm = this;
+  var vm = this;
 
-	$q.all([
-		TypeDefinitions.latest({ size: 5, sort: 'lastModifiedDate,asc' }),
-		DeployUnits.latest({ size: 5, sort: 'lastModifiedDate,asc' }),
-	]).then(function (results) {
-		vm.tdefs = results[0].content;
-		vm.dus = results[1].content;
-	});
+  $q.all([
+    TypeDefinitions.latest({ size: 5, sort: 'lastModifiedDate,desc' }),
+    DeployUnits.latest({ size: 5, sort: 'lastModifiedDate,desc' }),
+  ]).then(function (results) {
+    vm.tdefs = results[0].content;
+    vm.dus = results[1].content;
+  });
 }

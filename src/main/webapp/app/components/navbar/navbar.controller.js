@@ -7,25 +7,25 @@ angular
 NavbarController.$inject = ['$rootScope','$scope', '$state', 'Principal'];
 
 function NavbarController($rootScope, $scope, $state, Principal) {
-	var vm = this;
-	vm.user = null;
-	vm.isAuthenticated = Principal.isAuthenticated;
-	vm.$state = $state;
+  var vm = this;
+  vm.user = null;
+  vm.isAuthenticated = Principal.isAuthenticated;
+  vm.$state = $state;
 
-	Principal.identity()
+  Principal.identity()
 		.then(function (user) {
-			vm.user = user;
-		})
+  vm.user = user;
+})
 		.catch(function () {
-			vm.user = null;
-		});
+  vm.user = null;
+});
 
-	var authSuccessHandler = $rootScope.$on('authenticationSuccess', function () {
-		Principal.identity().then(function (user) {
-			vm.user = user;
-			vm.isAuthenticated = Principal.isAuthenticated;
-		});
-	});
+  var authSuccessHandler = $rootScope.$on('authenticationSuccess', function () {
+    Principal.identity().then(function (user) {
+      vm.user = user;
+      vm.isAuthenticated = Principal.isAuthenticated;
+    });
+  });
 
-	$scope.$on('$destroy', authSuccessHandler);
+  $scope.$on('$destroy', authSuccessHandler);
 }

@@ -1,13 +1,13 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular.module('kevoreeRegistryApp')
+  angular.module('kevoreeRegistryApp')
 		.factory('Password', Password);
 
-	Password.$inject = ['$resource'];
+  Password.$inject = ['$resource'];
 
-	function Password($resource) {
-		return $resource('api/account/change_password', {}, {
-		});
-	}
+  function Password($resource) {
+    return $resource('api/account/change_password', {}, {
+    });
+  }
 })();

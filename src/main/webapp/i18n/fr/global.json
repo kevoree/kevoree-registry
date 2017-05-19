@@ -75,7 +75,7 @@
 			},
 			"account": {
 				"login": "Bonjour <strong>{{ login }}</strong>, vous êtes connecté",
-				"inactivy": "Vous avez été déconnecté pour inactivité"
+				"disconnected": "Vous avez été déconnecté"
 			}
 		}
 	},

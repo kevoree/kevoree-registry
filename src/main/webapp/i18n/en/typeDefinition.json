@@ -1,34 +1,38 @@
 {
-	"kevoreeRegistryApp": {
-		"typeDefinition": {
-			"home": {
-				"title": "TypeDefinitions",
-				"createLabel": "New TypeDefinition",
-				"createTitle": "Create a new TypeDefinition"
-			},
-			"delete": {
-				"question": "Are you sure you want to delete TypeDefinition <strong>{{ name }}/{{ version }}</strong>?"
-			},
-			"detail": {
-				"title": "Type Definition"
-			},
-			"namespace": "Namespace",
-			"selectNamespace": "Select a namespace",
-			"created": "Created",
-			"createdBy": "Created by",
-			"modified": "Modified",
-			"modifiedBy": "Modified by",
-			"name": "Name",
-			"version": "Version",
-			"model": "Model",
-			"name_version": "Name / Version",
-			"releases": "Releases",
-			"latest": "Latest",
-			"deployUnits": "DeployUnits",
-			"filterPlaceholder": "Filter TypeDefinitions...",
-			"filter": "Filter",
-			"platform": "Platform",
-			"deployUnit": "DeployUnit"
-		}
-	}
+  "typeDefinition": {
+    "home": {
+      "title": "TypeDefinitions",
+      "createLabel": "New TypeDefinition",
+      "createTitle": "Create a new TypeDefinition"
+    },
+    "delete": {
+      "question": "Are you sure you want to delete TypeDefinition <strong>{{ namespace }}.{{ name }}/{{ version }}</strong>?",
+      "warning1": "Every DeployUnits related to this TypeDefinition will be deleted forever.",
+      "warning2": "This cannot be undone!",
+      "success": "TypeDefinition <strong>{{ namespace }}.{{ name }}/{{ version }}</strong> deleted successfully"
+    },
+    "detail": {
+      "title": "Type Definition"
+    },
+    "errors": {
+      "notfound": "Unable to find the TypeDefinition with id <strong>{{ id }}</strong>"
+    },
+    "namespace": "Namespace",
+    "selectNamespace": "Select a namespace",
+    "created": "Created",
+    "createdBy": "Created by",
+    "modified": "Modified",
+    "modifiedBy": "Modified by",
+    "name": "Name",
+    "version": "Version",
+    "model": "Model",
+    "name_version": "Name / Version",
+    "releases": "Releases",
+    "latest": "Latest",
+    "deployUnits": "DeployUnits",
+    "filterPlaceholder": "Filter TypeDefinitions...",
+    "filter": "Filter",
+    "platform": "Platform",
+    "deployUnit": "DeployUnit"
+  }
 }

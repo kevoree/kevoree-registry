@@ -1,12 +1,12 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular.module('kevoreeRegistryApp')
+  angular.module('kevoreeRegistryApp')
 		.factory('Register', Register);
 
-	Register.$inject = ['$resource'];
+  Register.$inject = ['$resource'];
 
-	function Register($resource) {
-		return $resource('api/register', {}, {});
-	}
+  function Register($resource) {
+    return $resource('api/register', {}, {});
+  }
 })();

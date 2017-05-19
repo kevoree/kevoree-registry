@@ -1,24 +1,47 @@
-version: '2'
+version:                      '2'
 
 services:
-  kevoree-registry:
-    image: kevoree/registry:jhipster
+  # WEB SERVER
+  kreg:
+    image:                    kevoree/registry
+    container_name:           kreg-server
     external_links:
-      - kevoree-registry-postgres:postgres
-      - kevoree-registry-mail:mail
+      - kreg-db
+      - kreg-mail
     environment:
+      - SPRING_PROFILES_ACTIVE=prod,swagger
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://kreg-db:5432/kevoree_registry?useUnicode=true&characterEncoding=utf8&useSSL=false
+      - SPRING_MAIL_HOST=kreg-mail
+      - JHIPSTER_MAIL_FROM=${KREG_MAIL_USER}@${KREG_MAIL_DOMAIN}
+      - JHIPSTER_MAIL_BASE-URL=${KREG_URL}
       - JHIPSTER_SLEEP=30 # gives time for the database to boot before the application
     ports:
       - localhost:8080:8080
+
+  # MAIL SERVER
+  kreg-mail:
+    container_name:      kreg-mail
+    image:               tvial/docker-mailserver:2.3
+    hostname:            kreg-mail
+    domainname:          ${KREG_MAIL_DOMAIN}
     volumes:
-      - ./config:/config
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - ./config:/tmp/docker-mailserver/
+    environment:
+    - ENABLE_SPAMASSASSIN=1
+    - ENABLE_CLAMAV=1
+    - ENABLE_FAIL2BAN=1
+    - ENABLE_POSTGREY=1
+    - ONE_DIR=1
+    - DMS_DEBUG=0
+    cap_add:
+    - NET_ADMIN
 
-  kevoree-registry-postgres:
-    extends:
-      file: postgres.yml
-      service: kevoree-registry-postgres
-
-  kevoree-registry-mail:
-    extends:
-      file: mail.yml
-      service: kevoree-registry-mail
+  # POSTGRES DATABASE
+  kreg-db:
+    container_name:          kreg-db
+    image:                   postgres:9.6.1
+    environment:
+      - POSTGRES_USER=kevoree_registry
+      - POSTGRES_PASSWORD=kevoree_registry

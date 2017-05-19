@@ -257,6 +257,7 @@ public class UserService {
         if (optionalUser.isPresent()) {
             user = optionalUser.get();
             user.getAuthorities().size(); // eagerly load the association
+            user.getNamespaces().size(); // eagerly load the association
         }
         return user;
     }

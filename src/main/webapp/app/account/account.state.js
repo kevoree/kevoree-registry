@@ -1,16 +1,16 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(stateConfig);
 
-	stateConfig.$inject = ['$stateProvider'];
+  stateConfig.$inject = ['$stateProvider'];
 
-	function stateConfig($stateProvider) {
-		$stateProvider.state('account', {
-			abstract: true,
-			parent: 'site'
-		});
-	}
+  function stateConfig($stateProvider) {
+    $stateProvider.state('account', {
+      abstract: true,
+      parent: 'site'
+    });
+  }
 })();

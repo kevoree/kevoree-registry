@@ -28,7 +28,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -115,7 +114,7 @@ public class NamespaceResourceTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
-            .andExpect(jsonPath("$.members.[0].login").value(user.getLogin()));
+            .andExpect(jsonPath("$.members.[0]").value(user.getLogin()));
     }
 
     @Test
@@ -142,25 +141,23 @@ public class NamespaceResourceTest {
     @Test
     @Transactional
     public void testAddMemberNamespace() throws Exception {
-        // create a random user
-        User u = new User();
-        u.setLogin("foo");
-        u.setPassword("foopassword");
-        u.setAuthorities(Collections.singleton(authorityRepository.findOne(AuthoritiesConstants.USER)));
-        u = userRepository.saveAndFlush(u);
+        // create a random "foo" user
+        userService.createUser("foo", "foopassword", "Foo", "Bar", "foo@bar.baz", "en");
 
-        // Add the owner to the SecurityContext
+        // log in as "user" to the SecurityContext
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken(user.getLogin(), AuthoritiesConstants.USER));
 
+        // add "foo" to namespace DEFAULT_NAME
         restNamespaceMockMvc.perform(post("/api/namespaces/{name}/members", DEFAULT_NAME)
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(new NamedDTO("foo"))))
             .andExpect(status().isOk());
 
-        // Validate the namespace in db
+        // retrieve data from db
         Namespace dbNs = namespaceRepository.findOne(DEFAULT_NAME);
-        User fooUser = userRepository.findOneByLogin(u.getLogin()).get();
+        User fooUser = userRepository.findOneByLogin("foo").get();
+        // Validate the namespace in db
         assertThat(dbNs.getMembers()).containsOnly(user, fooUser);
         assertThat(dbNs.getOwner()).isEqualTo(user);
         // Validate the user in db

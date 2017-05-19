@@ -1,0 +1,25 @@
+<form name="deleteDuForm" ng-submit="vm.confirmDelete(vm.tdef)">
+  <div class="modal-header">
+    <button type="button" class="close" aria-hidden="true" ng-click="vm.$close()">&times;</button>
+    <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
+  </div>
+  <div class="modal-body">
+    <p translate="deployUnit.delete.question" translate-values="{{vm.du}}">Are you sure you want to delete the DeployUnit <strong>{{ vm.du.platform + ':' + vm.du.name + ':' + vm.du.version }}</strong>?</p>
+    <div class="alert alert-danger" role="alert">
+      <p translate="deployUnit.delete.warning1" translate-values="{{vm.du}}">This DeployUnit is attached to <strong>{{ vm.du.namespace + '.' + vm.du.tdefName + '/' + vm.du.tdefVersion }}</strong></p>
+      <p><strong translate="deployUnit.delete.warning2">This cannot be undone!</strong></p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="vm.$close()">
+      <span class="glyphicon glyphicon-ban-circle"></span>
+      <span>&nbsp;</span>
+      <span data-translate="entity.action.cancel">Cancel</span>
+    </button>
+    <button type="submit" class="btn btn-danger">
+      <span class="glyphicon glyphicon-save"></span>
+      <span>&nbsp;</span>
+      <span data-translate="entity.action.delete">Delete</span>
+    </button>
+  </div>
+</form>

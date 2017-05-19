@@ -74,7 +74,7 @@
 			},
 			"account": {
 				"login": "Hi <strong>{{ login }}</strong>, you are successfully logged-in",
-				"inactivy": "You have been disconnected for inactivity"
+				"disconnected": "You have been disconnected"
 			}
 		}
 	},

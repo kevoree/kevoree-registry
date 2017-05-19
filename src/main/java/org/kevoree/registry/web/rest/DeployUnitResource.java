@@ -156,8 +156,8 @@ public class DeployUnitResource {
                                         du.setModel(deployUnit.getModel());
                                         du.setLastModifiedBy(login);
                                         du.setLastModifiedDate(lastModified);
-                                        DeployUnit result = duRepository.save(du);
-                                        return new ResponseEntity<>(result, HttpStatus.OK);
+                                        DeployUnit updatedDu = duRepository.save(du);
+                                        return new ResponseEntity<>(new DeployUnitDTO(updatedDu), HttpStatus.OK);
                                     } else {
                                         return new ResponseEntity<>(new ErrorDTO("DeployUnit typeDef cannot be updated"), HttpStatus.BAD_REQUEST);
                                     }

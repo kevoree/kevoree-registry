@@ -1,97 +1,65 @@
 <div class="well">
 
-	<h3>TypeDefinitions</h3>
+  <h3>TypeDefinitions</h3>
 
-	<div class="modal fade" id="deleteTypeDefinitionConfirmation">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<form name="form" ng-submit="vm.confirmDelete(vm.tdef.id)">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
-						<h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
-					</div>
-					<div class="modal-body">
-						<div class="alert alert-danger" role="alert" ng-show="vm.deleteError">
-							<button type="button" class="close" aria-label="Close"><span aria-hidden="true" ng-click="vm.clearDeleteError()">&times;</span></button>
-							<strong>Error: </strong>{{deleteError}}
-						</div>
-						<p translate="kevoreeRegistryApp.typeDefinition.delete.question" translate-values="{name: '{{vm.tdef.name}}', version: '{{vm.tdef.version}}'}">Are you sure you want to delete Type Definition {{vm.tdef.name}}/{{vm.tdef.version}}?</p>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-              <span class="glyphicon glyphicon-ban-circle"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.cancel">Cancel</span>
-            </button>
-						<button type="submit" ng-disabled="form.$invalid" class="btn btn-danger">
-              <span class="glyphicon glyphicon-remove-circle"></span>
-							<span>&nbsp;</span>
-							<span translate="entity.action.delete">Delete</span>
-            </button>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
+  <div class="row-fluid">
+    <div class="table-responsive">
+      <table class="table table-bordered table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('namespace')">
+                <span>Namespace</span>
+                <i ng-if="vm.orderColumn === 'namespace'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by namespace" ng-model="vm.filter.namespace">
+            </th>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('name')">
+                <span>Name</span>
+                <i ng-if="vm.orderColumn === 'name'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by name" ng-model="vm.filter.name">
+            </th>
+            <th>
+              <a href="" class="nocolor block" ng-click="vm.changeOrderBy('version')">
+                <span>Version</span>
+                <i ng-if="vm.orderColumn === 'version'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
+              </a>
+              <input type="text" class="form-control input-sm" placeholder="Filter by version" ng-model="vm.filter.version">
+            </th>
+            <th>
+              <span>Actions</span>
+              <div style="height: 30px"></div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-if="vm.filteredTdefs.length === 0" ng-init="vm.filteredTdefs = []">
+            <td colspan="4" class="text-center">
+              <em>No TypeDefinition found</em>
+            </td>
+          </tr>
+          <tr ng-repeat="tdef in vm.filteredTdefs = (vm.page.content | filter:vm.filter | orderBy:vm.orderColumn:vm.reverse)">
+            <td class="col-xs-2">{{ tdef.namespace }}</td>
+            <td class="col-xs-7">
+              <a ui-sref="tdefDetail({ id: tdef.id })" ui-sref-opts="{ inherit: false }">{{ tdef.name }}</a>
+            </td>
+            <td class="col-xs-2">{{ tdef.version }}</td>
+            <td class="col-xs-1">
+              <a ui-sref="tdefs.delete({ id: tdef.id })" ui-sref-opts="{ inherit: false }">
+                <span class="label label-danger" ng-if="vm.canDelete(tdef)" translate="entity.action.delete">Delete</span>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-	<div class="row-fluid">
-		<div class="table-responsive">
-			<table class="table table-bordered table-condensed table-striped">
-				<thead>
-					<tr>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('namespace')">
-								<span>Namespace</span>
-								<i ng-if="vm.orderColumn === 'namespace'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by namespace" ng-model="vm.filter.namespace">
-						</th>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('name')">
-								<span>Name</span>
-								<i ng-if="vm.orderColumn === 'name'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by name" ng-model="vm.filter.name">
-						</th>
-						<th>
-							<a href="" class="nocolor block" ng-click="vm.changeOrderBy('version')">
-								<span>Version</span>
-								<i ng-if="vm.orderColumn === 'version'" class="glyphicon pull-right" ng-class="vm.orderClasses"></i>
-							</a>
-							<input type="text" class="form-control input-sm" placeholder="Filter by version" ng-model="vm.filter.version">
-						</th>
-						<th>
-							<span>Actions</span>
-							<div style="height: 30px"></div>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-if="vm.filteredTdefs.length === 0" ng-init="vm.filteredTdefs = []">
-						<td colspan="4" class="text-center">
-							<em>No TypeDefinition found</em>
-						</td>
-					</tr>
-					<tr ng-repeat="tdef in vm.filteredTdefs = (vm.page.content | filter:vm.filter | orderBy:vm.orderColumn:vm.reverse)">
-						<td class="col-xs-2">{{ tdef.namespace }}</td>
-						<td class="col-xs-7">
-							<a ui-sref="tdefDetail({ id: tdef.id })">{{ tdef.name }}</a>
-						</td>
-						<td class="col-xs-2">{{ tdef.version }}</td>
-						<td class="col-xs-1">
-							<a href="" ng-click="vm.delete(tdef.id, $event)">
-								<span class="label label-danger" ng-if="vm.canDelete(tdef)" translate="entity.action.delete">Delete</span>
-							</a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-
-		<div class="text-center">
-			<uib-pagination class="pagination-sm pull-left" items-per-page="vm.page.size" total-items="vm.page.totalElements" ng-model="vm.page.number" ng-change="vm.transition()"></uib-pagination>
-			<jhi-item-count class="pull-right" limit="vm.page.size" on-change="vm.onLimitChanged(limit)"></jhi-item-count>
-			<div class="text-muted">{{ vm.page.numberOfElements }} out of {{ vm.page.totalElements }}</div>
-		</div>
-	</div>
+    <div class="text-center">
+      <uib-pagination class="pagination-sm pull-left" items-per-page="vm.page.size" total-items="vm.page.totalElements" ng-model="vm.page.number" ng-change="vm.transition()"></uib-pagination>
+      <jhi-item-count class="pull-right" limit="vm.page.size" on-change="vm.onLimitChanged(limit)"></jhi-item-count>
+      <div class="text-muted">{{ vm.page.numberOfElements }} out of {{ vm.page.totalElements }}</div>
+    </div>
+  </div>
 </div>

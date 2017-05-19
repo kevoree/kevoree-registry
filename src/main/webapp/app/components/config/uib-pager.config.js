@@ -1,15 +1,15 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(config);
 
-	config.$inject = ['uibPagerConfig', 'paginationConstants'];
+  config.$inject = ['uibPagerConfig', 'paginationConstants'];
 
-	function config(uibPagerConfig, paginationConstants) {
-		uibPagerConfig.itemsPerPage = paginationConstants.itemsPerPage;
-		uibPagerConfig.previousText = '«';
-		uibPagerConfig.nextText = '»';
-	}
+  function config(uibPagerConfig, paginationConstants) {
+    uibPagerConfig.itemsPerPage = paginationConstants.itemsPerPage;
+    uibPagerConfig.previousText = '«';
+    uibPagerConfig.nextText = '»';
+  }
 })();

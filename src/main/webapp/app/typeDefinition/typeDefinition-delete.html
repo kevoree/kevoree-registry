@@ -1,0 +1,25 @@
+<form name="deleteTdefForm" ng-submit="vm.confirmDelete(vm.tdef)">
+  <div class="modal-header">
+    <button type="button" class="close" aria-hidden="true" ng-click="vm.$close()">&times;</button>
+    <h4 class="modal-title" translate="entity.delete.title">Confirm delete operation</h4>
+  </div>
+  <div class="modal-body">
+    <p translate="typeDefinition.delete.question" translate-values="{{vm.tdef}}">Are you sure you want to delete the TypeDefinition <strong>{{ vm.tdef.namespace + '.' + vm.tdef.name + '/' + vm.tdef.version }}</strong>?</p>
+    <div class="alert alert-danger" role="alert">
+      <p translate="typeDefinition.delete.warning1">Every DeployUnits related to this TypeDefinition will be deleted forever.</p>
+      <p><strong translate="typeDefinition.delete.warning2">This cannot be undone!</strong></p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" ng-click="vm.$close()">
+      <span class="glyphicon glyphicon-ban-circle"></span>
+      <span>&nbsp;</span>
+      <span data-translate="entity.action.cancel">Cancel</span>
+    </button>
+    <button type="submit" class="btn btn-danger">
+      <span class="glyphicon glyphicon-save"></span>
+      <span>&nbsp;</span>
+      <span data-translate="entity.action.delete">Delete</span>
+    </button>
+  </div>
+</form>

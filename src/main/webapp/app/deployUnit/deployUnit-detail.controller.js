@@ -6,15 +6,15 @@ angular.module('kevoreeRegistryApp')
 DeployUnitDetailController.$inject = ['$state', '$stateParams', 'DeployUnits'];
 
 function DeployUnitDetailController($state, $stateParams, DeployUnits) {
-	var vm = this;
-	vm.du = null;
-	DeployUnits.get({ id: $stateParams.id },
+  var vm = this;
+  vm.du = null;
+  DeployUnits.get({ id: $stateParams.id },
 		function (du) {
-			vm.du = du;
-			vm.du.model = JSON.stringify(JSON.parse(du.model), null, 2);
-		},
+  vm.du = du;
+  vm.du.model = JSON.stringify(JSON.parse(du.model), null, 2);
+},
 		function () {
-			$state.go('dus');
-		}
+  $state.go('dus');
+}
 	);
 }

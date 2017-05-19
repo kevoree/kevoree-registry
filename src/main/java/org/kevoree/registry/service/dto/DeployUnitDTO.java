@@ -2,6 +2,8 @@ package org.kevoree.registry.service.dto;
 
 import org.kevoree.registry.domain.DeployUnit;
 
+import javax.validation.constraints.NotNull;
+
 /**
  *
  * Created by leiko on 4/13/17.
@@ -13,9 +15,14 @@ public class DeployUnitDTO extends AbstractAuditingDTO {
     private Long tdefId;
     private String tdefName;
     private Long tdefVersion;
+
+    @NotNull
     private String name;
+    @NotNull
     private String version;
+    @NotNull
     private String platform;
+    @NotNull
     private String model;
 
     public DeployUnitDTO() {}

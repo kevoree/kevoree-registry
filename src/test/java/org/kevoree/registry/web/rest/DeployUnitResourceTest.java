@@ -14,6 +14,7 @@ import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.DeployUnitService;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.service.dto.DeployUnitDTO;
+import org.kevoree.registry.service.mapper.DeployUnitMapper;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -69,6 +70,9 @@ public class DeployUnitResourceTest {
     private DeployUnitService duService;
 
     @Inject
+    private DeployUnitMapper duMapper;
+
+    @Inject
     private NamespaceRepository nsRepository;
 
     @Inject
@@ -95,6 +99,7 @@ public class DeployUnitResourceTest {
         ReflectionTestUtils.setField(deployUnitResource, "duRepository", duRepository);
         ReflectionTestUtils.setField(deployUnitResource, "tdefsRepository", tdefsRepository);
         ReflectionTestUtils.setField(deployUnitResource, "duService", duService);
+        ReflectionTestUtils.setField(deployUnitResource, "duMapper", duMapper);
         ReflectionTestUtils.setField(deployUnitResource, "nsRepository", nsRepository);
         ReflectionTestUtils.setField(deployUnitResource, "authRepository", authRepository);
         ReflectionTestUtils.setField(deployUnitResource, "userService", userService);
@@ -209,6 +214,10 @@ public class DeployUnitResourceTest {
     @Test
     @Transactional
     public void checkVersionIsRequired() throws Exception {
+        // add "kevoree" as current user in the SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
+
         int databaseSizeBeforeTest = duRepository.findAll().size();
         // set the field null
         deployUnit.setVersion(null);
@@ -282,7 +291,7 @@ public class DeployUnitResourceTest {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.version").value(DEFAULT_VERSION))
             .andExpect(jsonPath("$.platform").value(DEFAULT_PLATFORM))
-            .andExpect(jsonPath("$.typeDefinition.id").value(deployUnit.getTypeDefinition().getId().intValue()))
+            .andExpect(jsonPath("$.tdefId").value(deployUnit.getTypeDefinition().getId().intValue()))
             .andExpect(jsonPath("$.model").value(DEFAULT_MODEL));
     }
 
@@ -307,9 +316,6 @@ public class DeployUnitResourceTest {
         SecurityContextHolder.getContext().setAuthentication(
             new UsernamePasswordAuthenticationToken("kevoree", AuthoritiesConstants.USER));
 
-        // tdef creation timestamp
-        int tdefLastModified = this.tdef.getLastModifiedDate().getNano();
-
         // Update the deployUnit
         this.deployUnit.setId(du.getId());
         this.deployUnit.setModel(UPDATED_MODEL);
@@ -332,8 +338,6 @@ public class DeployUnitResourceTest {
         assertThat(testDeployUnit.getTypeDefinition().getName()).isEqualTo(TDEF_NAME);
         assertThat(testDeployUnit.getTypeDefinition().getVersion()).isEqualTo(TDEF_VERSION);
         assertThat(testDeployUnit.getTypeDefinition().getNamespace().getName()).isEqualTo(NAMESPACE);
-        // tdef last modified timestamp should be greater than now
-        assertThat(testDeployUnit.getTypeDefinition().getLastModifiedDate().getNano()).isGreaterThan(tdefLastModified);
         // deployUnit should have a creation timestamp
         assertThat(testDeployUnit.getCreatedDate().getNano()).isLessThan(ZonedDateTime.now().getNano());
         // deployUnit should also have a creation login

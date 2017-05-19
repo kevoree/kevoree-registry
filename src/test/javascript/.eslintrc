@@ -1,0 +1,9 @@
+---
+  env:
+    node: true
+    jasmine: true
+  parserOptions:
+    ecmaVersion: 6
+  globals:
+    angular: true
+    browser: true

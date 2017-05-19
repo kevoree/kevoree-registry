@@ -6,12 +6,18 @@
 				"createLabel": "Nouvelle DeployUnit",
 				"createTitle": "Créer une nouvelle DeployUnit"
 			},
-			"delete": {
-				"question": "Etes-vous certain de vouloir supprimer la DeployUnit:"
-			},
-			"detail": {
-				"title": "Deploy Unit"
-			},
+      "delete": {
+        "question": "Êtes-vous sur de vouloir supprimer la DeployUnit <strong>{{ platform }}:{{name}}:{{version}}</strong>?",
+        "warning1": "Cette DeployUnit est rattachée à <strong>{{namespace}}.{{tdefName}}/{{tdefVersion}}</strong>",
+        "warning2": "Cette action est irréversible!",
+        "success": "La DeployUnit <strong>{{ platform }}:{{name}}:{{version}}</strong> a été supprimée"
+      },
+      "detail": {
+        "title": "DeployUnit"
+      },
+      "errors": {
+        "notfound": "Impossible de trouver une DeployUnit avec l'ID <strong>{{ id }}</strong>"
+      },
 			"namespace": "Namespace",
 			"selectNamespace": "Sélection du namespace",
 			"typeDefinition": "TypeDefinition",

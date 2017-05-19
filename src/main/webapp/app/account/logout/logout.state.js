@@ -1,27 +1,27 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(stateConfig);
 
-	stateConfig.$inject = ['$stateProvider'];
+  stateConfig.$inject = ['$stateProvider'];
 
-	function stateConfig($stateProvider) {
-		$stateProvider
+  function stateConfig($stateProvider) {
+    $stateProvider
 			.state('logout', {
-				parent: 'account',
-				url: '/logout',
-				data: {
-					authorities: []
-				},
-				views: {
-					'content@': {
-						templateUrl: 'app/home/home.html',
-						controller: 'LogoutController',
-						controllerAs: 'vm'
-					}
-				}
-			});
-	}
+  parent: 'account',
+  url: '/logout',
+  data: {
+    authorities: []
+  },
+  views: {
+    'content@': {
+      templateUrl: 'app/home/home.html',
+      controller: 'LogoutController',
+      controllerAs: 'vm'
+    }
+  }
+});
+  }
 })();

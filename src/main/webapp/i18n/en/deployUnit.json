@@ -1,32 +1,36 @@
 {
-	"kevoreeRegistryApp": {
-		"deployUnit": {
-			"home": {
-				"title": "DeployUnits",
-				"createLabel": "New DeployUnit",
-				"createTitle": "Create a new DeployUnit"
-			},
-			"delete": {
-				"question": "Are you sure you want to delete the DeployUnit:"
-			},
-			"detail": {
-				"title": "Deploy Unit"
-			},
-			"namespace": "Namespace",
-			"selectNamespace": "Select a namespace",
-			"typeDefinition": "TypeDefinition",
-			"typeDefinitionVersion": "TypeDefinition Version",
-			"created": "Created",
-			"createdBy": "Created by",
-			"modified": "Modified",
-			"modifiedBy": "Modified by",
-			"name": "Name",
-			"version": "Version",
-			"model": "Model",
-			"platform": "Platform",
-			"name_version": "Name / Version",
-			"filterPlaceholder": "Filter DeployUnits...",
-			"filter": "Filter"
-		}
-	}
+  "deployUnit": {
+    "home": {
+      "title": "DeployUnits",
+      "createLabel": "New DeployUnit",
+      "createTitle": "Create a new DeployUnit"
+    },
+    "delete": {
+      "question": "Are you sure you want to delete the DeployUnit <strong>{{ platform }}:{{name}}:{{version}}</strong>?",
+      "warning1": "This DeployUnit is attached to <strong>{{namespace}}.{{tdefName}}/{{tdefVersion}}</strong>",
+      "warning2": "This cannot be undone!",
+      "success": "DeployUnit <strong>{{ platform }}:{{name}}:{{version}}</strong> deleted successfully"
+    },
+    "detail": {
+      "title": "DeployUnit"
+    },
+    "errors": {
+      "notfound": "Unable to find the DeployUnit with id <strong>{{ id }}</strong>"
+    },
+    "namespace": "Namespace",
+    "selectNamespace": "Select a namespace",
+    "typeDefinition": "TypeDefinition",
+    "typeDefinitionVersion": "TypeDefinition Version",
+    "created": "Created",
+    "createdBy": "Created by",
+    "modified": "Modified",
+    "modifiedBy": "Modified by",
+    "name": "Name",
+    "version": "Version",
+    "model": "Model",
+    "platform": "Platform",
+    "name_version": "Name / Version",
+    "filterPlaceholder": "Filter DeployUnits...",
+    "filter": "Filter"
+  }
 }

@@ -11,7 +11,7 @@
 			<tbody>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.namespace">Namespace</span>
+						<span translate="typeDefinition.namespace">Namespace</span>
 					</td>
 					<td>
 						<a ui-sref="namespaces.detail({ name: vm.tdef.namespace })">{{ vm.tdef.namespace }}</a>
@@ -19,47 +19,47 @@
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.version">Version</span>
+						<span translate="typeDefinition.version">Version</span>
 					</td>
 					<td>{{ vm.tdef.version }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.created">Created</span>
+						<span translate="typeDefinition.created">Created</span>
 					</td>
 					<td>{{ vm.tdef.createdDate | date:'dd/MM/yy HH:mm:ss' }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</span>
+						<span translate="typeDefinition.createdBy">Created by</span>
 					</td>
 					<td>{{ vm.tdef.createdBy }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.modified">Modified</span>
+						<span translate="typeDefinition.modified">Modified</span>
 					</td>
 					<td>{{ vm.tdef.lastModifiedDate | date:'dd/MM/yy HH:mm:ss' }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</span>
+						<span translate="typeDefinition.modifiedBy">Modified by</span>
 					</td>
 					<td>{{ vm.tdef.lastModifiedBy }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.releases">Releases</span>
-						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+						<span translate="typeDefinition.releases">Releases</span>
+						<span translate="typeDefinition.deployUnits">DeployUnits</span>
 					</td>
 					<td>
 						<table class="table table-condensed table-striped"  ng-class="{'table-hover': vm.releaseDUS.length }">
 							<thead>
 								<tr>
-									<th class="col-xs-1"  translate="kevoreeRegistryApp.typeDefinition.platform">Platform</th>
-									<th class="col-xs-5"  translate="kevoreeRegistryApp.typeDefinition.deployUnit">DeployUnit</th>
-									<th class="col-xs-3"  translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</th>
-									<th class="col-xs-3"  translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</th>
+									<th class="col-xs-1"  translate="typeDefinition.platform">Platform</th>
+									<th class="col-xs-5"  translate="typeDefinition.deployUnit">DeployUnit</th>
+									<th class="col-xs-3"  translate="typeDefinition.createdBy">Created by</th>
+									<th class="col-xs-3"  translate="typeDefinition.modifiedBy">Modified by</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -89,17 +89,17 @@
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.latest">Latest</span>
-						<span translate="kevoreeRegistryApp.typeDefinition.deployUnits">DeployUnits</span>
+						<span translate="typeDefinition.latest">Latest</span>
+						<span translate="typeDefinition.deployUnits">DeployUnits</span>
 					</td>
 					<td>
 						<table class="table table-condensed table-striped" ng-class="{'table-hover': vm.latestDUS.length }">
 							<thead>
 								<tr>
-									<th class="col-xs-1" translate="kevoreeRegistryApp.typeDefinition.platform">Platform</th>
-									<th class="col-xs-5" translate="kevoreeRegistryApp.typeDefinition.deployUnit">DeployUnit</th>
-									<th class="col-xs-3" translate="kevoreeRegistryApp.typeDefinition.createdBy">Created by</th>
-									<th class="col-xs-3" translate="kevoreeRegistryApp.typeDefinition.modifiedBy">Modified by</th>
+									<th class="col-xs-1" translate="typeDefinition.platform">Platform</th>
+									<th class="col-xs-5" translate="typeDefinition.deployUnit">DeployUnit</th>
+									<th class="col-xs-3" translate="typeDefinition.createdBy">Created by</th>
+									<th class="col-xs-3" translate="typeDefinition.modifiedBy">Modified by</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -129,7 +129,7 @@
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.typeDefinition.model">Model</span>
+						<span translate="typeDefinition.model">Model</span>
 					</td>
 					<td>
 						<div hljs hljs-language="json" hljs-source="vm.tdef.model"></div>
@@ -142,6 +142,6 @@
 	<button type="submit" ui-sref="tdefs" class="btn btn-info">
 		<span class="glyphicon glyphicon-arrow-left"></span>
 		<span>&nbsp;</span>
-		<span translate="kevoreeRegistryApp.typeDefinition.home.title">Back</span>
+		<span translate="typeDefinition.home.title">Back</span>
 	</button>
 </div>

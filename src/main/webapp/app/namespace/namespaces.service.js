@@ -1,12 +1,12 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular.module('kevoreeRegistryApp')
+  angular.module('kevoreeRegistryApp')
 		.factory('Namespaces', Namespaces);
 
-	Namespaces.$inject = ['$resource'];
+  Namespaces.$inject = ['$resource'];
 
-	function Namespaces($resource) {
-		return $resource('api/namespaces/:name', {}, {});
-	}
+  function Namespaces($resource) {
+    return $resource('api/namespaces/:name', {}, {});
+  }
 })();

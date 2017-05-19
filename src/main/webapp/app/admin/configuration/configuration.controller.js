@@ -6,14 +6,14 @@ angular.module('kevoreeRegistryApp')
 ConfigurationController.$inject = ['ConfigurationService'];
 
 function ConfigurationController(ConfigurationService) {
-	var vm = this;
-	vm.allConfiguration = null;
-	vm.configuration = null;
+  var vm = this;
+  vm.allConfiguration = null;
+  vm.configuration = null;
 
-	ConfigurationService.get().then(function (configuration) {
-		vm.configuration = configuration;
-	});
-	ConfigurationService.getEnv().then(function (configuration) {
-		vm.allConfiguration = configuration;
-	});
+  ConfigurationService.get().then(function (configuration) {
+    vm.configuration = configuration;
+  });
+  ConfigurationService.getEnv().then(function (configuration) {
+    vm.allConfiguration = configuration;
+  });
 }

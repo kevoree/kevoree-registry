@@ -60,6 +60,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @Size(max = 20)
     @Column(name = "activation_key", length = 20)
+    @JsonIgnore
     private String activationKey;
 
     @JsonIgnore
@@ -76,6 +77,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
         name = "T_USER_NAMESPACE",
         joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
         inverseJoinColumns = {@JoinColumn(name = "name", referencedColumnName = "name")})
+    @JsonIgnore
     private Set<Namespace> namespaces = new HashSet<>();
 
     public Long getId() {

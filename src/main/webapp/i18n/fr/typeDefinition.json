@@ -7,11 +7,17 @@
 				"createTitle": "Créer un nouveau TypeDefinition"
 			},
 			"delete": {
-				"question": "Etes-vous certain de vouloir supprimer le TypeDefinition <strong>{{ name }}/{{ version }}</strong> ?"
+        "question": "Êtes-vous certain de vouloir supprimer le TypeDefinition <strong>{{ namespace }}.{{ name }}/{{ version }}</strong>?",
+        "warning1": "Toutes les DeployUnits liées a ce TypeDefinition seront supprimées de manière définitive.",
+        "warning2": "Cette action est irréversible!",
+        "success": "Le TypeDefinition <strong>{{ namespace }}.{{ name }}/{{ version }}</strong> a été supprimé"
 			},
 			"detail": {
 				"title": "Type Definition"
 			},
+      "errors": {
+        "notfound": "Impossible de trouver le TypeDefinition avec l'ID <strong>{{ id }}</strong>"
+      },
 			"namespace": "Namespace",
 			"selectNamespace": "Sélection du namespace",
 			"created": "Création",

@@ -1,13 +1,13 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(alertConfig);
 
-	alertConfig.$inject = ['AlertServiceProvider'];
+  alertConfig.$inject = ['AlertServiceProvider'];
 
-	function alertConfig(AlertServiceProvider) {
-		AlertServiceProvider.setDefaultTimeout(5000);
-	}
+  function alertConfig(AlertServiceProvider) {
+    AlertServiceProvider.setDefaultTimeout(5000);
+  }
 })();

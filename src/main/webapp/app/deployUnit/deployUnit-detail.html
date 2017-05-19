@@ -11,7 +11,7 @@
 			<tbody>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.namespace">Namespace</span>
+						<span translate="deployUnit.namespace">Namespace</span>
 					</td>
 					<td>
 						<a ui-sref="namespaces.detail({ name: vm.du.namespace })">{{ vm.du.namespace }}</a>
@@ -19,49 +19,49 @@
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.name">Name</span>
+						<span translate="deployUnit.name">Name</span>
 					</td>
 					<td>{{ vm.du.name }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.version">Version</span>
+						<span translate="deployUnit.version">Version</span>
 					</td>
 					<td>{{ vm.du.version }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.platform">Platform</span>
+						<span translate="deployUnit.platform">Platform</span>
 					</td>
 					<td>{{ vm.du.platform }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.created">Created</span>
+						<span translate="deployUnit.created">Created</span>
 					</td>
 					<td>{{vm.du.createdDate | date:'dd/MM/yy HH:mm:ss' }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.createdBy">Created by</span>
+						<span translate="deployUnit.createdBy">Created by</span>
 					</td>
 					<td>{{ vm.du.createdBy }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.modified">Modified</span>
+						<span translate="deployUnit.modified">Modified</span>
 					</td>
 					<td>{{vm.du.lastModifiedDate | date:'dd/MM/yy HH:mm:ss' }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.modifiedBy">Modified by</span>
+						<span translate="deployUnit.modifiedBy">Modified by</span>
 					</td>
 					<td>{{ vm.du.lastModifiedBy }}</td>
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.typeDefinition">TypeDefinition</span>
+						<span translate="deployUnit.typeDefinition">TypeDefinition</span>
 					</td>
 					<td>
 						<a ui-sref="tdefDetail({ id: vm.du.tdefId })">{{ vm.du.tdefName + '/' + vm.du.tdefVersion }}</a>
@@ -69,7 +69,7 @@
 				</tr>
 				<tr>
 					<td>
-						<span translate="kevoreeRegistryApp.deployUnit.model">Model</span>
+						<span translate="deployUnit.model">Model</span>
 					</td>
 					<td>
 						<hljs hljs-language="json" hljs-source="vm.du.model"></hljs>
@@ -80,6 +80,6 @@
 	</div>
 
 	<button type="submit" ui-sref="dus" class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="kevoreeRegistryApp.deployUnit.home.title"> Back</span>
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span translate="deployUnit.home.title"> Back</span>
     </button>
 </div>

@@ -1,23 +1,23 @@
 (function () {
-	angular
+  angular
 		.module('kevoreeRegistryApp', [
-			'ngStorage',
-			'tmh.dynamicLocale',
-			'ngResource',
-			'ui.router',
-			'ui.bootstrap',
-			'ngCookies',
-			'pascalprecht.translate',
-			'ngCacheBuster',
-			'hljs',
-			'angularMoment',
-		])
+  'ngStorage',
+  'tmh.dynamicLocale',
+  'ngResource',
+  'ui.router',
+  'ui.bootstrap',
+  'ngCookies',
+  'pascalprecht.translate',
+  'ngCacheBuster',
+  'hljs',
+  'angularMoment',
+])
 		.run(appRun);
 
-	appRun.$inject = ['stateHandler', 'translationHandler'];
+  appRun.$inject = ['stateHandler', 'translationHandler'];
 
-	function appRun(stateHandler, translationHandler) {
-		stateHandler.initialize();
-		translationHandler.initialize();
-	}
+  function appRun(stateHandler, translationHandler) {
+    stateHandler.initialize();
+    translationHandler.initialize();
+  }
 })();

@@ -44,7 +44,7 @@ public class TypeDefinitionDTO extends AbstractAuditingDTO {
         this.deployUnits = tdef.getDeployUnits().stream().map(DeployUnit::getId).collect(Collectors.toSet());
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -52,7 +52,7 @@ public class TypeDefinitionDTO extends AbstractAuditingDTO {
         return name;
     }
 
-    public long getVersion() {
+    public Long getVersion() {
         return version;
     }
 
@@ -68,7 +68,7 @@ public class TypeDefinitionDTO extends AbstractAuditingDTO {
         return deployUnits;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -76,7 +76,7 @@ public class TypeDefinitionDTO extends AbstractAuditingDTO {
         this.name = name;
     }
 
-    public void setVersion(long version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 

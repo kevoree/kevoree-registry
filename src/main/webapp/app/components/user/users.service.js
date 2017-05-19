@@ -1,10 +1,10 @@
 (function () {
-	angular.module('kevoreeRegistryApp')
+  angular.module('kevoreeRegistryApp')
 		.factory('Users', Users);
 
-	Users.$inject = ['$resource'];
+  Users.$inject = ['$resource'];
 
-	function Users($resource) {
-		return $resource('api/users', {}, {});
-	}
+  function Users($resource) {
+    return $resource('api/users', {}, {});
+  }
 })();

@@ -1,33 +1,33 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(stateConfig);
 
-	stateConfig.$inject = ['$stateProvider'];
+  stateConfig.$inject = ['$stateProvider'];
 
-	function stateConfig($stateProvider) {
-		$stateProvider
+  function stateConfig($stateProvider) {
+    $stateProvider
 			.state('register', {
-				parent: 'account',
-				url: '/register',
-				data: {
-					authorities: []
-				},
-				views: {
-					'content@': {
-						templateUrl: 'app/account/register/register.html',
-						controller: 'RegisterController',
-						controllerAs: 'vm'
-					}
-				},
-				resolve: {
-					translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
-						$translatePartialLoader.addPart('register');
-						return $translate.refresh();
-					}]
-				}
-			});
-	}
+  parent: 'account',
+  url: '/register',
+  data: {
+    authorities: []
+  },
+  views: {
+    'content@': {
+      templateUrl: 'app/account/register/register.html',
+      controller: 'RegisterController',
+      controllerAs: 'vm'
+    }
+  },
+  resolve: {
+    translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+      $translatePartialLoader.addPart('register');
+      return $translate.refresh();
+    }]
+  }
+});
+  }
 })();

@@ -619,7 +619,7 @@
         <artifactId>docker-maven-plugin</artifactId>
         <version>0.4.10</version>
         <configuration>
-          <imageName>kreg</imageName>
+          <imageName>kevoree/registry</imageName>
           <dockerDirectory>src/main/docker</dockerDirectory>
           <resources>
             <resource>
@@ -688,37 +688,6 @@
         <logback.loglevel>DEBUG</logback.loglevel>
         <!-- default Spring profiles -->
         <spring.profiles.active>dev${profile.no-liquibase}</spring.profiles.active>
-      </properties>
-    </profile>
-    <profile>
-      <id>dev2</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-devtools</artifactId>
-          <optional>true</optional>
-        </dependency>
-      </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <warSourceDirectory>src/main/webapp/</warSourceDirectory>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-      <properties>
-        <!-- log configuration -->
-        <logback.loglevel>DEBUG</logback.loglevel>
-        <!-- default Spring profiles -->
-        <spring.profiles.active>dev2${profile.no-liquibase}</spring.profiles.active>
       </properties>
     </profile>
     <profile>

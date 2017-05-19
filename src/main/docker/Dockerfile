@@ -1,17 +1,13 @@
-FROM ibmjava:jre-alpine
+FROM openjdk:8-jre-alpine
 
-ENV JHIPSTER_SLEEP 0
+ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
+    JHIPSTER_SLEEP=0 \
+    JAVA_OPTS=""
 
 # add directly the war
 ADD *.war /app.war
 
-# add prod config
-ADD config/ /
-
-RUN sh -c 'touch /app.war'
-
-VOLUME /tmp
 EXPOSE 8080
 CMD echo "The application will start in ${JHIPSTER_SLEEP}s..." && \
     sleep ${JHIPSTER_SLEEP} && \
-    java -Djava.security.egd=file:/dev/./urandom -jar /app.war --spring.profiles.active=prod
+    java ${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom -jar /app.war

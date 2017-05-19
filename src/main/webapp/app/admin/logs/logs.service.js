@@ -1,15 +1,15 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular.module('kevoreeRegistryApp')
+  angular.module('kevoreeRegistryApp')
 		.factory('LogsService', LogsService);
 
-	LogsService.$inject = ['$resource'];
+  LogsService.$inject = ['$resource'];
 
-	function LogsService($resource) {
-		return $resource('api/logs', {}, {
-			'findAll': { method: 'GET', isArray: true },
-			'changeLevel': { method: 'PUT' }
-		});
-	}
+  function LogsService($resource) {
+    return $resource('api/logs', {}, {
+      'findAll': { method: 'GET', isArray: true },
+      'changeLevel': { method: 'PUT' }
+    });
+  }
 })();

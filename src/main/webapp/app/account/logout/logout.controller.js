@@ -6,10 +6,10 @@ angular.module('kevoreeRegistryApp')
 LogoutController.$inject = ['$state', 'Auth', 'AlertService'];
 
 function LogoutController($state, Auth, AlertService) {
-	Auth.logout()
+  Auth.logout()
 		.then(function () {
-			$state.go('home').then(function () {
-				AlertService.success('Successfully logged-out');
-			});
-		});
+  $state.go('home').then(function () {
+    AlertService.success('Successfully logged-out');
+  });
+});
 }

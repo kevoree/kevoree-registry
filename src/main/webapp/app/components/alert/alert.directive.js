@@ -1,6 +1,6 @@
 var jhiAlert = {
-	templateUrl: 'app/components/alert/alert.html',
-	controller: jhiAlertController
+  templateUrl: 'app/components/alert/alert.html',
+  controller: jhiAlertController
 };
 
 angular
@@ -10,11 +10,11 @@ angular
 jhiAlertController.$inject = ['$rootScope', '$scope', '$sce', 'AlertService'];
 
 function jhiAlertController($rootScope, $scope, $sce, AlertService) {
-	var vm = this;
+  var vm = this;
 
-	vm.alerts = AlertService.get();
+  vm.alerts = AlertService.get();
 
-	$scope.$on('$destroy', function () {
-		vm.alerts = null;
-	});
+  $scope.$on('$destroy', function () {
+    vm.alerts = null;
+  });
 }

@@ -14,6 +14,7 @@ import org.kevoree.registry.repository.UserRepository;
 import org.kevoree.registry.security.AuthoritiesConstants;
 import org.kevoree.registry.service.UserService;
 import org.kevoree.registry.service.dto.TypeDefinitionDTO;
+import org.kevoree.registry.service.mapper.TypeDefinitionMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,6 +50,9 @@ public class TypeDefinitionResourceTest {
     private TypeDefinitionRepository tdefsRepository;
 
     @Inject
+    private TypeDefinitionMapper tdefMapper;
+
+    @Inject
     private NamespaceRepository namespaceRepository;
 
     @Inject
@@ -70,6 +74,7 @@ public class TypeDefinitionResourceTest {
     public void setup() {
         TypeDefinitionResource tdefResource = new TypeDefinitionResource();
         ReflectionTestUtils.setField(tdefResource, "tdefsRepository", tdefsRepository);
+        ReflectionTestUtils.setField(tdefResource, "tdefMapper", tdefMapper);
         ReflectionTestUtils.setField(tdefResource, "userRepository", userRepository);
         ReflectionTestUtils.setField(tdefResource, "userService", userService);
         ReflectionTestUtils.setField(tdefResource, "authorityRepository", authorityRepository);

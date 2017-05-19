@@ -1,14 +1,14 @@
 (function () {
-	'use strict';
+  'use strict';
 
-	angular
+  angular
 		.module('kevoreeRegistryApp')
 		.config(localStorageConfig);
 
-	localStorageConfig.$inject = ['$localStorageProvider', '$sessionStorageProvider'];
+  localStorageConfig.$inject = ['$localStorageProvider', '$sessionStorageProvider'];
 
-	function localStorageConfig($localStorageProvider, $sessionStorageProvider) {
-		$localStorageProvider.setKeyPrefix('kreg-');
-		$sessionStorageProvider.setKeyPrefix('kreg-');
-	}
+  function localStorageConfig($localStorageProvider, $sessionStorageProvider) {
+    $localStorageProvider.setKeyPrefix('kreg-');
+    $sessionStorageProvider.setKeyPrefix('kreg-');
+  }
 })();

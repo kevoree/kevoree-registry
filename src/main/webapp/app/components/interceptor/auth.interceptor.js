@@ -7,18 +7,18 @@ angular
 authInterceptor.$inject = ['$localStorage', '$sessionStorage'];
 
 function authInterceptor($localStorage, $sessionStorage) {
-	var service = {
-		request: request
-	};
+  var service = {
+    request: request
+  };
 
-	return service;
+  return service;
 
-	function request(config) {
-		config.headers = config.headers || {};
-		var token = $localStorage.token || $sessionStorage.token;
-		if (token && token.expires_at && token.expires_at > new Date().getTime()) {
-			config.headers.Authorization = 'Bearer ' + token.access_token;
-		}
-		return config;
-	}
+  function request(config) {
+    config.headers = config.headers || {};
+    var token = $localStorage.token || $sessionStorage.token;
+    if (token && token.expires_at && token.expires_at > new Date().getTime()) {
+      config.headers.Authorization = 'Bearer ' + token.access_token;
+    }
+    return config;
+  }
 }

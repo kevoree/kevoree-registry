@@ -3,5 +3,5 @@
 angular
 	.module('kevoreeRegistryApp')
 	.constant('paginationConstants', {
-		'itemsPerPage': 20
-	});
+  'itemsPerPage': 20
+});

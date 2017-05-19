@@ -1,9 +1,8 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.kevoree.registry.config.Constants;
 
@@ -37,7 +36,7 @@ public class TypeDefinition extends AbstractAuditingEntity implements Serializab
     private Long version;
 
     @ManyToOne
-    @JsonIgnoreProperties({ "typeDefinitions" })
+    @JsonIgnore
     private Namespace namespace;
 
     @OneToMany(mappedBy = "typeDefinition")

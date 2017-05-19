@@ -27,6 +27,9 @@
 				"action": "Retirer un membre",
 				"user": "Sélectionner le membre à retirer"
 			},
+      "errors": {
+        "notfound": "Impossible de trouver le namespace <strong>{{ name }}</strong>"
+      },
 			"create": "Create a namespace",
 			"created": "Création",
 			"createdBy": "Crée par",

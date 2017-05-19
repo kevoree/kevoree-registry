@@ -1,7 +1,6 @@
 package org.kevoree.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.kevoree.registry.config.Constants;
@@ -29,9 +28,7 @@ public class Namespace extends AbstractAuditingEntity implements Serializable {
     private String name;
 
     @ManyToOne
-    @JsonIgnoreProperties({
-        "authorities", "namespaces", "firstName", "lastName", "email", "activated", "langKey", "activationKey",
-        "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate" })
+    @JsonIgnore
     private User owner;
 
     @ManyToMany(mappedBy = "namespaces")
