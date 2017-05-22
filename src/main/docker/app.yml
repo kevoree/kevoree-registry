@@ -16,7 +16,7 @@ services:
       - JHIPSTER_MAIL_BASE-URL=${KREG_URL}
       - JHIPSTER_SLEEP=30 # gives time for the database to boot before the application
     ports:
-      - localhost:8080:8080
+      - "localhost:8080:8080"
 
   # MAIL SERVER
   kreg-mail:
@@ -27,7 +27,7 @@ services:
     volumes:
       - maildata:/var/mail
       - mailstate:/var/mail-state
-      - ./config:/tmp/docker-mailserver/
+      - config:/tmp/docker-mailserver/
     environment:
     - ENABLE_SPAMASSASSIN=1
     - ENABLE_CLAMAV=1
@@ -45,3 +45,8 @@ services:
     environment:
       - POSTGRES_USER=kevoree_registry
       - POSTGRES_PASSWORD=kevoree_registry
+
+volumes:
+  maildata:
+  mailstate:
+  config:
