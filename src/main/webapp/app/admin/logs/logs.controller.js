@@ -1,20 +1,22 @@
-'use strict';
+(function () {
+  'use strict';
 
-angular.module('kevoreeRegistryApp')
-	.controller('LogsController', LogsController);
+  angular
+    .module('kevoreeRegistryApp')
+    .controller('LogsController', LogsController);
 
-LogsController.$inject = ['LogsService'];
+  LogsController.$inject = ['Logs'];
 
-function LogsController(LogsService) {
-  var vm = this;
-  vm.loggers = LogsService.findAll();
+  function LogsController(Logs) {
+    var vm = this;
 
-  vm.changeLevel = function (name, level) {
-    LogsService.changeLevel({
-      name: name,
-      level: level
-    }, function () {
-      vm.loggers = LogsService.findAll();
-    });
-  };
-}
+    vm.changeLevel = changeLevel;
+    vm.loggers = Logs.findAll();
+
+    function changeLevel(name, level) {
+      Logs.changeLevel({ name: name, level: level }, function () {
+        vm.loggers = Logs.findAll();
+      });
+    }
+  }
+})();

@@ -1,45 +1,46 @@
 html, body {
-	background: #333;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	color: #333;
+  background: #333;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
 }
+
 
 /* ==========================================================================
 Development Ribbon
 ========================================================================== */
+
 .ribbon {
-    background-color: #a00;
-    box-shadow: 0 0 10px #888;
-    left: -3.5em;
-    moz-box-shadow: 0 0 10px #888;
-    moz-transform: rotate(-45deg);
-    ms-transform: rotate(-45deg);
-    o-transform: rotate(-45deg);
-    overflow: hidden;
-    position: absolute;
-    top: 40px;
-    transform: rotate(-45deg);
-    webkit-box-shadow: 0 0 10px #888;
-    webkit-transform: rotate(-45deg);
-    white-space: nowrap;
-    width: 15em;
-    z-index: 9999;
-    pointer-events: none;
+  background-color: #a00;
+  box-shadow: 0 0 10px #888;
+  left: -3.5em;
+  moz-box-shadow: 0 0 10px #888;
+  moz-transform: rotate(-45deg);
+  ms-transform: rotate(-45deg);
+  o-transform: rotate(-45deg);
+  overflow: hidden;
+  position: absolute;
+  top: 40px;
+  transform: rotate(-45deg);
+  webkit-box-shadow: 0 0 10px #888;
+  webkit-transform: rotate(-45deg);
+  white-space: nowrap;
+  width: 15em;
+  z-index: 9999;
+  pointer-events: none;
 }
 
 .ribbon a {
-    border: 1px solid #faa;
-    color: #fff;
-    display: block;
-    font: bold 81.25% 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    margin: 1px 0;
-    padding: 10px 50px;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0 0 5px #444;
-    pointer-events: none;
+  border: 1px solid #faa;
+  color: #fff;
+  display: block;
+  font: bold 81.25% 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 1px 0;
+  padding: 10px 50px;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: 0 0 5px #444;
+  pointer-events: none;
 }
-
 
 
 /* ==========================================================================
@@ -47,169 +48,179 @@ Browser Upgrade Prompt
 ========================================================================== */
 
 .browserupgrade {
-	margin: 0.2em 0;
-	background: #ccc;
-	color: #000;
-	padding: 0.2em 0;
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
 }
 
 .hero-unit {
-	margin: 50px auto 0 auto;
-	width: 300px;
-	font-size: 18px;
-	font-weight: 200;
-	line-height: 30px;
-	background-color: #eee;
-	border-radius: 6px;
-	padding: 60px;
+  margin: 50px auto 0 auto;
+  width: 300px;
+  font-size: 18px;
+  font-weight: 200;
+  line-height: 30px;
+  background-color: #eee;
+  border-radius: 6px;
+  padding: 60px;
 }
 
 .hero-unit h1 {
-	font-size: 60px;
-	line-height: 1;
-	letter-spacing: -1px;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -1px;
 }
 
 .error {
-	color: white;
-	background-color: red;
+  color: white;
+  background-color: red;
 }
 
 .hipster {
-	display: inline-block;
-	width: 347px;
-	height: 497px;
-	background: url("../images/kevoree.png") no-repeat center top;
-	background-size: contain;
+  display: inline-block;
+  width: 347px;
+  height: 497px;
+  background: url("../images/kevoree.png") no-repeat center top;
+  background-size: contain;
 }
 
 body .container-fluid {
-	padding: 0 25px 0 25px;
+  padding: 0 25px 0 25px;
 }
 
 #content {
-	margin-top: 80px;
+  margin-top: 80px;
 }
 
 .navbar {
-	margin-bottom: 0;
-	z-index: 1001;
+  margin-bottom: 0;
+  z-index: 1001;
 }
 
 #navbar-logo {
-	padding: 8px 15px 0;
+  padding: 8px 15px 0;
 }
 
 .hand {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 #threadDump .popover, #healthCheck .popover {
-	top: inherit;
-	display: block;
-	font-size: 10px;
-	max-width: 1024px;
+  top: inherit;
+  display: block;
+  font-size: 10px;
+  max-width: 1024px;
 }
 
 #healthCheck .popover {
-	margin-left: -50px;
+  margin-left: -50px;
 }
 
 .break {
-	white-space: normal;
-	word-break: break-all;
+  white-space: normal;
+  word-break: break-all;
 }
 
 .voffset {
-	margin-top: 2px;
+  margin-top: 2px;
 }
 
 .voffset1 {
-	margin-top: 5px;
+  margin-top: 5px;
 }
 
 .voffset2 {
-	margin-top: 10px;
+  margin-top: 10px;
 }
 
 .voffset3 {
-	margin-top: 15px;
+  margin-top: 15px;
 }
 
 .voffset4 {
-	margin-top: 30px;
+  margin-top: 30px;
 }
 
 .voffset5 {
-	margin-top: 40px;
+  margin-top: 40px;
 }
 
 .voffset6 {
-	margin-top: 60px;
+  margin-top: 60px;
 }
 
 .voffset7 {
-	margin-top: 80px;
+  margin-top: 80px;
 }
 
 .voffset8 {
-	margin-top: 100px;
+  margin-top: 100px;
 }
 
 .voffset9 {
-	margin-top: 150px;
+  margin-top: 150px;
+}
+
+.pad {
+  padding: 10px;
+}
+
+@media (min-width: 1250px) {
+  .modal-xlg {
+    width: 1200px;
+  }
 }
 
 
 /* start Password strength bar style */
 
 ul#strength {
-	display: inline;
-	list-style: none;
-	margin: 0;
-	margin-left: 15px;
-	padding: 0;
-	vertical-align: 2px;
+  display: inline;
+  list-style: none;
+  margin: 0;
+  margin-left: 15px;
+  padding: 0;
+  vertical-align: 2px;
 }
 
 .point:last {
-	margin: 0 !important;
+  margin: 0 !important;
 }
 
 .point {
-	background: #DDD;
-	border-radius: 2px;
-	display: inline-block;
-	height: 5px;
-	margin-right: 1px;
-	width: 20px;
+  background: #DDD;
+  border-radius: 2px;
+  display: inline-block;
+  height: 5px;
+  margin-right: 1px;
+  width: 20px;
 }
 
 
 /* end Password strength bar style */
 
 .kevoree {
-	display: inline-block;
-	width: 347px;
-	height: 497px;
-	background: url("../images/kevoree.png") no-repeat center top;
-	background-size: contain;
+  display: inline-block;
+  width: 347px;
+  height: 497px;
+  background: url("../images/kevoree.png") no-repeat center top;
+  background-size: contain;
 }
 
 .pagination {
-	margin: 0;
+  margin: 0;
 }
 
 a.nocolor {
-	color: inherit;
+  color: inherit;
 }
 
 a.block {
-	display: block;
+  display: block;
 }
 
 a .glyphicon {
-	line-height: inherit;
+  line-height: inherit;
 }
 
 
@@ -218,48 +229,48 @@ Custom alerts for notification
 ========================================================================== */
 
 .alert-container {
-	text-align: center;
+  text-align: center;
 }
 
 .alert-container .toast {
-	position: fixed;
-	top: 54px;
-	left: 50%;
-	width: 500px;
-	margin-left: -250px;
-	z-index: 1000;
+  position: fixed;
+  top: 54px;
+  left: 50%;
+  width: 500px;
+  margin-left: -250px;
+  z-index: 1000;
 }
 
 .alert-container .alert {
-	text-overflow: ellipsis;
-	box-shadow: 0 0 10px black;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-	margin: 0;
+  text-overflow: ellipsis;
+  box-shadow: 0 0 10px black;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  margin: 0;
 }
 
 .alert-container .alert:hover {
-	cursor: pointer;
-	opacity: 0.9;
+  cursor: pointer;
+  opacity: 0.9;
 }
 
 .alert pre {
-	background: none;
-	border: none;
-	font: inherit;
-	color: inherit;
-	padding: 0;
-	margin: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  margin: 0;
 }
 
 .alert .popover pre {
-	font-size: 10px;
+  font-size: 10px;
 }
 
 @media screen and (max-width: 500px) {
-	.alert-container .toast {
-		width: 100%;
-		margin-left: 0;
-		left: 0;
-	}
+  .alert-container .toast {
+    width: 100%;
+    margin-left: 0;
+    left: 0;
+  }
 }

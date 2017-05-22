@@ -1,0 +1,79 @@
+<!-- Modal used to display the threads dump -->
+<div class="modal-header">
+  <button type="button" class="close" ng-click="vm.cancel()">&times;</button>
+  <h4 class="modal-title" data-translate="metrics.jvm.threads.dump.title">Threads dump</h4>
+</div>
+<div class="modal-body pad">
+  <button class="btn btn-xs btn-primary" ng-click="threadDumpFilter = {}">
+    <span>All</span>
+    <span>&nbsp;</span>
+    <span class="badge">{{vm.threadDumpAll}}</span>
+  </button> &nbsp;
+  <button class="btn btn-xs btn-success" ng-click="threadDumpFilter = {threadState: 'RUNNABLE'}">
+    <span>Runnable</span>
+    &nbsp;
+    <span class="badge">{{vm.threadDumpRunnable}}</span>
+  </button> &nbsp;
+  <button class="btn btn-xs btn-info" ng-click="threadDumpFilter = {threadState: 'WAITING'}">
+    <span>Waiting</span>
+    &nbsp;
+    <span class="badge">{{vm.threadDumpWaiting}}</span>
+  </button> &nbsp;
+  <button class="btn btn-xs btn-warning" ng-click="threadDumpFilter = {threadState: 'TIMED_WAITING'}">
+    <span>Timed Waiting</span>
+    &nbsp;
+    <span class="badge">{{vm.threadDumpTimedWaiting}}</span>
+  </button> &nbsp;
+  <button class="btn btn-xs btn-danger" ng-click="threadDumpFilter = {threadState: 'BLOCKED'}">
+    <span>Blocked</span>
+    &nbsp;
+    <span class="badge">{{vm.threadDumpBlocked}}</span>
+  </button> &nbsp;
+  <div class="voffset2">&nbsp;</div>
+  Filter
+  <input type="text" ng-model="threadDumpFilter.threadState" class="form-control">
+  <div class="row pad" ng-repeat="(k, v) in vm.threadDump | filter:threadDumpFilter">
+    <div class="list-group">
+      <div class="list-group-item">
+        <span class="label pull-right" ng-class="'label-'+vm.getLevel(v.threadState)">{{v.threadState}}</span>
+        <h4 class="list-group-item-heading">{{v.threadName}} (ID {{v.threadId}})</h4>
+        <p class="list-group-item-text">
+          <div class="well well-sm clearfix">
+            <a href class="btn btn-xs btn-default pull-right" ng-click="show = !show">
+              <span ng-show="!show" data-translate="metrics.jvm.threads.dump.show">Show</span>
+              <span ng-show="show" data-translate="metrics.jvm.threads.dump.hide">Hide</span>
+            </a>
+            <div ng-show="show" ng-repeat="(stK, stV) in v.stackTrace">
+              {{stV.className}}.{{stV.methodName}}({{stV.fileName}}:{{stV.lineNumber}})
+              <span class="voffset1"></span>
+            </div>
+          </div>
+          <table class="table table-condensed">
+            <thead>
+              <tr>
+                <th class="text-right" data-translate="metrics.jvm.threads.dump.blockedtime">Blocked Time</th>
+                <th class="text-right" data-translate="metrics.jvm.threads.dump.blockedcount">Blocked Count</th>
+                <th class="text-right" data-translate="metrics.jvm.threads.dump.waitedtime">Waited Time</th>
+                <th class="text-right" data-translate="metrics.jvm.threads.dump.waitedcount">Waited Count</th>
+                <th data-translate="metrics.jvm.threads.dump.lockname">Lock Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{v.blockedTime}}</td>
+                <td>{{v.blockedCount}}</td>
+                <td>{{v.waitedTime}}</td>
+                <td>{{v.waitedCount}}</td>
+                <td>{{v.lockName}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default  pull-left" data-dismiss="modal" ng-click="vm.cancel()">Done</button>
+</div>

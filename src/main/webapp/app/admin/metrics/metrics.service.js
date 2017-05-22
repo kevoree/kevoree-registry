@@ -2,11 +2,11 @@
   'use strict';
 
   angular.module('kevoreeRegistryApp')
-    .factory('MetricsService', MetricsService);
+    .factory('Metrics', Metrics);
 
-  MetricsService.$inject = ['$http'];
+  Metrics.$inject = ['$http'];
 
-  function MetricsService($http) {
+  function Metrics($http) {
     return {
       getMetrics: function () {
         return $http.get('management/metrics').then(function (response) {

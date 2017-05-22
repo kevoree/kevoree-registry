@@ -3,4 +3,7 @@
     - angular
   rules:
     angular/json-functions: 0
+    angular/di:
+      - 2
+      - $inject
     angular/di-unused: 2

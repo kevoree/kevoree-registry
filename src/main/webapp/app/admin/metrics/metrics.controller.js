@@ -1,89 +1,74 @@
-'use strict';
+(function () {
+  'use strict';
 
-angular.module('kevoreeRegistryApp')
-  .controller('MetricsController', MetricsController);
+  angular
+    .module('kevoreeRegistryApp')
+    .controller('MetricsController', MetricsController);
 
-MetricsController.$inject = ['$scope', 'MetricsService'];
+  MetricsController.$inject = ['$scope', 'Metrics', '$uibModal'];
 
-function MetricsController($scope, MetricsService) {
-  var vm = this;
-  vm.metrics = {};
-  vm.updatingMetrics = true;
+  function MetricsController($scope, Metrics, $uibModal) {
+    var vm = this;
 
-  vm.refresh = function () {
-    vm.updatingMetrics = true;
-    MetricsService.getMetrics()
-      .then(function (metrics) {
-        vm.metrics = metrics;
-        vm.updatingMetrics = false;
-      })
-      .catch(function (resp) {
-        vm.metrics = resp.data;
-        vm.updatingMetrics = false;
-      });
-  };
-
-  $scope.$watch('vm.metrics', function (newValue) {
-    vm.servicesStats = {};
     vm.cachesStats = {};
-    angular.forEach(newValue.timers, function (value, key) {
-      if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
-        vm.servicesStats[key] = value;
-      }
+    vm.metrics = {};
+    vm.refresh = refresh;
+    vm.refreshThreadDumpData = refreshThreadDumpData;
+    vm.servicesStats = {};
+    vm.updatingMetrics = true;
 
-      if (key.indexOf('net.sf.ehcache.Cache') !== -1) {
-        // remove gets or puts
-        var index = key.lastIndexOf('.');
-        var newKey = key.substr(0, index);
+    vm.refresh();
 
-        // Keep the name of the domain
-        index = newKey.lastIndexOf('.');
-        vm.cachesStats[newKey] = {
-          'name': newKey.substr(index + 1),
-          'value': value
-        };
-      }
-    });
-  });
-
-  vm.refresh();
-
-  vm.refreshThreadDumpData = function () {
-    MetricsService.threadDump().then(function (data) {
-      vm.threadDump = data;
-
-      vm.threadDumpRunnable = 0;
-      vm.threadDumpWaiting = 0;
-      vm.threadDumpTimedWaiting = 0;
-      vm.threadDumpBlocked = 0;
-
-      angular.forEach(data, function (value) {
-        if (value.threadState === 'RUNNABLE') {
-          vm.threadDumpRunnable += 1;
-        } else if (value.threadState === 'WAITING') {
-          vm.threadDumpWaiting += 1;
-        } else if (value.threadState === 'TIMED_WAITING') {
-          vm.threadDumpTimedWaiting += 1;
-        } else if (value.threadState === 'BLOCKED') {
-          vm.threadDumpBlocked += 1;
+    $scope.$watch('vm.metrics', function (newValue) {
+      vm.servicesStats = {};
+      angular.forEach(newValue.timers, function (value, key) {
+        if (key.indexOf('web.rest') !== -1 || key.indexOf('service') !== -1) {
+          vm.servicesStats[key] = value;
         }
       });
 
-      vm.threadDumpAll = vm.threadDumpRunnable + vm.threadDumpWaiting +
-        vm.threadDumpTimedWaiting + vm.threadDumpBlocked;
+      vm.cachesStats = {};
+      angular.forEach(newValue.gauges, function (value, key) {
+        if (key.indexOf('jcache.statistics') !== -1) {
+          // remove gets or puts
+          var index = key.lastIndexOf('.');
+          var newKey = key.substr(0, index);
 
+          // Keep the name of the domain
+          vm.cachesStats[newKey] = {
+            'name': newKey.substr(18),
+            'value': value
+          };
+        }
+      });
     });
-  };
 
-  vm.getLabelClass = function (threadState) {
-    if (threadState === 'RUNNABLE') {
-      return 'label-success';
-    } else if (threadState === 'WAITING') {
-      return 'label-info';
-    } else if (threadState === 'TIMED_WAITING') {
-      return 'label-warning';
-    } else if (threadState === 'BLOCKED') {
-      return 'label-danger';
+    function refresh() {
+      vm.updatingMetrics = true;
+      Metrics.getMetrics().then(function (promise) {
+        vm.metrics = promise;
+        vm.updatingMetrics = false;
+      }, function (promise) {
+        vm.metrics = promise.data;
+        vm.updatingMetrics = false;
+      });
     }
-  };
-}
+
+    function refreshThreadDumpData() {
+      Metrics.threadDump().then(function (data) {
+        $uibModal.open({
+          templateUrl: 'app/admin/metrics/metrics.modal.html',
+          controller: 'MetricsModalController',
+          controllerAs: 'vm',
+          size: 'xlg',
+          resolve: {
+            threadDump: function () {
+              return data;
+            }
+
+          }
+        });
+      });
+    }
+  }
+})();
