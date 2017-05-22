@@ -20,6 +20,8 @@ Kevoree Registry
 ``` bash
 # download the script
 wget https://raw.githubusercontent.com/kevoree/kevoree-registry/master/src/main/docker/kevoree-registry.sh
+# make it executable
+chmod +x kevoree-registry.sh
 # execute the script using your own data
 ./kevoree-registry.sh [mail_user] [mail_domain] [registry_fqdn]
 ```
