@@ -1,23 +1,6 @@
 version:                      '2'
 
 services:
-  # WEB SERVER
-  kreg:
-    image:                    kevoree/registry
-    container_name:           kreg-server
-    external_links:
-      - kreg-db
-      - kreg-mail
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod,swagger
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://kreg-db:5432/kevoree_registry?useUnicode=true&characterEncoding=utf8&useSSL=false
-      - SPRING_MAIL_HOST=kreg-mail
-      - JHIPSTER_MAIL_FROM=${KREG_MAIL_USER}@${KREG_MAIL_DOMAIN}
-      - JHIPSTER_MAIL_BASE-URL=${KREG_URL}
-      - JHIPSTER_SLEEP=30 # gives time for the database to boot before the application
-    ports:
-      - "localhost:8080:8080"
-
   # MAIL SERVER
   kreg-mail:
     container_name:      kreg-mail
@@ -45,6 +28,23 @@ services:
     environment:
       - POSTGRES_USER=kevoree_registry
       - POSTGRES_PASSWORD=kevoree_registry
+
+  # WEB SERVER
+  kreg:
+    image:                    kevoree/registry
+    container_name:           kreg-server
+    links:
+      - kreg-db
+      - kreg-mail
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod,swagger
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://kreg-db:5432/kevoree_registry?useUnicode=true&characterEncoding=utf8&useSSL=false
+      - SPRING_MAIL_HOST=kreg-mail
+      - JHIPSTER_MAIL_FROM=${KREG_MAIL_USER}@${KREG_MAIL_DOMAIN}
+      - JHIPSTER_MAIL_BASE-URL=${KREG_URL}
+      - JHIPSTER_SLEEP=30 # gives time for the database to boot before the application
+    ports:
+      - "localhost:8080:8080"
 
 volumes:
   maildata:
