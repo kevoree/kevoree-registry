@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('kevoreeRegistryApp')
-	.controller('MetricsController', MetricsController);
+  .controller('MetricsController', MetricsController);
 
 MetricsController.$inject = ['$scope', 'MetricsService'];
 
@@ -13,14 +13,14 @@ function MetricsController($scope, MetricsService) {
   vm.refresh = function () {
     vm.updatingMetrics = true;
     MetricsService.getMetrics()
-			.then(function (metrics) {
-  vm.metrics = metrics;
-  vm.updatingMetrics = false;
-})
-			.catch(function (resp) {
-  vm.metrics = resp.data;
-  vm.updatingMetrics = false;
-});
+      .then(function (metrics) {
+        vm.metrics = metrics;
+        vm.updatingMetrics = false;
+      })
+      .catch(function (resp) {
+        vm.metrics = resp.data;
+        vm.updatingMetrics = false;
+      });
   };
 
   $scope.$watch('vm.metrics', function (newValue) {
@@ -32,11 +32,11 @@ function MetricsController($scope, MetricsService) {
       }
 
       if (key.indexOf('net.sf.ehcache.Cache') !== -1) {
-				// remove gets or puts
+        // remove gets or puts
         var index = key.lastIndexOf('.');
         var newKey = key.substr(0, index);
 
-				// Keep the name of the domain
+        // Keep the name of the domain
         index = newKey.lastIndexOf('.');
         vm.cachesStats[newKey] = {
           'name': newKey.substr(index + 1),
@@ -70,7 +70,7 @@ function MetricsController($scope, MetricsService) {
       });
 
       vm.threadDumpAll = vm.threadDumpRunnable + vm.threadDumpWaiting +
-				vm.threadDumpTimedWaiting + vm.threadDumpBlocked;
+        vm.threadDumpTimedWaiting + vm.threadDumpBlocked;
 
     });
   };

@@ -1,21 +1,27 @@
 {
-    "health": {
-        "title": "Diagnostics",
-        "refresh.button": "Rafraichir",
-        "indicator": {
-            "db": "Base de données",
-            "diskSpace": "Espace disque",
-            "mail": "Email",
-            "mongo": "MongoDB"
-        },
-        "stacktrace": "Stacktrace",
-        "table": {
-            "service": "Nom du service",
-            "status": "Etat"
-        },
-        "status": {
-            "UP": "DISPONIBLE",
-            "DOWN": "HORS SERVICE"
-        }
+  "health": {
+    "title": "Diagnostic",
+    "refresh.button": "Rafraîchir",
+    "stacktrace": "Trace",
+    "details": {
+      "details": "Détails",
+      "properties": "Propriétées",
+      "name": "Nom",
+      "value": "Valeur",
+      "error": "Erreur"
+    },
+    "indicator": {
+      "diskSpace": "Espace disque",
+      "mail": "Email",
+      "db": "Base de données"
+    },
+    "table": {
+      "service": "Nom du service",
+      "status": "Statut"
+    },
+    "status": {
+      "UP": "UP",
+      "DOWN": "DOWN"
     }
+  }
 }

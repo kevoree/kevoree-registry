@@ -13,6 +13,11 @@
 # http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 # ===================================================================
 
+management:
+    health:
+        mail:
+            enabled: true
+
 spring:
     devtools:
         restart:
