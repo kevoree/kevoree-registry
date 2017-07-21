@@ -1,0 +1,24 @@
+{
+  "request": {
+    "title": "Reset password",
+    "description": "Give us the e-mail used for your account in order to reset your password",
+    "form": {
+      "button": "Reset"
+    },
+    "messages": {
+      "success": "<strong>Password reset!</strong> Please check your email for confirmation",
+      "error": "<strong>This e-mail does not exist</strong> Check the given e-mail"
+    }
+  },
+  "finish": {
+    "title": "Password reset",
+    "messages": {
+      "info": "Choose a new password",
+      "error": "Your password couldn't be reset. Remember a password request is only valid for 24 hours.",
+      "success": "<strong>Your password has been reset.</strong> Please <a class=\"alert-link\" ui-sref=\"login\">log in</a>."
+    },
+    "form": {
+      "button": "Reset password"
+    }
+  }
+}

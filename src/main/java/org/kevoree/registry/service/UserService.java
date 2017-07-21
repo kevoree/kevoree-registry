@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -61,36 +62,36 @@ public class UserService {
                     // activate given user for the registration key.
                     user.setActivated(true);
                     user.setActivationKey(null);
+                    userRepository.save(user);
                     log.debug("Activated user: {}", user);
                     return user;
                 });
     }
 
-//    public Optional<User> completePasswordReset(String newPassword, String key) {
-//        log.debug("Reset user password for reset key {}", key);
-//
-//        return userRepository.findOneByResetKey(key)
-//                .filter(user -> {
-//                    ZonedDateTime oneDayAgo = ZonedDateTime.now().minusHours(24);
-//                    return user.getResetDate().isAfter(oneDayAgo);
-//                })
-//                .map(user -> {
-//                    user.setPassword(passwordEncoder.encode(newPassword));
-//                    user.setResetKey(null);
-//                    user.setResetDate(null);
-//                    return user;
-//                });
-//    }
+    public Optional<User> completePasswordReset(String newPassword, String key) {
+        log.debug("Reset user password for reset key {}", key);
 
-//    public Optional<User> requestPasswordReset(String mail) {
-//        return userRepository.findOneByEmail(mail)
-//                .filter(User::getActivated)
-//                .map(user -> {
-//                    user.setResetKey(RandomUtil.generateResetKey());
-//                    user.setResetDate(ZonedDateTime.now());
-//                    return user;
-//                });
-//    }
+        return userRepository.findOneByResetKey(key)
+                .filter(user -> user.getResetDate().isAfter(Instant.now().minusSeconds(86400)))
+                .map(user -> {
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    user.setResetKey(null);
+                    user.setResetDate(null);
+                    userRepository.save(user);
+                    return user;
+                });
+    }
+
+    public Optional<User> requestPasswordReset(String mail) {
+        return userRepository.findOneByEmail(mail)
+                .filter(User::getActivated)
+                .map(user -> {
+                    user.setResetKey(RandomUtil.generateResetKey());
+                    user.setResetDate(Instant.now());
+                    userRepository.save(user);
+                    return user;
+                });
+    }
 
     @Transactional
     public User createUser(String login, String password, String firstName, String lastName, String email,

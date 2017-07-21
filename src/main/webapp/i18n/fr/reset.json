@@ -1,0 +1,24 @@
+{
+  "request": {
+    "title": "Réinitialisation de mot de passe",
+    "description": "Donnez-nous l'addresse e-mail utilisée par votre compte afin que nous réinitialisation votre mot de passe",
+    "form": {
+      "button": "Réinitialiser"
+    },
+    "messages": {
+      "success": "<strong>Mot de passe réinitialisé!</strong> Merci de vérifier votre e-mail de confirmation.",
+      "error": "<strong>Cet e-mail n'existe pas</strong> Vérifier l'e-mail fourni"
+    }
+  },
+  "finish": {
+    "title": "Password reset",
+    "messages": {
+      "info": "Choose a new password",
+      "error": "Your password couldn't be reset. Remember a password request is only valid for 24 hours.",
+      "success": "<strong>Your password has been reset.</strong> Please <a class=\"alert-link\" ui-sref=\"login\">log in</a>."
+    },
+    "form": {
+      "button": "Reset password"
+    }
+  }
+}

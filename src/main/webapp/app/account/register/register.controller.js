@@ -12,7 +12,7 @@ function RegisterController($translate, $timeout, Auth) {
   vm.doNotMatch = null;
   vm.errorUserExists = null;
   vm.registerAccount = {};
-  $timeout(function () { angular.element('[ng-model="registerAccount.login"]').focus(); });
+  $timeout(function () { angular.element('[ng-model="vm.registerAccount.login"]').focus(); });
 
   vm.register = function () {
     if (vm.registerAccount.password !== vm.confirmPassword) {
